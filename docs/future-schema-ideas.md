@@ -45,6 +45,40 @@ being able to point at ANY table, including OOB ones like `incident` —
 restricting the picker would have contradicted that. The cost (a long
 picker list) was judged acceptable.
 
+## Sub-spec 2: Counting
+
+**Roles/groups/system properties — considered counting them per-app via
+sys_scope.** Decided: exclude entirely from the per-app tally. Rejected
+because these are instance/security config, not app "components" the
+way a business rule is — groups have no per-app ownership concept at
+all, and counting roles/properties per-app would misrepresent what an
+app "contains" for the assessment narrative this tool is building
+toward. **Revisit if a future report section specifically wants
+security/config posture (not architecture) — that's a different kind of
+report section, not a reason to fold these into the existing per-app
+counts.**
+
+**Choices (`sys_choice`) — considered returning a `{sys_id, name}` list
+like every other bucket.** Decided: `GlideAggregate` COUNT only, no name
+list. Rejected the consistent-shape option because `sys_choice` is
+high-cardinality (every choice-list row for every field, per language)
+even scoped to one app — an in-memory name list here risks being large
+for busy apps for no real benefit (a choice list enumeration isn't as
+useful to a reader as a business-rule name list is).
+
+**Group B performance — considered always running all 7 dedicated
+queries in every scan mode, including `full`.** Decided: gate Group B
+off by default for `full` mode (on by default for `custom_only`/
+`manual`/`single_table`), with `x_335329_iscan.include_extended_counts_on_full_scan`
+(default `false`) as an opt-in escape hatch. Rejected "always run"
+because `full` mode can touch hundreds of apps, and 7 extra queries per
+app — one of them against a potentially large table (`sys_choice`) — is
+a real risk of scan timeouts on production instances, which cuts against
+this app's "safe read-only assessment tool" identity. **Revisit if
+real-world full scans turn out fast enough that the gate is unnecessary
+friction** — the property escape hatch already lets an admin who's
+verified their instance opt back in without a code change.
+
 **`profileTable()` field capture — considered adding a second, unscoped
 method (`profileTableFields()`) instead of changing the existing one.**
 Decided: change `profileTable()` itself to drop the `sys_scope` filter

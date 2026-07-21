@@ -287,6 +287,24 @@ already considered and rejected.
   `canRead()` gate passes — add to the same "verify before go-live" list
   as `sys_app.source`, the GenAI Controller API, and the PDF plugin name.
 
+**Counting (sub-spec 2 — design approved, not yet implemented):** full
+design at `docs/superpowers/specs/2026-07-21-counting-design.md`. Adds
+22 new `IntegerColumn`s to `x_335329_iscan_result` (15 "Group A" types
+folded into `IscanAppFilesScanner`'s existing single `sys_metadata`
+query via new `CLASS_BUCKETS` entries — free perf-wise; 7 "Group B"
+types needing their own dedicated per-app queries — real perf cost,
+gated off by default for `full` mode via a new
+`x_335329_iscan.include_extended_counts_on_full_scan` property), plus 2
+new columns on `x_335329_iscan_table` for a new "dictionary override"
+capability on `IscanTableScanner` (a field whose `sys_scope` differs
+from its table's owning scope — i.e. another app extended a table it
+doesn't own). Roles/groups/system properties are explicitly excluded —
+not per-app components. Several table/field names in the design (flow
+`type` values, `sysevent_in_email_action`, PA table scope fields,
+`sys_hub_action_type_definition`, `item_option_new`'s variable-set join)
+are flagged low-confidence and need verification against the real
+target instance before/while implementing.
+
 ## /caveman
 
 If the user invokes `/caveman`, switch to ultra-concise mode for the

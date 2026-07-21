@@ -144,6 +144,36 @@ export const x_335329_iscan_result = Table({
             label: 'Integration Count',
             default: 0,
         }),
+        // Group A — folded into IscanAppFilesScanner's existing single
+        // sys_metadata query via new CLASS_BUCKETS entries (see that
+        // file). Free performance-wise: same query, more buckets.
+        client_script_count: IntegerColumn({ label: 'Client Script Count', default: 0 }),
+        ui_policy_count: IntegerColumn({ label: 'UI Policy Count', default: 0 }),
+        scheduled_job_count: IntegerColumn({ label: 'Scheduled Job Count', default: 0 }),
+        notification_count: IntegerColumn({ label: 'Notification Count', default: 0 }),
+        scripted_rest_api_count: IntegerColumn({ label: 'Scripted REST API Count', default: 0 }),
+        transform_map_count: IntegerColumn({ label: 'Transform Map Count', default: 0 }),
+        catalog_item_count: IntegerColumn({ label: 'Catalog Item Count', default: 0 }),
+        workflow_count: IntegerColumn({ label: 'Workflow Count', default: 0 }),
+        subflow_count: IntegerColumn({ label: 'Subflow Count', default: 0 }),
+        atf_test_count: IntegerColumn({ label: 'ATF Test Count', default: 0 }),
+        report_count: IntegerColumn({ label: 'Report Count', default: 0 }),
+        fix_script_count: IntegerColumn({ label: 'Fix Script Count', default: 0 }),
+        processor_count: IntegerColumn({ label: 'Processor Count', default: 0 }),
+        data_policy_count: IntegerColumn({ label: 'Data Policy Count', default: 0 }),
+        inbound_email_action_count: IntegerColumn({ label: 'Inbound Email Action Count', default: 0 }),
+        // Group B — dedicated per-app queries, gated off by default for
+        // full-instance scans (see x_335329_iscan.include_extended_counts_on_full_scan
+        // and IscanScanOrchestrator._scanOneApp). Zero when not run, not
+        // "unknown" — a 0 for a mode/property combo that skips Group B
+        // is expected, not a bug.
+        catalog_variable_count: IntegerColumn({ label: 'Catalog Variable Count', default: 0 }),
+        dashboard_count: IntegerColumn({ label: 'Dashboard Count', default: 0 }),
+        pa_indicator_count: IntegerColumn({ label: 'PA Indicator Count', default: 0 }),
+        service_portal_count: IntegerColumn({ label: 'Service Portal Count', default: 0 }),
+        service_portal_widget_count: IntegerColumn({ label: 'Service Portal Widget Count', default: 0 }),
+        choice_count: IntegerColumn({ label: 'Choice Count', default: 0 }),
+        flow_action_count: IntegerColumn({ label: 'Flow Designer Action Count', default: 0 }),
         table_list: StringColumn({
             label: 'Table List',
             maxLength: 4000,
@@ -202,6 +232,15 @@ export const x_335329_iscan_table = Table({
         field_count: IntegerColumn({ label: 'Field Count' }),
         reference_field_list: StringColumn({
             label: 'Reference Field List',
+            maxLength: 4000,
+        }),
+        // Dictionary override: a field on this table whose OWN sys_scope
+        // differs from this table's owning scope — i.e. another app
+        // added a field to a table it doesn't own. See
+        // IscanTableScanner.profileTable()/_getAppAddedFields().
+        dictionary_override_count: IntegerColumn({ label: 'Dictionary Override Count', default: 0 }),
+        dictionary_override_list: StringColumn({
+            label: 'Dictionary Override List',
             maxLength: 4000,
         }),
     },
