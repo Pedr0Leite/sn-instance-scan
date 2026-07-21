@@ -40,7 +40,10 @@ IscanAppFilesScanner.prototype = {
 	 * @param {String} appScopeSysId
 	 * @returns {Object} {script_includes, business_rules, acls, ui_actions, flows}
 	 */
-	scanApp: function(appScopeSysId) {
+	scanApp: function(appScopeSysId, includeExtended) {
+		if (includeExtended === undefined) {
+			includeExtended = true;
+		}
 		var result = {
 			script_includes: [],
 			business_rules: [],
@@ -61,7 +64,14 @@ IscanAppFilesScanner.prototype = {
 			fix_scripts: [],
 			processors: [],
 			data_policies: [],
-			inbound_email_actions: []
+			inbound_email_actions: [],
+			dashboards: [],
+			pa_indicators: [],
+			service_portals: [],
+			service_portal_widgets: [],
+			flow_actions: [],
+			catalog_variables: [],
+			choice_count: 0
 		};
 
 		var meta = new GlideRecord('sys_metadata');
@@ -87,8 +97,96 @@ IscanAppFilesScanner.prototype = {
 			});
 		}
 
+		if (includeExtended) {
+			result.dashboards = this._scanSimpleScopedTable(appScopeSysId, 'pa_dashboards');
+			result.pa_indicators = this._scanSimpleScopedTable(appScopeSysId, 'pa_indicators');
+			result.service_portals = this._scanSimpleScopedTable(appScopeSysId, 'sp_portal');
+			result.service_portal_widgets = this._scanSimpleScopedTable(appScopeSysId, 'sp_widget');
+			// Table name needs verification against a real instance.
+			result.flow_actions = this._scanSimpleScopedTable(appScopeSysId, 'sys_hub_action_type_definition');
+			result.catalog_variables = this._scanCatalogVariables(appScopeSysId);
+			result.choice_count = this._countChoices(appScopeSysId);
+		}
+
 		this._logBucketCounts(appScopeSysId, result);
 		return result;
+	},
+
+	/**
+	 * Group B helper: {sys_id, name} list for any table that carries a
+	 * direct sys_scope field. Covers dashboards, PA indicators, service
+	 * portals/widgets, and Flow Designer custom action definitions — all
+	 * share this exact query shape.
+	 * @param {String} appScopeSysId
+	 * @param {String} tableName
+	 * @returns {Array} [{sys_id, name}]
+	 */
+	_scanSimpleScopedTable: function(appScopeSysId, tableName) {
+		var items = [];
+		var gr = new GlideRecord(tableName);
+		if (!gr.isValid()) {
+			return items;
+		}
+		gr.addQuery('sys_scope', appScopeSysId);
+		gr.query();
+		while (gr.next()) {
+			items.push({
+				sys_id: gr.getUniqueValue(),
+				name: gr.getValue('name') || gr.getValue('sys_name') || ''
+			});
+		}
+		return items;
+	},
+
+	/**
+	 * item_option_new (catalog variables) has no sys_scope of its own —
+	 * a variable belongs to an app's scope either directly (cat_item ->
+	 * sc_cat_item.sys_scope) or via a shared variable set (variable_set
+	 * -> that variable set's own sys_scope). Dot-walk generates the join
+	 * server-side in one query.
+	 *
+	 * KNOWN LIMITATION, not a bug: a variable set shared across multiple
+	 * catalog items in the same app could be visited more than once
+	 * depending on exact join semantics — acceptable for a rough
+	 * architecture tally. variable_set's exact field name/join shape
+	 * needs verification against a real instance.
+	 * @param {String} appScopeSysId
+	 * @returns {Array} [{sys_id, name}]
+	 */
+	_scanCatalogVariables: function(appScopeSysId) {
+		var vars = [];
+		var gr = new GlideRecord('item_option_new');
+		if (!gr.isValid()) {
+			return vars;
+		}
+		var qc = gr.addQuery('cat_item.sys_scope', appScopeSysId);
+		qc.addOrCondition('variable_set.sys_scope', appScopeSysId);
+		gr.query();
+		while (gr.next()) {
+			vars.push({
+				sys_id: gr.getUniqueValue(),
+				name: gr.getValue('name') || ''
+			});
+		}
+		return vars;
+	},
+
+	/**
+	 * sys_choice is high-cardinality (one row per choice value per field
+	 * per language) even scoped to one app — count-only, no name list,
+	 * unlike every other bucket. GlideAggregate, never getRowCount().
+	 * @param {String} appScopeSysId
+	 * @returns {Number}
+	 */
+	_countChoices: function(appScopeSysId) {
+		var ga = new GlideAggregate('sys_choice');
+		ga.addQuery('sys_scope', appScopeSysId);
+		ga.addAggregate('COUNT');
+		ga.query();
+		if (ga.next()) {
+			return parseInt(ga.getAggregate('COUNT'), 10) || 0;
+		}
+		return 0;
 	},
 
 	/**
