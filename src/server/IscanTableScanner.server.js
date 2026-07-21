@@ -72,7 +72,7 @@ IscanTableScanner.prototype = {
 			if (fields[i].internal_type === 'reference') {
 				referenceFields.push(fields[i].name + '->' + fields[i].reference);
 			}
-			if (fields[i].sys_scope && fields[i].sys_scope !== tableOwningScope) {
+			if (tableOwningScope && fields[i].sys_scope && fields[i].sys_scope !== tableOwningScope) {
 				dictionaryOverrides.push({ name: fields[i].name, scope: fields[i].sys_scope });
 			}
 		}

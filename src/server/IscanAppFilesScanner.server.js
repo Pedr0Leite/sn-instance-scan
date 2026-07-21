@@ -35,10 +35,16 @@ IscanAppFilesScanner.prototype = {
 
 	/**
 	 * Enumerates an app's script includes, business rules, ACLs, UI
-	 * actions and flows via a single sys_metadata query, bucketed by
-	 * sys_class_name in memory.
+	 * actions, flows, and ~20 more artifact types via a single
+	 * sys_metadata query (Group A), plus (when includeExtended is true)
+	 * ~7 more artifact types needing their own dedicated queries
+	 * (Group B) — see CLASS_BUCKETS and the Group B helper methods below.
 	 * @param {String} appScopeSysId
-	 * @returns {Object} {script_includes, business_rules, acls, ui_actions, flows}
+	 * @param {Boolean} [includeExtended] - whether to also run Group B's
+	 *   dedicated queries. Defaults to true if omitted.
+	 * @returns {Object} one array (or, for choice_count, a Number) per
+	 *   artifact type — see the CLASS_BUCKETS values and Group B keys for
+	 *   the full list of object keys.
 	 */
 	scanApp: function(appScopeSysId, includeExtended) {
 		if (includeExtended === undefined) {
@@ -98,7 +104,9 @@ IscanAppFilesScanner.prototype = {
 		}
 
 		if (includeExtended) {
+			// PA tables may not carry a direct sys_scope field on all instance versions — needs verification.
 			result.dashboards = this._scanSimpleScopedTable(appScopeSysId, 'pa_dashboards');
+			// PA tables may not carry a direct sys_scope field on all instance versions — needs verification.
 			result.pa_indicators = this._scanSimpleScopedTable(appScopeSysId, 'pa_indicators');
 			result.service_portals = this._scanSimpleScopedTable(appScopeSysId, 'sp_portal');
 			result.service_portal_widgets = this._scanSimpleScopedTable(appScopeSysId, 'sp_widget');
