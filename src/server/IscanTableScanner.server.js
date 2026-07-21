@@ -58,7 +58,7 @@ IscanTableScanner.prototype = {
 	 * gets a complete picture. This widens field_count/reference_field_list
 	 * for all 4 scan modes, not just Single Table — see CLAUDE.md.
 	 * @param {String} tableName
-	 * @returns {Object} {row_count, fields, reference_fields}
+	 * @returns {Object} {row_count, fields, reference_fields, dictionary_overrides, dictionary_override_count}
 	 */
 	profileTable: function(tableName) {
 		gs.info('IscanTableScanner.profileTable: profiling table=' + tableName);
