@@ -65,17 +65,24 @@ IscanTableScanner.prototype = {
 		var rowCount = this._countRows(tableName);
 		var fields = this._getAppAddedFields(tableName);
 		var referenceFields = [];
+		var tableOwningScope = this._getTableOwningScope(tableName);
+		var dictionaryOverrides = [];
 
 		for (var i = 0; i < fields.length; i++) {
 			if (fields[i].internal_type === 'reference') {
 				referenceFields.push(fields[i].name + '->' + fields[i].reference);
+			}
+			if (fields[i].sys_scope && fields[i].sys_scope !== tableOwningScope) {
+				dictionaryOverrides.push({ name: fields[i].name, scope: fields[i].sys_scope });
 			}
 		}
 
 		return {
 			row_count: rowCount,
 			fields: fields,
-			reference_fields: referenceFields
+			reference_fields: referenceFields,
+			dictionary_overrides: dictionaryOverrides,
+			dictionary_override_count: dictionaryOverrides.length
 		};
 	},
 
@@ -92,9 +99,12 @@ IscanTableScanner.prototype = {
 	},
 
 	/**
-	 * Every field on tableName, regardless of which scope added it.
+	 * Every field on tableName, regardless of which scope added it. Also
+	 * captures each field's own sys_scope so profileTable() can flag
+	 * dictionary overrides (a field whose scope differs from the
+	 * table's own owning scope).
 	 * @param {String} tableName
-	 * @returns {Array} [{name, internal_type, reference}]
+	 * @returns {Array} [{name, internal_type, reference, sys_scope}]
 	 */
 	_getAppAddedFields: function(tableName) {
 		var fields = [];
@@ -107,10 +117,28 @@ IscanTableScanner.prototype = {
 			fields.push({
 				name: dict.getValue('element'),
 				internal_type: dict.getValue('internal_type'),
-				reference: dict.getValue('reference')
+				reference: dict.getValue('reference'),
+				sys_scope: dict.getValue('sys_scope')
 			});
 		}
 		return fields;
+	},
+
+	/**
+	 * Resolves a table's own owning scope by name. Self-contained rather
+	 * than threaded in as a parameter — profileTable() is deliberately
+	 * scope-agnostic (see its own doc comment) so it keeps working for
+	 * Single Table mode's OOB case; this is the one extra lookup needed
+	 * to compare a field's scope against its table's scope.
+	 * @param {String} tableName
+	 * @returns {String} sys_scope sys_id, or '' if not found
+	 */
+	_getTableOwningScope: function(tableName) {
+		var db = new GlideRecord('sys_db_object');
+		db.addQuery('name', tableName);
+		db.setLimit(1);
+		db.query();
+		return db.next() ? db.getValue('sys_scope') : '';
 	},
 
 	_resolveSuperClassChain: function(dbObjectGr, maxDepth) {
