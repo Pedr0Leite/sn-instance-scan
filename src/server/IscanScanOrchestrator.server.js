@@ -199,7 +199,9 @@ IscanScanOrchestrator.prototype = {
                 ' row_count=' +
                 profile.row_count +
                 ' field_count=' +
-                profile.fields.length
+                profile.fields.length +
+                ' dictionary_override_count=' +
+                profile.dictionary_override_count
         )
         this._appendActivity(
             run,
@@ -212,7 +214,10 @@ IscanScanOrchestrator.prototype = {
                 ' field(s), ' +
                 profile.reference_fields.length +
                 ' reference field(s): ' +
-                (profile.reference_fields.length ? profile.reference_fields.join(', ') : 'none')
+                (profile.reference_fields.length ? profile.reference_fields.join(', ') : 'none') +
+                ', ' +
+                profile.dictionary_override_count +
+                ' dictionary override(s).'
         )
     },
 
@@ -342,13 +347,38 @@ IscanScanOrchestrator.prototype = {
         // scanApp() returns {sys_id, name} objects per bucket, so it is
         // already the source for BOTH the counts (via .length, exactly as
         // in v1 — do not change this) and the names the v2 briefing needs.
-        var files = this.appFilesScanner.scanApp(appSysId)
+        var scanMode = run.getValue('scan_mode')
+        var includeExtended =
+            scanMode !== 'full' || gs.getProperty('x_335329_iscan.include_extended_counts_on_full_scan', 'false') === 'true'
+        var files = this.appFilesScanner.scanApp(appSysId, includeExtended)
         var automationCounts = {
             business_rules: files.business_rules.length,
             script_includes: files.script_includes.length,
             acls: files.acls.length,
             ui_actions: files.ui_actions.length,
             flows: files.flows.length,
+            client_scripts: files.client_scripts.length,
+            ui_policies: files.ui_policies.length,
+            scheduled_jobs: files.scheduled_jobs.length,
+            notifications: files.notifications.length,
+            scripted_rest_apis: files.scripted_rest_apis.length,
+            transform_maps: files.transform_maps.length,
+            catalog_items: files.catalog_items.length,
+            workflows: files.workflows.length,
+            subflows: files.subflows.length,
+            atf_tests: files.atf_tests.length,
+            reports: files.reports.length,
+            fix_scripts: files.fix_scripts.length,
+            processors: files.processors.length,
+            data_policies: files.data_policies.length,
+            inbound_email_actions: files.inbound_email_actions.length,
+            dashboards: files.dashboards.length,
+            pa_indicators: files.pa_indicators.length,
+            service_portals: files.service_portals.length,
+            service_portal_widgets: files.service_portal_widgets.length,
+            flow_actions: files.flow_actions.length,
+            catalog_variables: files.catalog_variables.length,
+            choices: files.choice_count,
         }
 
         if (canAccess) {
@@ -379,6 +409,28 @@ IscanScanOrchestrator.prototype = {
         result.setValue('acl_count', automationCounts.acls)
         result.setValue('ui_action_count', automationCounts.ui_actions)
         result.setValue('integration_count', integrationCount)
+        result.setValue('client_script_count', automationCounts.client_scripts)
+        result.setValue('ui_policy_count', automationCounts.ui_policies)
+        result.setValue('scheduled_job_count', automationCounts.scheduled_jobs)
+        result.setValue('notification_count', automationCounts.notifications)
+        result.setValue('scripted_rest_api_count', automationCounts.scripted_rest_apis)
+        result.setValue('transform_map_count', automationCounts.transform_maps)
+        result.setValue('catalog_item_count', automationCounts.catalog_items)
+        result.setValue('workflow_count', automationCounts.workflows)
+        result.setValue('subflow_count', automationCounts.subflows)
+        result.setValue('atf_test_count', automationCounts.atf_tests)
+        result.setValue('report_count', automationCounts.reports)
+        result.setValue('fix_script_count', automationCounts.fix_scripts)
+        result.setValue('processor_count', automationCounts.processors)
+        result.setValue('data_policy_count', automationCounts.data_policies)
+        result.setValue('inbound_email_action_count', automationCounts.inbound_email_actions)
+        result.setValue('dashboard_count', automationCounts.dashboards)
+        result.setValue('pa_indicator_count', automationCounts.pa_indicators)
+        result.setValue('service_portal_count', automationCounts.service_portals)
+        result.setValue('service_portal_widget_count', automationCounts.service_portal_widgets)
+        result.setValue('choice_count', automationCounts.choices)
+        result.setValue('flow_action_count', automationCounts.flow_actions)
+        result.setValue('catalog_variable_count', automationCounts.catalog_variables)
         result.setValue('table_list', this._tableNames(tables).join(','))
 
         var runFacts = {
@@ -473,6 +525,8 @@ IscanScanOrchestrator.prototype = {
             tables[i].row_count = profile.row_count
             tables[i].fields = profile.fields
             tables[i].reference_fields = profile.reference_fields
+            tables[i].dictionary_overrides = profile.dictionary_overrides
+            tables[i].dictionary_override_count = profile.dictionary_override_count
         }
         return tables
     },
@@ -488,6 +542,11 @@ IscanScanOrchestrator.prototype = {
             tableRow.setValue('row_count', tables[i].row_count)
             tableRow.setValue('field_count', tables[i].fields.length)
             tableRow.setValue('reference_field_list', tables[i].reference_fields.join(','))
+            tableRow.setValue('dictionary_override_count', tables[i].dictionary_override_count)
+            tableRow.setValue(
+                'dictionary_override_list',
+                tables[i].dictionary_overrides.map(function (o) { return o.name + '(' + o.scope + ')' }).join(',')
+            )
             tableRow.insert()
             gs.info(
                 'IscanScanOrchestrator._writeTableProfiles: table=' +
@@ -495,7 +554,9 @@ IscanScanOrchestrator.prototype = {
                     ' row_count=' +
                     tables[i].row_count +
                     ' field_count=' +
-                    tables[i].fields.length
+                    tables[i].fields.length +
+                    ' dictionary_override_count=' +
+                    tables[i].dictionary_override_count
             )
         }
     },
