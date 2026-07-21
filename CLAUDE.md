@@ -202,7 +202,7 @@ wants a note created/appended there.
   plugin name) are flagged inline in code comments and in `DEPLOY.md` —
   verify against the real target instance before go-live, don't assume.
 
-## Planned: instance-assessment extension (in design)
+## Instance-assessment extension (in progress)
 
 Being brainstormed as of 2026-07-21, sequenced as 4 sub-specs: **Modes →
 Counting → Cross-refs → Report**. Roads-not-taken and schema
@@ -210,7 +210,7 @@ alternatives for each sub-spec are logged in `docs/future-schema-ideas.md`
 as they're decided — check there before re-proposing an option that was
 already considered and rejected.
 
-**Modes (sub-spec 1, schema decided so far):**
+**Modes (sub-spec 1 — IMPLEMENTED):**
 - `x_335329_iscan_run.scan_mode` gains a 4th value: `single_table`
   (label "Manual — Single Table"), alongside `full`, `custom_only`, and
   `manual` (relabeled "Manual — App").
@@ -244,7 +244,7 @@ already considered and rejected.
   `profileTable()` call but keeps its own `appScopeSysId` param (still
   needed for `getOwnedTables()`).
 
-**Modes (sub-spec 1, orchestrator/ACL/UI wiring, decided so far):**
+**Modes (sub-spec 1 — implementation notes):**
 - `IscanAppSelector` is untouched by the `target_app`/`manual_app_list`
   precedence logic — that precedence check (target_app wins when set)
   lives entirely in `RunScanUiAction.server.js`, which resolves to a

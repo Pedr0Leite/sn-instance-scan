@@ -16,8 +16,9 @@ See `CLAUDE.md` for how the two repos relate.
 
 ## How it works
 
-1. Pick a scan scope: full instance, custom apps only, one manual app, or
-   (planned) a single table.
+1. Pick a scan scope: full instance, custom apps only, one manual app
+   (via Target App or the legacy Manual App List), or a single table
+   (Manual — Single Table mode).
 2. For each app, try reading `sys_db_object`/`sys_dictionary` directly
    (table names, row counts via `GlideAggregate`, fields, references). If
    the running user lacks access, fall back to `sys_metadata` (script
