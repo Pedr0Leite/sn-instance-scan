@@ -200,7 +200,8 @@ IscanAppFilesScanner.prototype = {
 		var parts = [];
 		for (var bucket in result) {
 			if (result.hasOwnProperty(bucket)) {
-				parts.push(bucket + '=' + result[bucket].length);
+				var value = Array.isArray(result[bucket]) ? result[bucket].length : result[bucket];
+				parts.push(bucket + '=' + value);
 			}
 		}
 		gs.info('IscanAppFilesScanner.scanApp: appScope=' + appScopeSysId + ' ' + parts.join(' '));
