@@ -287,7 +287,7 @@ already considered and rejected.
   `canRead()` gate passes — add to the same "verify before go-live" list
   as `sys_app.source`, the GenAI Controller API, and the PDF plugin name.
 
-**Counting (sub-spec 2 — design approved, not yet implemented):** full
+**Counting (sub-spec 2 — IMPLEMENTED):** full
 design at `docs/superpowers/specs/2026-07-21-counting-design.md`. Adds
 22 new `IntegerColumn`s to `x_335329_iscan_result` (15 "Group A" types
 folded into `IscanAppFilesScanner`'s existing single `sys_metadata`
