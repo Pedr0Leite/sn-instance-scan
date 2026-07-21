@@ -23,6 +23,7 @@ IscanAppFilesScanner.prototype = {
 			sc_cat_item: 'catalog_items',
 			sys_atf_test: 'atf_tests',
 			sys_report: 'reports',
+			wf_workflow: 'workflows',
 			sys_script_fix: 'fix_scripts',
 			sys_processor: 'processors',
 			sys_data_policy2: 'data_policies',
