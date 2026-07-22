@@ -86,6 +86,64 @@ IscanTableScanner.prototype = {
 		};
 	},
 
+	/**
+	 * Whole-instance search: every field, on ANY table, whose `reference`
+	 * points at tableName — i.e. who depends on this table. Not limited
+	 * to apps in the current scan run; deliberately unconditional in
+	 * every scan mode (one indexed sys_dictionary query per table, not
+	 * per app — cheap enough that it isn't gated like Counting's Group B).
+	 * @param {String} tableName
+	 * @returns {Array} [{referencing_table, referencing_field, referencing_app, referencing_scope}]
+	 */
+	findInboundReferences: function(tableName) {
+		var inbound = [];
+		var appCache = {};
+		var dict = new GlideRecord('sys_dictionary');
+		dict.addQuery('reference', tableName);
+		dict.addNotNullQuery('element');
+		dict.query();
+
+		while (dict.next()) {
+			var referencingTable = dict.getValue('name');
+			if (!appCache.hasOwnProperty(referencingTable)) {
+				appCache[referencingTable] = this._resolveTableApp(referencingTable);
+			}
+			var resolved = appCache[referencingTable];
+			inbound.push({
+				referencing_table: referencingTable,
+				referencing_field: dict.getValue('element'),
+				referencing_app: resolved.app,
+				referencing_scope: resolved.scope
+			});
+		}
+
+		gs.info('IscanTableScanner.findInboundReferences: table=' + tableName + ' found ' + inbound.length + ' inbound reference(s)');
+		return inbound;
+	},
+
+	/**
+	 * Resolves a table's owning app, if any. Same two-step lookup
+	 * (sys_db_object.sys_scope -> sys_app.get(scope)) already used by
+	 * IscanScanOrchestrator._resolveSingleTableApp for Single Table
+	 * mode's OOB case — duplicated here rather than shared, since that
+	 * orchestrator method's job is resolving the SCAN TARGET's app,
+	 * while this one resolves an arbitrary REFERENCING table's app
+	 * found during a dictionary search; different callers, same shape.
+	 * @param {String} tableName
+	 * @returns {Object} {app, scope} - app is '' when no sys_app record exists for the scope
+	 */
+	_resolveTableApp: function(tableName) {
+		var scope = this._getTableOwningScope(tableName);
+		var appSysId = '';
+		if (scope) {
+			var app = new GlideRecord('sys_app');
+			if (app.get(scope)) {
+				appSysId = app.getUniqueValue();
+			}
+		}
+		return { app: appSysId, scope: scope };
+	},
+
 	_countRows: function(tableName) {
 		// GlideAggregate COUNT, never GlideRecord.getRowCount() — cheaper
 		// even though it's still a full index scan on very large tables.
