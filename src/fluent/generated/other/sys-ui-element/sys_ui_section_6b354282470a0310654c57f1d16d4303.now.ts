@@ -100,12 +100,44 @@ Record({
         sys_ui_section: '6b354282470a0310654c57f1d16d4303',
     },
 })
+// target_app — the Manual — App mode picker (reference to sys_app).
+// Hidden by default and shown only for scan_mode=manual via the
+// manualAppVisibilityPolicy UI policy. This element MUST exist on the
+// form for that policy to have anything to toggle — the field being a
+// table column alone is not enough.
 Record({
-    $id: Now.ID['a662e3da474ac310654c57f1d16d4383'],
+    $id: Now.ID['iscan_form_target_app'],
     table: 'sys_ui_element',
     data: {
-        element: 'activities',
+        element: 'target_app',
         position: 11,
+        sys_ui_section: '6b354282470a0310654c57f1d16d4303',
+    },
+})
+// target_table — the Manual — Single Table mode picker (reference to
+// sys_db_object). Hidden by default, shown only for
+// scan_mode=single_table via singleTableVisibilityPolicy.
+Record({
+    $id: Now.ID['iscan_form_target_table'],
+    table: 'sys_ui_element',
+    data: {
+        element: 'target_table',
+        position: 12,
+        sys_ui_section: '6b354282470a0310654c57f1d16d4303',
+    },
+})
+// comments — the Journal input field, replacing the raw `activities`
+// String textarea on the form (activities is still written and stays
+// queryable, it's just no longer shown as a big textarea). This gives
+// the Incident-style "Additional comments" input box; paired with the
+// activity.xml formatter below it renders the same Activity stream
+// Incident uses.
+Record({
+    $id: Now.ID['iscan_form_comments'],
+    table: 'sys_ui_element',
+    data: {
+        element: 'comments',
+        position: 13,
         sys_ui_section: '6b354282470a0310654c57f1d16d4303',
     },
 })
@@ -114,7 +146,7 @@ Record({
     table: 'sys_ui_element',
     data: {
         element: 'activity.xml',
-        position: 12,
+        position: 14,
         sys_ui_formatter: '444ea5c6bf310100e628555b3f0739d6',
         sys_ui_section: '6b354282470a0310654c57f1d16d4303',
         type: 'formatter',

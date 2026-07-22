@@ -498,6 +498,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_ui_element'
+                        id: '1ccac436218d4319aa77117574905a9b'
+                        key: {
+                            sys_ui_section: '6b354282470a0310654c57f1d16d4303'
+                            element: 'target_app'
+                            position: '11'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: '1eea5c69d8f3480da7fe22c6d961a658'
                         key: {
@@ -1736,6 +1745,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_ui_element'
+                        id: '9dc0b286476a4e0584fc4c7b15cbaaa1'
+                        key: {
+                            sys_ui_section: '6b354282470a0310654c57f1d16d4303'
+                            element: 'comments'
+                            position: '13'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: '9e0a0e5465164016b75550659ea8a5e1'
                         key: {
@@ -1786,7 +1804,17 @@ declare global {
                     },
                     {
                         table: 'sys_ui_element'
+                        id: 'a3eeaa86441c4972a6b31e66d978cf3e'
+                        key: {
+                            sys_ui_section: '6b354282470a0310654c57f1d16d4303'
+                            element: 'target_table'
+                            position: '12'
+                        }
+                    },
+                    {
+                        table: 'sys_ui_element'
                         id: 'a662e3da474ac310654c57f1d16d4383'
+                        deleted: true
                         key: {
                             sys_ui_section: {
                                 id: '6b354282470a0310654c57f1d16d4303'
