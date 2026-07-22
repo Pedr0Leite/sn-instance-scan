@@ -230,6 +230,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 	_buildResultReportHtml: function(result) {
 		var parts = [];
 		parts.push('<h1>sn-instance-scan — ' + this._esc(result.getDisplayValue('app')) + '</h1>');
+		parts.push(this._renderStatusDetail(this._computeStatusFlags(result)));
 		parts.push('<p><b>Scan date:</b> ' + this._esc(result.getDisplayValue('scan_date')) +
 			' &nbsp; <b>Scan mode used:</b> ' + this._esc(result.getValue('scan_mode_used')) + '</p>');
 		parts.push('<p><a href="' + this._recordUrl('x_335329_iscan_result', result.getUniqueValue()) +
@@ -252,6 +253,42 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		parts.push('<li>Integrations referencing this scope: ' + this._esc(result.getValue('integration_count')) + '</li>');
 		parts.push('</ul>');
 
+		var extendedCountFields = [
+			{ label: 'Client scripts', field: 'client_script_count' },
+			{ label: 'UI policies', field: 'ui_policy_count' },
+			{ label: 'Scheduled jobs', field: 'scheduled_job_count' },
+			{ label: 'Notifications', field: 'notification_count' },
+			{ label: 'Scripted REST APIs', field: 'scripted_rest_api_count' },
+			{ label: 'Transform maps', field: 'transform_map_count' },
+			{ label: 'Catalog items', field: 'catalog_item_count' },
+			{ label: 'Workflows', field: 'workflow_count' },
+			{ label: 'Subflows', field: 'subflow_count' },
+			{ label: 'ATF tests', field: 'atf_test_count' },
+			{ label: 'Reports', field: 'report_count' },
+			{ label: 'Fix scripts', field: 'fix_script_count' },
+			{ label: 'Processors', field: 'processor_count' },
+			{ label: 'Data policies', field: 'data_policy_count' },
+			{ label: 'Inbound email actions', field: 'inbound_email_action_count' },
+			{ label: 'Dashboards', field: 'dashboard_count' },
+			{ label: 'PA indicators', field: 'pa_indicator_count' },
+			{ label: 'Service portals', field: 'service_portal_count' },
+			{ label: 'Service portal widgets', field: 'service_portal_widget_count' },
+			{ label: 'Choices', field: 'choice_count' },
+			{ label: 'Flow Designer actions', field: 'flow_action_count' },
+			{ label: 'Catalog variables', field: 'catalog_variable_count' }
+		];
+		var extendedItems = [];
+		for (var e = 0; e < extendedCountFields.length; e++) {
+			var count = parseInt(result.getValue(extendedCountFields[e].field), 10) || 0;
+			if (count > 0) {
+				extendedItems.push('<li>' + extendedCountFields[e].label + ': ' + this._esc(count) + '</li>');
+			}
+		}
+		if (extendedItems.length) {
+			parts.push('<h2>Extended counts</h2>');
+			parts.push('<ul>' + extendedItems.join('') + '</ul>');
+		}
+
 		if (result.getValue('summary_text')) {
 			parts.push('<h2>Architecture summary</h2>');
 			parts.push('<div>' + result.getValue('summary_text') + '</div>');
@@ -267,7 +304,8 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		} else {
 			parts.push('<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;width:100%">');
 			parts.push('<tr><th>Table</th><th>Extends</th><th>Well-Known Base</th>' +
-				'<th>Row Count</th><th>Field Count</th><th>Reference Fields</th></tr>');
+				'<th>Row Count</th><th>Field Count</th><th>Reference Fields</th>' +
+				'<th>Dictionary Overrides</th><th>Inbound References</th></tr>');
 			while (tableRow.next()) {
 				parts.push('<tr>');
 				parts.push('<td><a href="' + this._recordUrl('x_335329_iscan_table', tableRow.getUniqueValue()) +
@@ -277,6 +315,26 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 				parts.push('<td>' + this._esc(tableRow.getValue('row_count')) + '</td>');
 				parts.push('<td>' + this._esc(tableRow.getValue('field_count')) + '</td>');
 				parts.push('<td>' + this._esc(tableRow.getValue('reference_field_list')) + '</td>');
+				parts.push('<td>' + this._esc(tableRow.getValue('dictionary_override_count')) + '</td>');
+				parts.push('<td>' + this._esc(tableRow.getValue('inbound_reference_count')) + '</td>');
+				parts.push('</tr>');
+			}
+			parts.push('</table>');
+		}
+
+		var crossrefRow = new GlideRecord('x_335329_iscan_crossref');
+		crossrefRow.addQuery('table.result', result.getUniqueValue());
+		crossrefRow.query();
+		if (crossrefRow.hasNext()) {
+			parts.push('<h2>Cross-references</h2>');
+			parts.push('<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;width:100%">');
+			parts.push('<tr><th>Table</th><th>Referencing Table</th><th>Referencing Field</th><th>Referencing App</th></tr>');
+			while (crossrefRow.next()) {
+				parts.push('<tr>');
+				parts.push('<td>' + this._esc(crossrefRow.getDisplayValue('table')) + '</td>');
+				parts.push('<td>' + this._esc(crossrefRow.getValue('referencing_table')) + '</td>');
+				parts.push('<td>' + this._esc(crossrefRow.getValue('referencing_field')) + '</td>');
+				parts.push('<td>' + this._esc(crossrefRow.getDisplayValue('referencing_app') || 'N/A') + '</td>');
 				parts.push('</tr>');
 			}
 			parts.push('</table>');
