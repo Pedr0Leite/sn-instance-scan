@@ -243,12 +243,52 @@ export const x_335329_iscan_table = Table({
             label: 'Dictionary Override List',
             maxLength: 4000,
         }),
+        // Inbound reference: a field on ANY table elsewhere in the
+        // instance whose `reference` points AT this table — i.e. who
+        // depends on me. Whole-instance search, not limited to apps in
+        // the current scan run. See IscanTableScanner.findInboundReferences().
+        inbound_reference_count: IntegerColumn({ label: 'Inbound Reference Count', default: 0 }),
+        inbound_reference_list: StringColumn({
+            label: 'Inbound Reference List',
+            maxLength: 4000,
+        }),
     },
     index: [
         {
             name: 'index',
             unique: false,
             element: 'result',
+        },
+    ],
+})
+
+export const x_335329_iscan_crossref = Table({
+    name: 'x_335329_iscan_crossref',
+    label: 'Instance Scan Cross-Reference',
+    display: 'referencing_table',
+    schema: {
+        table: ReferenceColumn({
+            label: 'Table',
+            referenceTable: 'x_335329_iscan_table',
+            mandatory: true,
+        }),
+        referencing_table: StringColumn({ label: 'Referencing Table', maxLength: 80 }),
+        referencing_field: StringColumn({ label: 'Referencing Field', maxLength: 80 }),
+        // Blank when the referencing table's owning scope has no sys_app
+        // record (global/OOB referencing tables) — a blank reference
+        // here is expected, not a bug, same precedent as Counting's
+        // Group B zero-counts.
+        referencing_app: ReferenceColumn({
+            label: 'Referencing App',
+            referenceTable: 'sys_app',
+        }),
+        referencing_scope: StringColumn({ label: 'Referencing Scope', maxLength: 32 }),
+    },
+    index: [
+        {
+            name: 'index',
+            unique: false,
+            element: 'table',
         },
     ],
 })
