@@ -10,6 +10,10 @@ IscanAppSelector.prototype = {
 
 	/**
 	 * Full scan — every application in sys_app.
+	 * @deprecated kept for callers that want the narrower sys_app-only
+	 * behavior; IscanScanOrchestrator's 'full' mode now calls
+	 * getFullScanScopes() instead, per the original spec's "every
+	 * application/scope on the instance" intent.
 	 * @returns {Array} array of sys_app sys_ids
 	 */
 	getFullScanApps: function() {
@@ -21,6 +25,61 @@ IscanAppSelector.prototype = {
 		}
 		gs.info('IscanAppSelector.getFullScanApps: resolved ' + ids.length + ' app(s)');
 		return ids;
+	},
+
+	/**
+	 * True full-instance scan — every scope on the instance, not just
+	 * ones with a sys_app record. sys_app is Studio/App Manager's
+	 * registry (custom + store-installed apps); most OOB plugin scopes
+	 * never get a sys_app record at all, so a sys_app-only scan misses
+	 * them entirely. For each sys_scope row: if a sys_app record exists,
+	 * it goes through the normal per-app pipeline (returned in appIds);
+	 * otherwise its owned tables get the same table-only fallback profile
+	 * Single Table mode already uses for OOB tables (returned as flat
+	 * table names in tableOnlyTables — no grouping by scope needed, since
+	 * IscanScanOrchestrator._scanOneTable() only needs a table name).
+	 *
+	 * The literal 'global' scope is deliberately excluded from the
+	 * fallback: global owns the entire base table set (thousands of
+	 * tables), and it isn't a coherent "app" to profile table-by-table —
+	 * scanning it would flood run.activities with table-only entries for
+	 * platform internals with no corresponding app, which was never the
+	 * ask. Every other scope (custom, store, or bare OOB plugin) is
+	 * covered by one of the two branches below.
+	 * @returns {Object} {appIds: Array, tableOnlyTables: Array}
+	 */
+	getFullScanScopes: function() {
+		var appIds = [];
+		var tableOnlyTables = [];
+
+		var scope = new GlideRecord('sys_scope');
+		scope.query();
+		while (scope.next()) {
+			var scopeSysId = scope.getUniqueValue();
+			if (scope.getValue('scope') === 'global') {
+				continue;
+			}
+
+			var app = new GlideRecord('sys_app');
+			if (app.get(scopeSysId)) {
+				appIds.push(scopeSysId);
+				continue;
+			}
+
+			var tables = new GlideRecord('sys_db_object');
+			tables.addQuery('sys_scope', scopeSysId);
+			tables.query();
+			while (tables.next()) {
+				tableOnlyTables.push(tables.getValue('name'));
+			}
+		}
+
+		gs.info(
+			'IscanAppSelector.getFullScanScopes: resolved ' + appIds.length +
+				' app(s) and ' + tableOnlyTables.length +
+				' table-only fallback table(s) across scopes with no owning sys_app record'
+		);
+		return { appIds: appIds, tableOnlyTables: tableOnlyTables };
 	},
 
 	/**

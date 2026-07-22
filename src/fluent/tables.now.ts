@@ -174,6 +174,16 @@ export const x_335329_iscan_result = Table({
         service_portal_widget_count: IntegerColumn({ label: 'Service Portal Widget Count', default: 0 }),
         choice_count: IntegerColumn({ label: 'Choice Count', default: 0 }),
         flow_action_count: IntegerColumn({ label: 'Flow Designer Action Count', default: 0 }),
+        // Per the original v3 spec (roles/groups/system properties should
+        // be counted per scope). group_count relies on sys_user_group
+        // carrying a sys_scope field, which stock ServiceNow does NOT
+        // provide (groups aren't scoped metadata) -- flagged low-confidence,
+        // see IscanAppFilesScanner._countScopedRecords()'s field-existence
+        // guard, which returns 0 rather than silently counting every row
+        // when the field doesn't exist on the target instance.
+        role_count: IntegerColumn({ label: 'Role Count', default: 0 }),
+        group_count: IntegerColumn({ label: 'Group Count', default: 0 }),
+        system_property_count: IntegerColumn({ label: 'System Property Count', default: 0 }),
         table_list: StringColumn({
             label: 'Table List',
             maxLength: 4000,

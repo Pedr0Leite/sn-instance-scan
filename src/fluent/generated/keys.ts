@@ -515,6 +515,14 @@ declare global {
                     },
                     {
                         table: 'sys_dictionary'
+                        id: '1f796c8586e543a484a27a24a0e5445a'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'system_property_count'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
                         id: '2129aab706c747d7808eeace07d4a568'
                         key: {
                             name: 'x_335329_iscan_result'
@@ -910,6 +918,15 @@ declare global {
                         key: {
                             name: 'x_335329_iscan_table'
                             element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '45cdfe2ba05b4d25acc5b12908e5888c'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'system_property_count'
                             language: 'en'
                         }
                     },
@@ -1672,10 +1689,28 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: '95cb10ddae6a4191a0be3600475eb480'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'group_count'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: '9794aa90fccf4807983332f4fe21535f'
                         key: {
                             name: 'x_335329_iscan_run'
                             element: 'target_app'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '98f9dfeceab948ec83fe8982c00d65b3'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'role_count'
                             language: 'en'
                         }
                     },
@@ -2053,6 +2088,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: 'c69461f20b274a1ab1e1167f21ffdc96'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'group_count'
+                        }
+                    },
+                    {
                         table: 'sys_choice'
                         id: 'ca08c13d465543b1884ba28601ea47d8'
                         key: {
@@ -2325,6 +2368,14 @@ declare global {
                                 }
                             }
                             element: 'completed'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'e9ddd086303246eab6ecc4020b2f5246'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'role_count'
                         }
                     },
                     {

@@ -77,7 +77,10 @@ IscanAppFilesScanner.prototype = {
 			service_portal_widgets: [],
 			flow_actions: [],
 			catalog_variables: [],
-			choice_count: 0
+			choice_count: 0,
+			role_count: 0,
+			group_count: 0,
+			system_property_count: 0
 		};
 
 		var meta = new GlideRecord('sys_metadata');
@@ -114,6 +117,12 @@ IscanAppFilesScanner.prototype = {
 			result.flow_actions = this._scanSimpleScopedTable(appScopeSysId, 'sys_hub_action_type_definition');
 			result.catalog_variables = this._scanCatalogVariables(appScopeSysId);
 			result.choice_count = this._countChoices(appScopeSysId);
+			// Per the original v3 spec: count roles, groups, and system
+			// properties per scope. Count-only (no name list), same
+			// precedent as choice_count above.
+			result.role_count = this._countScopedRecords(appScopeSysId, 'sys_user_role', 'sys_scope');
+			result.group_count = this._countScopedRecords(appScopeSysId, 'sys_user_group', 'sys_scope');
+			result.system_property_count = this._countScopedRecords(appScopeSysId, 'sys_properties', 'sys_scope');
 		}
 
 		this._logBucketCounts(appScopeSysId, result);
@@ -144,6 +153,44 @@ IscanAppFilesScanner.prototype = {
 			});
 		}
 		return items;
+	},
+
+	/**
+	 * Group B helper: COUNT-only tally (no name list, same precedent as
+	 * _countChoices) for any table whose per-app ownership is a plain
+	 * scope field. Guards against a table that doesn't actually carry
+	 * that field at all — e.g. sys_user_group has NO sys_scope column on
+	 * stock ServiceNow, since groups aren't scoped metadata the way a
+	 * role or property can be. Querying a nonexistent field would
+	 * otherwise silently drop the condition and count EVERY row instead
+	 * of zero — checked via sys_dictionary first so a missing field
+	 * returns an honest 0, not a wrong number. Table/field existence
+	 * here is flagged low-confidence, same as the other instance-dependent
+	 * items already tracked in CLAUDE.md — verify against the real target
+	 * instance before relying on group_count in particular.
+	 * @param {String} appScopeSysId
+	 * @param {String} tableName
+	 * @param {String} scopeField
+	 * @returns {Number}
+	 */
+	_countScopedRecords: function(appScopeSysId, tableName, scopeField) {
+		var fieldCheck = new GlideRecord('sys_dictionary');
+		fieldCheck.addQuery('name', tableName);
+		fieldCheck.addQuery('element', scopeField);
+		fieldCheck.query();
+		if (!fieldCheck.hasNext()) {
+			gs.info('IscanAppFilesScanner._countScopedRecords: ' + tableName + '.' + scopeField + ' does not exist on this instance — returning 0');
+			return 0;
+		}
+
+		var ga = new GlideAggregate(tableName);
+		ga.addQuery(scopeField, appScopeSysId);
+		ga.addAggregate('COUNT');
+		ga.query();
+		if (ga.next()) {
+			return parseInt(ga.getAggregate('COUNT'), 10) || 0;
+		}
+		return 0;
 	},
 
 	/**

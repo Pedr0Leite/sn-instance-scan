@@ -74,11 +74,22 @@ IscanScanOrchestrator.prototype = {
         return run.getUniqueValue()
     },
 
+    /**
+     * appIdsOrTarget's shape varies by scan mode:
+     *   - {tableOnly, tableName} — Single Table mode, no owning sys_app.
+     *   - {appIds, tableOnlyTables} — Full mode, via getFullScanScopes():
+     *     apps with a real sys_app record PLUS a flat list of tables
+     *     belonging to scopes that have none (see that method's doc for
+     *     why 'global' itself is excluded from the latter).
+     *   - a plain Array — every other mode (custom_only, manual), unchanged.
+     */
     _executeRun: function (run, appIdsOrTarget) {
         if (appIdsOrTarget && appIdsOrTarget.tableOnly) {
             return this._executeSingleTableRun(run, appIdsOrTarget.tableName)
         }
-        var appIds = appIdsOrTarget
+        var hasTableOnlyTables = appIdsOrTarget && appIdsOrTarget.tableOnlyTables !== undefined
+        var appIds = hasTableOnlyTables ? appIdsOrTarget.appIds : appIdsOrTarget
+        var tableOnlyTables = hasTableOnlyTables ? appIdsOrTarget.tableOnlyTables : []
 
         run.setValue('app_count', appIds.length)
         run.setValue('status', 'running')
@@ -97,17 +108,34 @@ IscanScanOrchestrator.prototype = {
                 run.getUniqueValue() +
                 ' resolved ' +
                 appIds.length +
-                ' app(s) for scan_mode=' +
+                ' app(s)' +
+                (tableOnlyTables.length ? ' and ' + tableOnlyTables.length + ' table-only fallback table(s)' : '') +
+                ' for scan_mode=' +
                 run.getValue('scan_mode')
         )
         this._appendActivity(
             run,
-            'Resolved ' + appIds.length + ' app(s) for scan mode "' + run.getValue('scan_mode') + '".'
+            'Resolved ' + appIds.length + ' app(s)' +
+                (tableOnlyTables.length ? ' and ' + tableOnlyTables.length + ' table-only fallback table(s) (scopes with no owning sys_app)' : '') +
+                ' for scan mode "' + run.getValue('scan_mode') + '".'
         )
 
         try {
             for (var i = 0; i < appIds.length; i++) {
                 this._scanOneApp(run, appIds[i])
+            }
+            if (tableOnlyTables.length) {
+                var canAccess = this.tableScanner.canAccessMetadata()
+                if (canAccess) {
+                    for (var t = 0; t < tableOnlyTables.length; t++) {
+                        this._scanOneTable(run, tableOnlyTables[t])
+                    }
+                } else {
+                    this._appendActivity(
+                        run,
+                        'Skipping ' + tableOnlyTables.length + ' table-only fallback table(s): caller lacks metadata read access.'
+                    )
+                }
             }
             run.setValue('status', 'complete')
             gs.info('IscanScanOrchestrator._executeRun: run=' + run.getUniqueValue() + ' completed successfully')
@@ -243,7 +271,7 @@ IscanScanOrchestrator.prototype = {
     _resolveAppList: function (scanMode, manualAppList, targetTableSysId) {
         switch (scanMode) {
             case 'full':
-                return this.appSelector.getFullScanApps()
+                return this.appSelector.getFullScanScopes()
             case 'custom_only':
                 return this.appSelector.getCustomApps()
             case 'manual':
@@ -384,6 +412,9 @@ IscanScanOrchestrator.prototype = {
             flow_actions: files.flow_actions.length,
             catalog_variables: files.catalog_variables.length,
             choices: files.choice_count,
+            roles: files.role_count,
+            groups: files.group_count,
+            system_properties: files.system_property_count,
         }
 
         if (canAccess) {
@@ -436,6 +467,9 @@ IscanScanOrchestrator.prototype = {
         result.setValue('choice_count', automationCounts.choices)
         result.setValue('flow_action_count', automationCounts.flow_actions)
         result.setValue('catalog_variable_count', automationCounts.catalog_variables)
+        result.setValue('role_count', automationCounts.roles)
+        result.setValue('group_count', automationCounts.groups)
+        result.setValue('system_property_count', automationCounts.system_properties)
         result.setValue('table_list', this._tableNames(tables).join(','))
 
         var runFacts = {

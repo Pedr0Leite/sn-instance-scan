@@ -275,7 +275,10 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			{ label: 'Service portal widgets', field: 'service_portal_widget_count' },
 			{ label: 'Choices', field: 'choice_count' },
 			{ label: 'Flow Designer actions', field: 'flow_action_count' },
-			{ label: 'Catalog variables', field: 'catalog_variable_count' }
+			{ label: 'Catalog variables', field: 'catalog_variable_count' },
+			{ label: 'Roles', field: 'role_count' },
+			{ label: 'Groups', field: 'group_count' },
+			{ label: 'System properties', field: 'system_property_count' }
 		];
 		var extendedItems = [];
 		for (var e = 0; e < extendedCountFields.length; e++) {
