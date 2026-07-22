@@ -22,23 +22,24 @@ low-confidence pending real-instance verification (see CLAUDE.md's Counting
 section and the design doc's Risks section) — check these before go-live,
 same as the other instance-dependent items already tracked in `DEPLOY.md`.
 
-## Sub-spec 3: Cross-refs — NOT STARTED
+## Sub-spec 3: Cross-refs — DONE
 
-Not yet brainstormed. Per the original /goal spec: for each table in scope,
-read sys_dictionary, capture every field, flag reference fields and their
-target table, and build a cross-reference map (which tables/apps reference
-which) — persisted so the report can describe inter-app/inter-table
-dependencies. Counting's dictionary-override work and the already-unscoped
-`profileTable()` are likely reusable building blocks here — check those
-first before designing new field-capture logic.
+Spec: `docs/superpowers/specs/2026-07-22-crossrefs-design.md`
+Plan: `docs/superpowers/plans/2026-07-22-crossrefs-implementation.md`
+Ledger: `.superpowers/sdd/progress.md` (all 4 tasks complete, merged to main
+directly — no branch was used). Inbound-reference discovery is
+whole-instance and ungated (no new property), unlike Counting's Group B —
+see CLAUDE.md's Cross-refs section for why that was judged safe.
 
 ## Sub-spec 4: Report — NOT STARTED
 
 Not yet brainstormed. Goal: exportable HTML→PDF report combining status-
 flagged findings (pass/warning/fail + counts, like the Now Assist Readiness
 Evaluation) with a sectioned narrative assessment. `IscanReportGenerator`
-already exists for PDF generation (Download Report buttons) — this sub-spec
-likely extends that rather than building new report infrastructure.
+already exists for PDF generation (Download Report buttons), and the new
+`x_335329_iscan_crossref` table is available as a building block for
+dependency visualization — this sub-spec likely extends that infrastructure
+rather than building new report infrastructure from scratch.
 
 ## Working conventions established this session (apply to all remaining sub-specs)
 - Implementing directly on `main`, no branch/worktree (explicit user

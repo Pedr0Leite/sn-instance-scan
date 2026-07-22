@@ -305,6 +305,28 @@ not per-app components. Several table/field names in the design (flow
 are flagged low-confidence and need verification against the real
 target instance before/while implementing.
 
+**Cross-refs (sub-spec 3 — IMPLEMENTED):** `IscanTableScanner` gained
+`findInboundReferences(tableName)` — a whole-instance `sys_dictionary`
+search (`addQuery('reference', tableName)`) for any field, on any table,
+that points back at a table this app owns. Unlike Counting's Group B, this
+runs unconditionally in every scan mode including `full` — one indexed
+query per table, not per app, judged cheap enough to skip a property gate.
+Each distinct referencing table's owning app is resolved via the same
+`sys_db_object.sys_scope` → `sys_app.get()` two-step Modes already uses for
+Single Table mode's OOB case; blank `referencing_app` means the referencing
+table has no owning `sys_app` record (`global`/OOB), same "0 isn't a bug"
+precedent as Counting. Same-app references (a table referencing another
+table owned by the same app) are included, not filtered — the Report
+sub-spec can slice inter-app vs. intra-app later without re-scanning.
+Persisted as `inbound_reference_count`/`inbound_reference_list` summary
+columns on `x_335329_iscan_table` (same shape as `dictionary_override_*`),
+plus a new child table `x_335329_iscan_crossref` (one row per referencing
+field, including the resolved `referencing_app`) for the Report sub-spec to
+query/group/filter. No rows are written to `x_335329_iscan_crossref` from
+Single Table mode's no-owning-app fallback path (`_scanOneTable`) — that
+path only logs the inbound reference count to `run.activities`, consistent
+with how it already handles dictionary overrides.
+
 ## /caveman
 
 If the user invokes `/caveman`, switch to ultra-concise mode for the
