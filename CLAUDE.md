@@ -327,6 +327,25 @@ Single Table mode's no-owning-app fallback path (`_scanOneTable`) — that
 path only logs the inbound reference count to `run.activities`, consistent
 with how it already handles dictionary overrides.
 
+**Report (sub-spec 4 — IMPLEMENTED):** `IscanReportGenerator`'s existing
+Run/Result report HTML builders gained 3 presence/absence status flags —
+no numeric thresholds, since there's no real basis for picking a count
+cutoff. Warnings: `scan_mode_used === 'app_files_fallback'` (incomplete
+data), and summed `dictionary_override_count > 0` across the app's
+`x_335329_iscan_table` rows (a real governance signal — another app
+modified a table it doesn't own, or this app did). Informational (not a
+warning): count of distinct apps with `x_335329_iscan_crossref` rows
+pointing at this app's tables (excluding this app itself) — having
+dependents isn't inherently bad. The Run report's per-app table gained a
+condensed icon-only Status column; the Result report gained a full Status
+line, an "Extended counts" section (Counting's ~22 non-Group-A/B-overlap
+counts, zero values skipped), 2 new Tables columns (Dictionary Overrides,
+Inbound References — both already stored, just not previously rendered),
+and a "Cross-references" section (one row per `x_335329_iscan_crossref`
+record tied to the app's tables, omitted entirely when there are none). No
+new script include, table, property, or UI Action — `_convertToPdf` and
+the GlideAjax entry points are unchanged.
+
 ## /caveman
 
 If the user invokes `/caveman`, switch to ultra-concise mode for the

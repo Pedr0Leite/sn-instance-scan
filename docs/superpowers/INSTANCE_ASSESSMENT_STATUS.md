@@ -31,15 +31,20 @@ directly — no branch was used). Inbound-reference discovery is
 whole-instance and ungated (no new property), unlike Counting's Group B —
 see CLAUDE.md's Cross-refs section for why that was judged safe.
 
-## Sub-spec 4: Report — NOT STARTED
+## Sub-spec 4: Report — DONE
 
-Not yet brainstormed. Goal: exportable HTML→PDF report combining status-
-flagged findings (pass/warning/fail + counts, like the Now Assist Readiness
-Evaluation) with a sectioned narrative assessment. `IscanReportGenerator`
-already exists for PDF generation (Download Report buttons), and the new
-`x_335329_iscan_crossref` table is available as a building block for
-dependency visualization — this sub-spec likely extends that infrastructure
-rather than building new report infrastructure from scratch.
+Spec: `docs/superpowers/specs/2026-07-22-report-design.md`
+Plan: `docs/superpowers/plans/2026-07-22-report-implementation.md`
+Ledger: `.superpowers/sdd/progress.md` (all 3 tasks complete, merged to main
+directly — no branch was used). No numeric-threshold flags were added, per
+the design's explicit rejection of invented cutoffs.
+
+## All 4 sub-specs complete
+
+Modes → Counting → Cross-refs → Report have all shipped to `main`. Recall
+before any go-live: 5 table/field names flagged low-confidence during
+Counting still need verification against a real instance (see CLAUDE.md's
+Counting section and that design doc's Risks section).
 
 ## Working conventions established this session (apply to all remaining sub-specs)
 - Implementing directly on `main`, no branch/worktree (explicit user
