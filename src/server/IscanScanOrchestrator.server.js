@@ -193,6 +193,7 @@ IscanScanOrchestrator.prototype = {
         }
 
         var profile = this.tableScanner.profileTable(tableName)
+        var inboundReferences = this.tableScanner.findInboundReferences(tableName)
         gs.info(
             'IscanScanOrchestrator._scanOneTable: table=' +
                 tableName +
@@ -201,7 +202,9 @@ IscanScanOrchestrator.prototype = {
                 ' field_count=' +
                 profile.fields.length +
                 ' dictionary_override_count=' +
-                profile.dictionary_override_count
+                profile.dictionary_override_count +
+                ' inbound_reference_count=' +
+                inboundReferences.length
         )
         this._appendActivity(
             run,
@@ -217,7 +220,9 @@ IscanScanOrchestrator.prototype = {
                 (profile.reference_fields.length ? profile.reference_fields.join(', ') : 'none') +
                 ', ' +
                 profile.dictionary_override_count +
-                ' dictionary override(s).'
+                ' dictionary override(s), ' +
+                inboundReferences.length +
+                ' inbound reference(s).'
         )
     },
 
@@ -527,6 +532,8 @@ IscanScanOrchestrator.prototype = {
             tables[i].reference_fields = profile.reference_fields
             tables[i].dictionary_overrides = profile.dictionary_overrides
             tables[i].dictionary_override_count = profile.dictionary_override_count
+            tables[i].inbound_references = this.tableScanner.findInboundReferences(tables[i].name)
+            tables[i].inbound_reference_count = tables[i].inbound_references.length
         }
         return tables
     },
@@ -547,7 +554,12 @@ IscanScanOrchestrator.prototype = {
                 'dictionary_override_list',
                 tables[i].dictionary_overrides.map(function (o) { return o.name + '(' + o.scope + ')' }).join(',')
             )
-            tableRow.insert()
+            tableRow.setValue('inbound_reference_count', tables[i].inbound_reference_count)
+            tableRow.setValue(
+                'inbound_reference_list',
+                tables[i].inbound_references.map(function (r) { return r.referencing_field + '(' + r.referencing_table + ')' }).join(',')
+            )
+            var tableRowId = tableRow.insert()
             gs.info(
                 'IscanScanOrchestrator._writeTableProfiles: table=' +
                     tables[i].name +
@@ -556,8 +568,33 @@ IscanScanOrchestrator.prototype = {
                     ' field_count=' +
                     tables[i].fields.length +
                     ' dictionary_override_count=' +
-                    tables[i].dictionary_override_count
+                    tables[i].dictionary_override_count +
+                    ' inbound_reference_count=' +
+                    tables[i].inbound_reference_count
             )
+            this._writeCrossrefRows(tableRowId, tables[i].inbound_references)
+        }
+    },
+
+    /**
+     * One x_335329_iscan_crossref row per inbound-referencing field found
+     * for a single x_335329_iscan_table row. Same-app references ARE
+     * included (referencing_app will equal the app currently being
+     * scanned in that case) — filtering intra-app vs. cross-app is a
+     * Report sub-spec concern, not a write-time one.
+     * @param {String} tableRowId - sys_id of the just-inserted x_335329_iscan_table row
+     * @param {Array} inboundReferences - [{referencing_table, referencing_field, referencing_app, referencing_scope}]
+     */
+    _writeCrossrefRows: function (tableRowId, inboundReferences) {
+        for (var i = 0; i < inboundReferences.length; i++) {
+            var crossrefRow = new GlideRecord('x_335329_iscan_crossref')
+            crossrefRow.initialize()
+            crossrefRow.setValue('table', tableRowId)
+            crossrefRow.setValue('referencing_table', inboundReferences[i].referencing_table)
+            crossrefRow.setValue('referencing_field', inboundReferences[i].referencing_field)
+            crossrefRow.setValue('referencing_app', inboundReferences[i].referencing_app)
+            crossrefRow.setValue('referencing_scope', inboundReferences[i].referencing_scope)
+            crossrefRow.insert()
         }
     },
 
