@@ -122,6 +122,238 @@ IscanTableScanner.prototype = {
 	},
 
 	/**
+	 * Detects customizations made ON a base-system (global/OOB) table —
+	 * the table itself isn't "custom" (no owning sys_app), but parts of it
+	 * can be: custom fields (u_/x_ prefixed elements, or a dictionary row
+	 * whose sys_scope differs from the table's own), plus any business
+	 * rule / client script / UI policy / ACL targeting the table but owned
+	 * by a customer scope. No-ops (applicable: false) for a table that DOES
+	 * have an owning sys_app — that's a native custom-app table, already
+	 * covered by profileTable()'s dictionary_overrides.
+	 * @param {String} tableName
+	 * @returns {Object} {applicable, custom_fields, custom_artifacts}
+	 */
+	findGlobalCustomizations: function(tableName) {
+		var owningScope = this._getTableOwningScope(tableName);
+		var appCheck = new GlideRecord('sys_app');
+		if (owningScope && appCheck.get(owningScope)) {
+			return { applicable: false, custom_fields: [], custom_artifacts: [] };
+		}
+
+		var customFields = [];
+		var dict = new GlideRecord('sys_dictionary');
+		dict.addQuery('name', tableName);
+		dict.addNotNullQuery('element');
+		var fieldCond = dict.addQuery('element', 'STARTSWITH', 'u_');
+		fieldCond.addOrCondition('element', 'STARTSWITH', 'x_');
+		if (owningScope) {
+			fieldCond.addOrCondition('sys_scope', '!=', owningScope);
+		}
+		dict.query();
+		while (dict.next()) {
+			customFields.push({
+				name: dict.getValue('element'),
+				internal_type: dict.getValue('internal_type'),
+				scope: dict.getValue('sys_scope')
+			});
+		}
+
+		var customArtifacts = this._findCustomArtifactsForTable(tableName, owningScope);
+
+		gs.info(
+			'IscanTableScanner.findGlobalCustomizations: table=' + tableName +
+				' custom_fields=' + customFields.length +
+				' custom_artifacts=' + customArtifacts.length
+		);
+		return { applicable: true, custom_fields: customFields, custom_artifacts: customArtifacts };
+	},
+
+	/**
+	 * Group B-style dedicated queries: business rules, client scripts, UI
+	 * policies, and ACLs targeting tableName, owned by a scope other than
+	 * the table's own (or global, when the table has no owning scope at
+	 * all). ACL matching uses STARTSWITH tableName + '.' too, since
+	 * field-level ACLs are named "<table>.<field>".
+	 * @param {String} tableName
+	 * @param {String} owningScope
+	 * @returns {Array} [{sys_id, name, description, type, scope}]
+	 */
+	_findCustomArtifactsForTable: function(tableName, owningScope) {
+		var artifacts = [];
+		var specs = [
+			{ table: 'sys_script', label: 'business_rule', match: function(gr) { gr.addQuery('collection', tableName); } },
+			{ table: 'sys_script_client', label: 'client_script', match: function(gr) { gr.addQuery('table', tableName); } },
+			{ table: 'sys_ui_policy', label: 'ui_policy', match: function(gr) { gr.addQuery('table', tableName); } },
+			{
+				table: 'sys_security_acl',
+				label: 'acl',
+				match: function(gr) {
+					var q = gr.addQuery('name', tableName);
+					q.addOrCondition('name', 'STARTSWITH', tableName + '.');
+				}
+			}
+		];
+
+		for (var i = 0; i < specs.length; i++) {
+			var gr = new GlideRecord(specs[i].table);
+			if (!gr.isValid()) {
+				continue;
+			}
+			specs[i].match(gr);
+			gr.addNotNullQuery('sys_scope');
+			if (owningScope) {
+				gr.addQuery('sys_scope', '!=', owningScope);
+			}
+			gr.query();
+			while (gr.next()) {
+				var scope = gr.getValue('sys_scope');
+				if (this._isGlobalScope(scope)) {
+					continue;
+				}
+				artifacts.push({
+					sys_id: gr.getUniqueValue(),
+					name: gr.getValue('name') || gr.getValue('sys_name') || '',
+					description: gr.getValue('description') || '',
+					type: specs[i].label,
+					scope: scope
+				});
+			}
+		}
+		return artifacts;
+	},
+
+	_isGlobalScope: function(scopeSysId) {
+		if (!scopeSysId) {
+			return true;
+		}
+		var scope = new GlideRecord('sys_scope');
+		if (scope.get(scopeSysId)) {
+			return scope.getValue('scope') === 'global';
+		}
+		return false;
+	},
+
+	/**
+	 * Reverse direction of findGlobalCustomizations(): given the app
+	 * CURRENTLY being scanned, finds every base-system (global/OOB) table
+	 * that THIS app's scope has customized — a field it added, or a
+	 * business rule/client script/UI policy/ACL it owns that targets a
+	 * table it doesn't own. This is what makes global-scope customization
+	 * detection run in every scan mode: custom_only, manual (App), and
+	 * full/single_table's owning-app branches all call this per app being
+	 * scanned, via IscanScanOrchestrator._scanOneApp — not just the
+	 * table-only fallback paths that findGlobalCustomizations() covers.
+	 * @param {String} appScopeSysId
+	 * @returns {Array} [{table_name, custom_fields, custom_artifacts}]
+	 */
+	findAppCustomizationsOnGlobalTables: function(appScopeSysId) {
+		var byTable = {};
+
+		var dict = new GlideRecord('sys_dictionary');
+		dict.addQuery('sys_scope', appScopeSysId);
+		dict.addNotNullQuery('element');
+		dict.addNotNullQuery('name');
+		dict.query();
+		while (dict.next()) {
+			var fieldTable = dict.getValue('name');
+			if (this._getTableOwningScope(fieldTable) === appScopeSysId) {
+				continue;
+			}
+			if (!this._isOobTable(fieldTable)) {
+				continue;
+			}
+			this._ensureTableBucket(byTable, fieldTable).custom_fields.push({
+				name: dict.getValue('element'),
+				internal_type: dict.getValue('internal_type')
+			});
+		}
+
+		var specs = [
+			{ table: 'sys_script', label: 'business_rule', field: 'collection' },
+			{ table: 'sys_script_client', label: 'client_script', field: 'table' },
+			{ table: 'sys_ui_policy', label: 'ui_policy', field: 'table' }
+		];
+		for (var i = 0; i < specs.length; i++) {
+			var gr = new GlideRecord(specs[i].table);
+			if (!gr.isValid()) {
+				continue;
+			}
+			gr.addQuery('sys_scope', appScopeSysId);
+			gr.query();
+			while (gr.next()) {
+				var targetTable = gr.getValue(specs[i].field);
+				this._collectAppArtifact(byTable, targetTable, appScopeSysId, {
+					sys_id: gr.getUniqueValue(),
+					name: gr.getValue('name') || gr.getValue('sys_name') || '',
+					description: gr.getValue('description') || '',
+					type: specs[i].label
+				});
+			}
+		}
+
+		// ACLs are keyed separately — sys_security_acl.name stores either
+		// "table" or "table.field", so the target table needs splitting.
+		var acl = new GlideRecord('sys_security_acl');
+		acl.addQuery('sys_scope', appScopeSysId);
+		acl.query();
+		while (acl.next()) {
+			var aclName = acl.getValue('name') || '';
+			var aclTable = aclName.split('.')[0];
+			this._collectAppArtifact(byTable, aclTable, appScopeSysId, {
+				sys_id: acl.getUniqueValue(),
+				name: aclName,
+				description: acl.getValue('description') || '',
+				type: 'acl'
+			});
+		}
+
+		var results = [];
+		for (var t in byTable) {
+			if (byTable.hasOwnProperty(t)) {
+				results.push({ table_name: t, custom_fields: byTable[t].custom_fields, custom_artifacts: byTable[t].custom_artifacts });
+			}
+		}
+		gs.info('IscanTableScanner.findAppCustomizationsOnGlobalTables: appScope=' + appScopeSysId + ' found customizations on ' + results.length + ' base-system table(s)');
+		return results;
+	},
+
+	_ensureTableBucket: function(byTable, tableName) {
+		if (!byTable[tableName]) {
+			byTable[tableName] = { custom_fields: [], custom_artifacts: [] };
+		}
+		return byTable[tableName];
+	},
+
+	_collectAppArtifact: function(byTable, targetTable, appScopeSysId, artifact) {
+		if (!targetTable) {
+			return;
+		}
+		if (this._getTableOwningScope(targetTable) === appScopeSysId) {
+			return;
+		}
+		if (!this._isOobTable(targetTable)) {
+			return;
+		}
+		this._ensureTableBucket(byTable, targetTable).custom_artifacts.push(artifact);
+	},
+
+	/**
+	 * True when tableName has no owning sys_app record — either no
+	 * sys_db_object row at all (defensive; shouldn't happen for a real
+	 * field/artifact target) or an owning scope with no sys_app.
+	 * @param {String} tableName
+	 * @returns {Boolean}
+	 */
+	_isOobTable: function(tableName) {
+		var scope = this._getTableOwningScope(tableName);
+		if (!scope) {
+			return true;
+		}
+		var app = new GlideRecord('sys_app');
+		return !app.get(scope);
+	},
+
+	/**
 	 * Resolves a table's owning app, if any. Same two-step lookup
 	 * (sys_db_object.sys_scope -> sys_app.get(scope)) already used by
 	 * IscanScanOrchestrator._resolveSingleTableApp for Single Table

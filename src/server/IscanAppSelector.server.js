@@ -42,7 +42,7 @@ IscanAppSelector.prototype = {
 	 * The literal 'global' scope is deliberately excluded from the
 	 * fallback: global owns the entire base table set (thousands of
 	 * tables), and it isn't a coherent "app" to profile table-by-table —
-	 * scanning it would flood run.activities with table-only entries for
+	 * scanning it would flood run.scan_findings with table-only entries for
 	 * platform internals with no corresponding app, which was never the
 	 * ask. Every other scope (custom, store, or bare OOB plugin) is
 	 * covered by one of the two branches below.

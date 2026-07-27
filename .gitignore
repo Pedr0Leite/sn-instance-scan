@@ -5,3 +5,6 @@ node_modules/
 target/
 *.tsbuildinfo
 .jest_cache
+# Auto-generated per-session handoff (see CLAUDE.md's "Session handoff"
+# section) — overwritten every compaction, not a durable record.
+PREV_SESSION.md

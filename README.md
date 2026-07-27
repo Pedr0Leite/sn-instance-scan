@@ -28,10 +28,14 @@ See `CLAUDE.md` for how the two repos relate.
    plain-English summary paragraph.
 4. Results land in `x_335329_iscan_result` (one row per app) with a related
    list of table profiles in `x_335329_iscan_table`.
-5. **Download Report** on the run or on any individual result exports
-   that data as a PDF, with hyperlinks back to the underlying records —
+5. **Download Report** exports that data as a real PDF (via the platform
+   PDF Generation Utilities plugin, `sn_pdfgeneratorutils`), attached as
+   a `sys_attachment` on the same record and opened in a new tab —
    modeled on the Now Assist Readiness Evaluation app's "Download Report"
-   feature.
+   feature. It's a form button (`x_335329_iscan.scanner` role required),
+   so open an existing Run record or one of its Result records first —
+   the button won't appear on an unsaved record or for a user without
+   that role. Run form: after "Run Scan". Result form: the first button.
 
 Read-only app: nothing here ever writes to a scanned table, only to its
 own `x_335329_iscan_*` tables, and every query runs under the calling

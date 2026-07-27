@@ -65,6 +65,14 @@ declare global {
                         table: 'sys_script_include'
                         id: '4f0f4ce0771345578d66277fcbf4a9f3'
                     }
+                    iscan_result_related_list: {
+                        table: 'sys_ui_related_list'
+                        id: '2722064a42f44a3d8c8f7c702debf0eb'
+                    }
+                    iscan_result_related_list_entry: {
+                        table: 'sys_ui_related_list_entry'
+                        id: '5adba45ef73846e2907cfff48d1d290c'
+                    }
                     iscan_scan_orchestrator_execute_acl: {
                         table: 'sys_security_acl'
                         id: '8bdae70d789d41aba93c5d0b3d7ed066'
@@ -90,6 +98,14 @@ declare global {
                         table: 'sys_ui_action'
                         id: 'd0715fc228564a6f9ddcdfe40307d969'
                     }
+                    sn_inst_scan_crossref_create_acl: {
+                        table: 'sys_security_acl'
+                        id: 'd79d514ada654116b0bb5aa89aa296f3'
+                    }
+                    sn_inst_scan_crossref_read_acl: {
+                        table: 'sys_security_acl'
+                        id: 'c131918a081d4686ae419a185217caad'
+                    }
                     sn_inst_scan_custom_scope_prefix_property: {
                         table: 'sys_properties'
                         id: '0a36c946aa3746d7973e529136b0a514'
@@ -101,6 +117,14 @@ declare global {
                     sn_inst_scan_genai_max_input_chars_property: {
                         table: 'sys_properties'
                         id: '5793a153267145d8b27aa0a618d15442'
+                    }
+                    sn_inst_scan_global_custom_create_acl: {
+                        table: 'sys_security_acl'
+                        id: '8c99060558544c3982792ca89e0437ea'
+                    }
+                    sn_inst_scan_global_custom_read_acl: {
+                        table: 'sys_security_acl'
+                        id: 'f1c4fd5b2316489ebc24efbfc6bde115'
                     }
                     sn_inst_scan_include_extended_counts_on_full_scan_property: {
                         table: 'sys_properties'
@@ -138,6 +162,10 @@ declare global {
                         table: 'sys_security_acl'
                         id: 'd78b5bc4944748869146a9ccdcf53604'
                     }
+                    src_server_DownloadRunReportUiAction_server_js: {
+                        table: 'sys_module'
+                        id: '0dbe9c9de5434995bbe4e193a9056b78'
+                    }
                     src_server_IscanAppFilesScanner_server_js: {
                         table: 'sys_module'
                         id: '919236b697f84bd894b506765bfb9bfe'
@@ -173,6 +201,15 @@ declare global {
                         id: '009d8664c2fa4050a6b23b860cc362dd'
                         key: {
                             name: 'x_335329_iscan_crossref'
+                        }
+                    },
+                    {
+                        table: 'sys_ui_element'
+                        id: '00b6aecae6774da0ab5a36d40a198a51'
+                        key: {
+                            sys_ui_section: '6b354282470a0310654c57f1d16d4303'
+                            element: 'scan_findings'
+                            position: '15'
                         }
                     },
                     {
@@ -216,6 +253,14 @@ declare global {
                                 }
                             }
                             element: 'scan_date'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '037d83e843104cbc9ec16cb1bf90fa97'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'custom_field_list'
                         }
                     },
                     {
@@ -419,6 +464,19 @@ declare global {
                     },
                     {
                         table: 'sys_security_acl_role'
+                        id: '141ad1baa02046fba09acbd44d13f449'
+                        key: {
+                            sys_security_acl: '8c99060558544c3982792ca89e0437ea'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_335329_iscan.scanner'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
                         id: '16d389f6d3f14baaad0dad565f5404fd'
                         key: {
                             sys_security_acl: '8518fabe1dc54c90bcf629ee3592a1d7'
@@ -435,6 +493,19 @@ declare global {
                         id: '16d5a8d2722242c484094a7c2bb5a02d'
                         key: {
                             sys_ui_action: '130e3e4a16d04e74b15b5d5c9b92a577'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_335329_iscan.scanner'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '18144420c40f4105a271cc47f990eebd'
+                        key: {
+                            sys_security_acl: 'c131918a081d4686ae419a185217caad'
                             sys_user_role: {
                                 id: 'd147bc4fa4e049d59f6b364518b377d6'
                                 key: {
@@ -479,6 +550,14 @@ declare global {
                             name: 'x_335329_iscan_result'
                             element: 'service_portal_widget_count'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '1c459879250c4736831521f0a2e85e24'
+                        key: {
+                            name: 'x_335329_iscan_run'
+                            element: 'scan_findings'
                         }
                     },
                     {
@@ -531,11 +610,36 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '2073f49a9108471c8ec24395f0d54cf4'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'scripted_rest_resource_count'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '207b686f1acc46c8ad92e08b079d8d45'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'result'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: '2129aab706c747d7808eeace07d4a568'
                         key: {
                             name: 'x_335329_iscan_result'
                             element: 'table_list'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '21bf1ebb53724b12b3805c5fe7c53ceb'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'ui_page_count'
                         }
                     },
                     {
@@ -553,6 +657,15 @@ declare global {
                             }
                             element: '.end_split'
                             position: '9'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '239b328cd92e471ebe00b020a07078c3'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'run'
+                            language: 'en'
                         }
                     },
                     {
@@ -674,6 +787,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '2a86c028b3f84156b728d7420bfa42c6'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'import_set_count'
+                        }
+                    },
+                    {
                         table: 'sys_ui_element'
                         id: '2b354282470a0310654c57f1d16d4315'
                         deleted: true
@@ -689,6 +810,15 @@ declare global {
                             }
                             element: '.end_split'
                             position: '8'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '2bbaaba1ef47494f8bab7ac74549f31d'
+                        key: {
+                            name: 'x_335329_iscan_run'
+                            element: 'scan_findings'
+                            language: 'en'
                         }
                     },
                     {
@@ -710,6 +840,14 @@ declare global {
                                     name: 'x_335329_iscan.scanner'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '2e1260551da04ddb99ce8738326215ec'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'custom_field_count'
                         }
                     },
                     {
@@ -761,6 +899,14 @@ declare global {
                             }
                             element: '.split'
                             position: '4'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '2f56fd202dcb4365aa5e5f42eaff0ec4'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'service_portal_page_count'
                         }
                     },
                     {
@@ -906,6 +1052,7 @@ declare global {
                     {
                         table: 'sys_documentation'
                         id: '444f6f22b16d4a768024853b2ad8debe'
+                        deleted: true
                         key: {
                             name: 'x_335329_iscan_run'
                             element: 'activities'
@@ -988,6 +1135,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '4ba060d68687453fa433202a78f949ce'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'custom_artifact_count'
+                        }
+                    },
+                    {
                         table: 'sys_ui_action_role'
                         id: '4bde3ec7ed204c039188ef84dab7854f'
                         key: {
@@ -1015,6 +1170,19 @@ declare global {
                         key: {
                             name: 'x_335329_iscan_crossref'
                             element: 'referencing_field'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '4e7b80f68b024870b43d99c6e077b89c'
+                        key: {
+                            sys_security_acl: 'd79d514ada654116b0bb5aa89aa296f3'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_335329_iscan.scanner'
+                                }
+                            }
                         }
                     },
                     {
@@ -1057,6 +1225,14 @@ declare global {
                             name: 'x_335329_iscan_run'
                             element: 'manual_app_list'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '51c637b134f2407d9501ac5e2a517ee3'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'sla_definition_count'
                         }
                     },
                     {
@@ -1103,11 +1279,29 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '57964e774e9e49929929dfdd1cb0ffaf'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'result'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: '596423871af64af5acf4fd707abc461c'
                         key: {
                             name: 'x_335329_iscan_run'
                             element: 'completed'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '5a40492ddff3464da3a7f9948f4332f2'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'event_count'
+                            language: 'en'
                         }
                     },
                     {
@@ -1221,6 +1415,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '62ce170ddc4542a4bf894af4ee131cee'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'service_portal_page_count'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_ui_element'
                         id: '63354282470a0310654c57f1d16d4312'
                         deleted: true
@@ -1244,6 +1447,15 @@ declare global {
                         key: {
                             name: 'x_335329_iscan_result'
                             element: 'dashboard_count'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '6484d278f5d84e39afc1c764467235b7'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'table_name'
+                            language: 'en'
                         }
                     },
                     {
@@ -1349,6 +1561,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '6c252688f8fc4557992ea8e1b1a62ffb'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'import_set_count'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: '6d4f228003f04de29a59fe48989608f1'
                         key: {
@@ -1410,6 +1631,14 @@ declare global {
                     },
                     {
                         table: 'sys_dictionary'
+                        id: '6f89220fddd34810b275290642172410'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'table_name'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
                         id: '6ff749ede1e743eb8c93529dad972526'
                         key: {
                             name: 'x_335329_iscan_result'
@@ -1464,6 +1693,15 @@ declare global {
                         key: {
                             name: 'x_335329_iscan_result'
                             element: 'table_count'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '78e3d6a560004eaa981ba629b1e90f5f'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'custom_artifact_count'
+                            language: 'en'
                         }
                     },
                     {
@@ -1622,6 +1860,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '87fe8c2b70b34b0c8f1009e565b81d8a'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'custom_field_count'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: '88c5164cf7764f40811e512629c6f7dd'
                         key: {
@@ -1660,6 +1907,14 @@ declare global {
                                 }
                             }
                             element: 'run'
+                        }
+                    },
+                    {
+                        table: 'sys_index'
+                        id: '8d5bdc906e7443408e2a2fbdc7bf684c'
+                        key: {
+                            logical_table_name: 'x_335329_iscan_global_customization'
+                            col_name_string: 'run'
                         }
                     },
                     {
@@ -1703,6 +1958,14 @@ declare global {
                             name: 'x_335329_iscan_result'
                             element: 'group_count'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '97386caa35a04457a1dd505308960d74'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'NULL'
                         }
                     },
                     {
@@ -1830,6 +2093,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'a6f4d76257f541b0bce2e6f373703e56'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'custom_field_list'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_ui_element'
                         id: 'a7354282470a0310654c57f1d16d4311'
                         key: {
@@ -1867,6 +2139,7 @@ declare global {
                     {
                         table: 'sys_dictionary'
                         id: 'a9f85d77e5384783b874c3f87f49f0aa'
+                        deleted: true
                         key: {
                             name: 'x_335329_iscan_run'
                             element: 'activities'
@@ -2013,6 +2286,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'b0d78d5e457d48e68580ed9fdf12694e'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: 'b5a0ea8a879845878ed879cf4bf62423'
                         key: {
@@ -2060,6 +2342,23 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: 'b8397c8f1b7946be85fcb04cbc99f4e1'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'sla_definition_count'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'b9362d20be2a49e0873f145d16bcfaa7'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'custom_artifact_list'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: 'b9cd639fd3dd4a3aa736bc7c03e8fc3e'
                         key: {
                             name: 'x_335329_iscan_run'
@@ -2078,6 +2377,15 @@ declare global {
                                     name: 'x_335329_iscan.scanner'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'bbe64b6fae314b63a704faac7a78014f'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'custom_artifact_list'
+                            language: 'en'
                         }
                     },
                     {
@@ -2165,10 +2473,30 @@ declare global {
                         }
                     },
                     {
+                        table: 'ua_table_licensing_config'
+                        id: 'cfec8aae0d3d4c609ab24ea0d9cc3e50'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                        }
+                    },
+                    {
                         table: 'sys_user_role'
                         id: 'd147bc4fa4e049d59f6b364518b377d6'
                         key: {
                             name: 'x_335329_iscan.scanner'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'd18f63c0fd444f61bff9e343af68ead3'
+                        key: {
+                            sys_security_acl: 'f1c4fd5b2316489ebc24efbfc6bde115'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_335329_iscan.scanner'
+                                }
+                            }
                         }
                     },
                     {
@@ -2306,6 +2634,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: 'e48c2e6a7e474223911739ac88af92b5'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                            element: 'run'
+                        }
+                    },
+                    {
                         table: 'sys_choice_set'
                         id: 'e4e4c0af7e7545ac8a6f5232933104cb'
                         key: {
@@ -2345,6 +2681,13 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_db_object'
+                        id: 'e71aeb758e244627a5c1139f945aad31'
+                        key: {
+                            name: 'x_335329_iscan_global_customization'
+                        }
+                    },
+                    {
                         table: 'sys_ui_element'
                         id: 'e7354282470a0310654c57f1d16d4313'
                         deleted: true
@@ -2378,6 +2721,15 @@ declare global {
                             name: 'x_335329_iscan_table'
                             element: 'well_known_base'
                             value: 'task'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'e90de1ae7dc8441390daeb394b8320b3'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'ui_page_count'
+                            language: 'en'
                         }
                     },
                     {
@@ -2541,6 +2893,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: 'f4247abd8429434e814351785778bd6d'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'event_count'
+                        }
+                    },
+                    {
                         table: 'sys_choice_set'
                         id: 'f58acbc3d88d4ffca1877e4658ba0dc8'
                         key: {
@@ -2572,6 +2932,14 @@ declare global {
                             name: 'x_335329_iscan_result'
                             element: 'table_count'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'fb8670f5171447e28b7ffc31e44a5431'
+                        key: {
+                            name: 'x_335329_iscan_result'
+                            element: 'scripted_rest_resource_count'
                         }
                     },
                     {
