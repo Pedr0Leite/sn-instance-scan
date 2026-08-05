@@ -56,7 +56,11 @@ platform generates — see `DEPLOY.md`.
 - `src/client-scripts/*.client.js` — "Download Report" and "Copy LLM
   Context" button scripts ("Run Scan" is a server-side UI Action, see
   `src/server/RunScanUiAction.server.js`)
-- `tests/atf_tests.json` — the 11 ATF-style tests this app must satisfy
+- `src/fluent/tests/*.now.ts` + `src/server/tests/*.test.js` — the ATF
+  regression suite (25 tests) and the long-running full-scan suite; see
+  `tests/README.md` for how to run them and what they cover
+- `tests/atf_tests.json` — the older hand-written test plan the suite
+  implements
 
 See `DEPLOY.md` for the build/install workflow (`npm run build`,
 `npm run deploy`) and instance-dependent things to verify before go-live.

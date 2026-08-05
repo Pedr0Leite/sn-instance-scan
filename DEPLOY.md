@@ -63,8 +63,20 @@ everything this scope creates, so there's no cross-app collision risk.
   `script-includes.now.ts` via `Now.include(...)`
 - `src/client-scripts/*.client.js` — UI Action client scripts, referenced from
   `ui-actions.now.ts` via `Now.include(...)`
-- `tests/atf_tests.json` — the 11 ATF-style tests this app must satisfy
+- `src/fluent/tests/*.now.ts` — ATF tests + suites, installed with the app
+- `src/server/tests/*.test.js` — their step scripts
+- `tests/README.md` — how to run the suites after an upgrade, and their
+  prerequisites (`sn_atf.runner.enabled`, the client test runner for the
+  4 UI tests, the PDF plugin for the report tests)
+- `tests/atf_tests.json` — the older hand-written test plan
   (mirrors `test-plan.md` in the docs vault, plus the report-generation test)
+
+## After deploying: run the tests
+
+`Automated Test Framework > Suites > SN Instance Scan — Regression`. It
+asserts the instance-dependent things listed below as its first test, so
+a missing plugin or a renamed platform field is named directly instead of
+surfacing as a confusing downstream failure.
 
 ## Dependencies to verify against the target instance
 

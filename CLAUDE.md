@@ -215,7 +215,27 @@ wants a note created/appended there.
 - `src/client-scripts/*.client.js` — the remaining client-side UI Action
   scripts (Result-table report download, and `CopyLlmContext`) — "Run
   Scan" and Run-table "Download Report" have no client script, see above
-- `tests/atf_tests.json` — ATF test definitions (mirrors test-plan.md)
+- `src/fluent/tests/*.now.ts` — the executable ATF tests (Fluent `Test()`
+  objects) plus the two `sys_atf_test_suite` records that group them:
+  "SN Instance Scan — Regression" (run after every upgrade/change) and
+  "SN Instance Scan — Full Scan (long running)". There is no Fluent
+  TestSuite API in this SDK version, so the suites and their membership
+  rows use the generic `Record()` API — same escape hatch as
+  `related-lists.now.ts`
+- `src/server/tests/*.test.js` — the ATF step scripts, `Now.include`-ed by
+  the test definitions. **No Jasmine `describe()`** — it is global-scope
+  only, and this is a scoped app; the scoped pattern is
+  `(function (outputs, steps, params, stepResult, assertEqual) {...})`
+  with `assertEqual({name, shouldbe, value})`. Every `Test()` AND every
+  step needs a literal `$id: Now.ID['...']` (keys are extracted
+  statically, so no generating them in a loop), and a step referencing a
+  UI Action must use `Now.ref('sys_ui_action', '<Now.ID key>')` — the
+  imported `UiAction` object does not type-check there
+- `tests/README.md` — how to run the suites, prerequisites, the coverage
+  map, and what is deliberately left as a manual check
+- `tests/atf_tests.json` — the older hand-written test PLAN (mirrors
+  test-plan.md), kept as the statement of intent; `src/fluent/tests/` is
+  the executable version of it
 - `DEPLOY.md` — `now-sdk` build/install workflow
 
 ## Conventions to preserve when editing this code
