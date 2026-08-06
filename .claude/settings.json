@@ -1,0 +1,39 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -f PREV_SESSION.md ]; then jq -Rs '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:(\"Previous-session handoff (PREV_SESSION.md):\\n\\n\" + .)}}' PREV_SESSION.md; else echo '{}'; fi",
+            "statusMessage": "Loading PREV_SESSION.md handoff..."
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "This Claude Code session (sn-instance-scan project) is about to be auto-compacted because it is nearing the context limit (~95%). Before that happens: overwrite PREV_SESSION.md at the project root (create it if it doesn't exist) with a FRESH handoff document — first clear out whatever old content is there, don't append to it. Write a concise (under ~150 lines) handoff covering: (1) what was accomplished this session, (2) what remains outstanding / not yet done, (3) any code changes that are built but not yet committed, deployed, or tested, (4) concrete next steps for the following session. Base this on the actual conversation so far, not assumptions. This file is read automatically at the start of the next session via a SessionStart hook, so it needs to stand alone without the old conversation's context.",
+            "timeout": 120,
+            "statusMessage": "Writing session handoff to PREV_SESSION.md..."
+          }
+        ]
+      },
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "This Claude Code session (sn-instance-scan project) is about to be compacted (manual /compact). Before that happens: overwrite PREV_SESSION.md at the project root (create it if it doesn't exist) with a FRESH handoff document — first clear out whatever old content is there, don't append to it. Write a concise (under ~150 lines) handoff covering: (1) what was accomplished this session, (2) what remains outstanding / not yet done, (3) any code changes that are built but not yet committed, deployed, or tested, (4) concrete next steps for the following session. Base this on the actual conversation so far, not assumptions. This file is read automatically at the start of the next session via a SessionStart hook, so it needs to stand alone without the old conversation's context.",
+            "timeout": 120,
+            "statusMessage": "Writing session handoff to PREV_SESSION.md..."
+          }
+        ]
+      }
+    ]
+  }
+}

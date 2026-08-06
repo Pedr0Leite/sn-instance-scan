@@ -22,10 +22,10 @@ export const runCreateAcl = Acl({
     roles: [scannerRole],
 })
 
-// The orchestrator updates the run record (status/activities/completed)
+// The orchestrator updates the run record (status/scan_findings/completed)
 // as the CALLING user — scripts don't run elevated. Without write access
 // every run.update() silently no-ops for non-admin scanners: status
-// stays 'pending', the activities log stays empty, and no results appear.
+// stays 'pending', the scan_findings log stays empty, and no results appear.
 export const runWriteAcl = Acl({
     $id: Now.ID['sn_inst_scan_run_write_acl'],
     type: 'record',
@@ -66,6 +66,63 @@ export const tableCreateAcl = Acl({
     $id: Now.ID['sn_inst_scan_table_create_acl'],
     type: 'record',
     table: 'x_335329_iscan_table',
+    operation: 'create',
+    roles: [scannerRole],
+})
+
+// Crossref rows are inserted by the orchestrator running as the calling
+// user, same as result/table rows — missing create/read ACLs here means
+// _writeCrossrefRows() silently no-ops for non-admin scanners.
+export const crossrefReadAcl = Acl({
+    $id: Now.ID['sn_inst_scan_crossref_read_acl'],
+    type: 'record',
+    table: 'x_335329_iscan_crossref',
+    operation: 'read',
+    roles: [scannerRole],
+})
+
+export const crossrefCreateAcl = Acl({
+    $id: Now.ID['sn_inst_scan_crossref_create_acl'],
+    type: 'record',
+    table: 'x_335329_iscan_crossref',
+    operation: 'create',
+    roles: [scannerRole],
+})
+
+// Global-customization rows: same pattern, inserted by the orchestrator
+// as the calling user when a base-system table is found to carry
+// customer-scoped customizations.
+export const globalCustomizationReadAcl = Acl({
+    $id: Now.ID['sn_inst_scan_global_custom_read_acl'],
+    type: 'record',
+    table: 'x_335329_iscan_global_customization',
+    operation: 'read',
+    roles: [scannerRole],
+})
+
+export const globalCustomizationCreateAcl = Acl({
+    $id: Now.ID['sn_inst_scan_global_custom_create_acl'],
+    type: 'record',
+    table: 'x_335329_iscan_global_customization',
+    operation: 'create',
+    roles: [scannerRole],
+})
+
+// Module rows (Installed Modules mode): same pattern as table/crossref/
+// global-customization rows — inserted by the orchestrator as the calling
+// user, no write ACL (immutable once written).
+export const moduleReadAcl = Acl({
+    $id: Now.ID['sn_inst_scan_module_read_acl'],
+    type: 'record',
+    table: 'x_335329_iscan_module',
+    operation: 'read',
+    roles: [scannerRole],
+})
+
+export const moduleCreateAcl = Acl({
+    $id: Now.ID['sn_inst_scan_module_create_acl'],
+    type: 'record',
+    table: 'x_335329_iscan_module',
     operation: 'create',
     roles: [scannerRole],
 })

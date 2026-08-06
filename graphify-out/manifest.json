@@ -1,0 +1,227 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1784737695.37,
+    "ast_hash": "86fb747a9835729a3d1d8905a65680df",
+    "semantic_hash": "86fb747a9835729a3d1d8905a65680df"
+  },
+  ".claude/settings.local.json": {
+    "mtime": 1784736090.84,
+    "ast_hash": "21b1c9e36dbf3cbe45bc4691499d3c3e",
+    "semantic_hash": "21b1c9e36dbf3cbe45bc4691499d3c3e"
+  },
+  ".vscode/extensions.json": {
+    "mtime": 1784027536.39,
+    "ast_hash": "4c5e94cfda44feb04fae1ffb8d146109",
+    "semantic_hash": "4c5e94cfda44feb04fae1ffb8d146109"
+  },
+  "now.config.json": {
+    "mtime": 1784135298.84,
+    "ast_hash": "20502f81dc8765449d22b876a16291a3",
+    "semantic_hash": "20502f81dc8765449d22b876a16291a3"
+  },
+  "package.json": {
+    "mtime": 1785345586.7350404,
+    "ast_hash": "c98182f8612591b53f102e7a72a3d817",
+    "semantic_hash": "c98182f8612591b53f102e7a72a3d817"
+  },
+  "src/client-scripts/CopyLlmContext.client.js": {
+    "mtime": 1784566868.92,
+    "ast_hash": "384fae4897ed2a285205eef874bda07f",
+    "semantic_hash": "384fae4897ed2a285205eef874bda07f"
+  },
+  "src/client-scripts/DownloadResultReport.client.js": {
+    "mtime": 1784135678.48,
+    "ast_hash": "03e0d60c2eede4c1ad6bdb5ef9d61123",
+    "semantic_hash": "03e0d60c2eede4c1ad6bdb5ef9d61123"
+  },
+  "src/fluent/acls.now.ts": {
+    "mtime": 1785344287.8130715,
+    "ast_hash": "86d49af63b4db877b04e3e5d7d14da49",
+    "semantic_hash": "86d49af63b4db877b04e3e5d7d14da49"
+  },
+  "src/fluent/generated/data/form-section/sys_ui_section_6b354282470a0310654c57f1d16d4303.now.ts": {
+    "mtime": 1784135298.84,
+    "ast_hash": "2f05545a77d40b3344ee5ada515993e6",
+    "semantic_hash": "2f05545a77d40b3344ee5ada515993e6"
+  },
+  "src/fluent/generated/keys.ts": {
+    "mtime": 1785345614.9646704,
+    "ast_hash": "f30981aca843cde0e0d9b8e276002915",
+    "semantic_hash": "f30981aca843cde0e0d9b8e276002915"
+  },
+  "src/fluent/generated/other/sys-ui-element/sys_ui_section_6b354282470a0310654c57f1d16d4303.now.ts": {
+    "mtime": 1784717553.34,
+    "ast_hash": "7f8039bdbf6deff9e8c8255536f9cf57",
+    "semantic_hash": "7f8039bdbf6deff9e8c8255536f9cf57"
+  },
+  "src/fluent/generated/user-interface/list/sys_ui_list_x_335329_iscan_result_null.now.ts": {
+    "mtime": 1784135298.84,
+    "ast_hash": "859dc6e7398f5d00e125c756b4d378fb",
+    "semantic_hash": "859dc6e7398f5d00e125c756b4d378fb"
+  },
+  "src/fluent/generated/user-interface/list/sys_ui_list_x_335329_iscan_run_null.now.ts": {
+    "mtime": 1784135298.84,
+    "ast_hash": "b83d38b42d56fa6f00d5d162dafb2e24",
+    "semantic_hash": "b83d38b42d56fa6f00d5d162dafb2e24"
+  },
+  "src/fluent/navigation.now.ts": {
+    "mtime": 1785344338.137484,
+    "ast_hash": "d17cbbb9201a620a40c1eda61b976f49",
+    "semantic_hash": "d17cbbb9201a620a40c1eda61b976f49"
+  },
+  "src/fluent/properties.now.ts": {
+    "mtime": 1784670760.49,
+    "ast_hash": "29e5f7d2416db184e756f23b6b22ed85",
+    "semantic_hash": "29e5f7d2416db184e756f23b6b22ed85"
+  },
+  "src/fluent/related-lists.now.ts": {
+    "mtime": 1785344314.5248566,
+    "ast_hash": "99b5f46d26cf885d651f12b810874777",
+    "semantic_hash": "99b5f46d26cf885d651f12b810874777"
+  },
+  "src/fluent/roles.now.ts": {
+    "mtime": 1784563319.01,
+    "ast_hash": "240b6103350c809457bc4b72209562da",
+    "semantic_hash": "240b6103350c809457bc4b72209562da"
+  },
+  "src/fluent/script-includes.now.ts": {
+    "mtime": 1785344104.0565982,
+    "ast_hash": "ad514e1751ad160a454874e665851a82",
+    "semantic_hash": "ad514e1751ad160a454874e665851a82"
+  },
+  "src/fluent/tables.now.ts": {
+    "mtime": 1785344082.622636,
+    "ast_hash": "9844b22a6d4d642e5ec7617a3db9b23e",
+    "semantic_hash": "9844b22a6d4d642e5ec7617a3db9b23e"
+  },
+  "src/fluent/ui-actions.now.ts": {
+    "mtime": 1784746515.13,
+    "ast_hash": "59625cf91939d365f4494473cf6750eb",
+    "semantic_hash": "59625cf91939d365f4494473cf6750eb"
+  },
+  "src/fluent/ui-policies.now.ts": {
+    "mtime": 1784668518.41,
+    "ast_hash": "4fd8db933f46c9f9b506fc7d5b3b4873",
+    "semantic_hash": "4fd8db933f46c9f9b506fc7d5b3b4873"
+  },
+  "src/server/DownloadRunReportUiAction.server.js": {
+    "mtime": 1784746504.53,
+    "ast_hash": "4a8e8eac79ce9ead9ff122402d056f07",
+    "semantic_hash": "4a8e8eac79ce9ead9ff122402d056f07"
+  },
+  "src/server/IscanAppFilesScanner.server.js": {
+    "mtime": 1784744850.25,
+    "ast_hash": "a027afb85992e50311195637245dd0bc",
+    "semantic_hash": "a027afb85992e50311195637245dd0bc"
+  },
+  "src/server/IscanAppSelector.server.js": {
+    "mtime": 1784717535.41,
+    "ast_hash": "7f67c0d23f7b8b687e761a2503d447d1",
+    "semantic_hash": "7f67c0d23f7b8b687e761a2503d447d1"
+  },
+  "src/server/IscanModuleScanner.server.js": {
+    "mtime": 1785344133.9551094,
+    "ast_hash": "8816b74610f3edac582fa82ef7071f0a",
+    "semantic_hash": "8816b74610f3edac582fa82ef7071f0a"
+  },
+  "src/server/IscanReportGenerator.server.js": {
+    "mtime": 1785345415.6984541,
+    "ast_hash": "54b60622cede0e2a31595704cdc84e98",
+    "semantic_hash": "54b60622cede0e2a31595704cdc84e98"
+  },
+  "src/server/IscanScanOrchestrator.server.js": {
+    "mtime": 1785344243.7363274,
+    "ast_hash": "794edbce1cf063f45258d330575e388a",
+    "semantic_hash": "794edbce1cf063f45258d330575e388a"
+  },
+  "src/server/IscanSummaryGenerator.server.js": {
+    "mtime": 1784566763.45,
+    "ast_hash": "28fc26eb219fbdec8edefb02f6bdad8f",
+    "semantic_hash": "28fc26eb219fbdec8edefb02f6bdad8f"
+  },
+  "src/server/IscanTableScanner.server.js": {
+    "mtime": 1784728339.81,
+    "ast_hash": "92876a01410a7fe628ccfdddfbaf1e12",
+    "semantic_hash": "92876a01410a7fe628ccfdddfbaf1e12"
+  },
+  "src/server/RunScanUiAction.server.js": {
+    "mtime": 1785344266.1014042,
+    "ast_hash": "b5d9c8a27f789d2d446cbb7fceb57905",
+    "semantic_hash": "b5d9c8a27f789d2d446cbb7fceb57905"
+  },
+  "tests/atf_tests.json": {
+    "mtime": 1785344413.288762,
+    "ast_hash": "455ea1d54dd96aed68832a3fe88eaf05",
+    "semantic_hash": "455ea1d54dd96aed68832a3fe88eaf05"
+  },
+  "CLAUDE.md": {
+    "mtime": 1785345523.1563888,
+    "ast_hash": "f397a3e2e3acc8b1d20e700ace1d6fb5",
+    "semantic_hash": "f397a3e2e3acc8b1d20e700ace1d6fb5"
+  },
+  "DEPLOY.md": {
+    "mtime": 1784136525.73,
+    "ast_hash": "2b6fcf4ef10b239df2db4868bcc108ad",
+    "semantic_hash": "2b6fcf4ef10b239df2db4868bcc108ad"
+  },
+  "README.md": {
+    "mtime": 1784738259.98,
+    "ast_hash": "50049b8de730950029e501a6fa2bd485",
+    "semantic_hash": "50049b8de730950029e501a6fa2bd485"
+  },
+  "docs/OUTSTANDING_WORK.md": {
+    "mtime": 1784798172.87,
+    "ast_hash": "f3f3a1e8cbfbb1a01c8dc45781fbc5bd",
+    "semantic_hash": "f3f3a1e8cbfbb1a01c8dc45781fbc5bd"
+  },
+  "docs/future-schema-ideas.md": {
+    "mtime": 1784670553.79,
+    "ast_hash": "6e38d75290fcc2d83f0fd5bb91bc1133",
+    "semantic_hash": "6e38d75290fcc2d83f0fd5bb91bc1133"
+  },
+  "docs/superpowers/INSTANCE_ASSESSMENT_STATUS.md": {
+    "mtime": 1784728870.08,
+    "ast_hash": "59d87aae86cf76d5c3de1910e28cd797",
+    "semantic_hash": "59d87aae86cf76d5c3de1910e28cd797"
+  },
+  "docs/superpowers/plans/2026-07-21-counting-implementation.md": {
+    "mtime": 1784670693.17,
+    "ast_hash": "a19b3c184ef1d83948aa2fd03e9c4b45",
+    "semantic_hash": "a19b3c184ef1d83948aa2fd03e9c4b45"
+  },
+  "docs/superpowers/plans/2026-07-21-modes-implementation.md": {
+    "mtime": 1784668134.64,
+    "ast_hash": "4c57b9732b950ac2e8eb1aa0d1eaee68",
+    "semantic_hash": "4c57b9732b950ac2e8eb1aa0d1eaee68"
+  },
+  "docs/superpowers/plans/2026-07-22-crossrefs-implementation.md": {
+    "mtime": 1784709325.23,
+    "ast_hash": "3570517fd8cb1c3ce5943995f52bf245",
+    "semantic_hash": "3570517fd8cb1c3ce5943995f52bf245"
+  },
+  "docs/superpowers/plans/2026-07-22-report-implementation.md": {
+    "mtime": 1784710772.42,
+    "ast_hash": "5217f87495986e9ebad0c621183ff616",
+    "semantic_hash": "5217f87495986e9ebad0c621183ff616"
+  },
+  "docs/superpowers/specs/2026-07-21-counting-design.md": {
+    "mtime": 1784670538.31,
+    "ast_hash": "c616ed5769d0a798d2898d9822fa837c",
+    "semantic_hash": "c616ed5769d0a798d2898d9822fa837c"
+  },
+  "docs/superpowers/specs/2026-07-21-modes-design.md": {
+    "mtime": 1784667738.46,
+    "ast_hash": "58de96899841c586958c720ead28cef8",
+    "semantic_hash": "58de96899841c586958c720ead28cef8"
+  },
+  "docs/superpowers/specs/2026-07-22-crossrefs-design.md": {
+    "mtime": 1784709177.91,
+    "ast_hash": "ec2e636f950093b55f351edf9d5aa2fa",
+    "semantic_hash": "ec2e636f950093b55f351edf9d5aa2fa"
+  },
+  "docs/superpowers/specs/2026-07-22-report-design.md": {
+    "mtime": 1784710605.39,
+    "ast_hash": "d57247cb563f6bab70a0c0deed8f7f78",
+    "semantic_hash": "d57247cb563f6bab70a0c0deed8f7f78"
+  }
+}

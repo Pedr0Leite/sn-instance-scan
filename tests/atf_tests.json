@@ -230,5 +230,38 @@
       "Open the run record and inspect the activities field"
     ],
     "expected": "Zero x_335329_iscan_result rows are created for this run; run.status = 'complete'; run.activities contains a line naming the table with its row_count/field_count/reference field list, and a preceding line noting the table has no owning application"
+  },
+  {
+    "name": "Modules mode: installed plugins profiled instance-wide",
+    "story": "Modes sub-spec: Installed Modules scan mode",
+    "precondition": "Run as a user with the x_335329_iscan.scanner role and read access to sys_plugins",
+    "steps": [
+      "Server-side script step: call IscanScanOrchestrator.runScan('modules', [])",
+      "Query x_335329_iscan_module where run = created run",
+      "Compare row count to sys_plugins row count on the instance"
+    ],
+    "expected": "run.app_count = 0; run.status = 'complete'; one x_335329_iscan_module row per sys_plugins record, with name/plugin_id populated, active_flag mirroring sys_plugins.active, active_confirmed mirroring GlidePluginManager().isActive(plugin_id), and status_mismatch = true only where the two disagree; zero x_335329_iscan_result rows are created for this run"
+  },
+  {
+    "name": "Modules mode: sys_plugins read denial surfaces as an error, not a silent zero-row scan",
+    "story": "Modes sub-spec: Installed Modules scan mode",
+    "precondition": "ATF test user holding x_335329_iscan.scanner but with no read access to sys_plugins",
+    "steps": [
+      "Impersonate the restricted ATF test user",
+      "Server-side script step: call IscanScanOrchestrator.runScan('modules', [])",
+      "Inspect the resulting run record"
+    ],
+    "expected": "run.status = 'error'; run.scan_findings/comments contains an explicit error line naming sys_plugins read access as the cause; zero x_335329_iscan_module rows are created for this run — no silent zero-row 'complete' status"
+  },
+  {
+    "name": "Manual — App: target_app multi-select scans all selected apps",
+    "story": "Manual scan mode — multi-select app picker",
+    "precondition": "Run as a user with the x_335329_iscan.scanner role; two distinct custom apps exist (appA, appB)",
+    "steps": [
+      "Server-side script step: create an x_335329_iscan_run record with scan_mode='manual', target_app=appA.sys_id + ',' + appB.sys_id (comma-separated, simulating a 2-value slushbucket selection)",
+      "Server-side script step: call IscanScanOrchestrator.runScanForRecord(run.sys_id, 'manual', [appA.sys_id, appB.sys_id], '') — mirrors what RunScanUiAction.server.js resolves via targetAppId.split(',')",
+      "Query x_335329_iscan_result where run = created run"
+    ],
+    "expected": "Exactly 2 result records are created, one for appA and one for appB, confirming target_app now accepts and scans more than one selected app"
   }
 ]

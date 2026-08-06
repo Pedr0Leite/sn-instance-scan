@@ -44,27 +44,10 @@
 
     // target_app takes precedence over the legacy manual_app_list field
     // when both are set — see docs/superpowers/specs/2026-07-21-modes-design.md.
-    var manualAppList = targetAppId ? [targetAppId] : (manualAppListRaw ? manualAppListRaw.split(',') : [])
-
-    // Persist the submitted form values (scan_mode, target_app,
-    // target_table, manual_app_list) BEFORE the orchestrator runs, and
-    // before the setAbortAction(true) below. Without this, target_app/
-    // target_table would silently revert to blank on reload: the
-    // platform's own post-script save is being aborted (so it doesn't
-    // clobber the orchestrator's own status/activities updates, made via
-    // a separately-fetched GlideRecord), and the orchestrator only ever
-    // explicitly re-applies the fields it already knows about
-    // (scan_mode, manual_app_list, target_table) onto ITS copy — never
-    // target_app, since that's collapsed into manualAppList before the
-    // orchestrator ever sees it.
-    if (!current.update()) {
-        gs.error('RunScanUiAction: failed to save submitted scan_mode/target_app/target_table/manual_app_list')
-        gs.addErrorMessage(
-            'Could not save the scan request — check write access to x_335329_iscan_run.'
-        )
-        current.setAbortAction(true)
-        return
-    }
+    // target_app is now a List field (multi-select slushbucket), so
+    // getValue() returns a comma-separated sys_id string the same way
+    // manual_app_list already does — split it the same way.
+    var manualAppList = targetAppId ? targetAppId.split(',') : (manualAppListRaw ? manualAppListRaw.split(',') : [])
 
     gs.info('RunScanUiAction: starting scan, run=' + current.getUniqueValue() + ', scan_mode=' + scanMode)
     try {
@@ -77,12 +60,30 @@
         gs.addErrorMessage('Scan failed: ' + e.message + ' — see the Activities field and system log for details.')
     }
 
-    // runScanForRecord() persists its own updates (status/activities/
-    // results) via a separate GlideRecord query inside the orchestrator.
-    // `current` here still holds pre-scan status/activities values in
-    // memory, so abort the platform's default post-script save to avoid
-    // it clobbering what the orchestrator just wrote, then redirect back
-    // to show the result.
-    current.setAbortAction(true)
+    // runScanForRecord() persists status/scan_findings/app_count/completed
+    // via its own separately-fetched GlideRecord — `current` here still
+    // only holds the pre-scan snapshot for those fields. Mirror the
+    // now-current DB state onto `current` in memory, then let the
+    // platform's OWN single natural save proceed (no setAbortAction, no
+    // manual current.update()). This used to call current.update() mid-
+    // script (to persist target_app/target_table before they'd otherwise
+    // be lost) and THEN setAbortAction(true) — two saves against the same
+    // record inside one request, which is exactly what produced the
+    // "Invalid update" banner (a sys_mod_count/optimistic-concurrency
+    // mismatch the platform trips on itself). Letting exactly one save
+    // happen — the platform's default one, with the right data already
+    // merged onto `current` — avoids that collision entirely. Journal
+    // fields (`comments`) don't need mirroring here: the Activity stream
+    // reads from sys_journal_field child records, not from a value held
+    // on this in-memory GlideRecord.
+    var refreshed = new GlideRecord('x_335329_iscan_run')
+    if (refreshed.get(current.getUniqueValue())) {
+        current.setValue('status', refreshed.getValue('status'))
+        current.setValue('scan_findings', refreshed.getValue('scan_findings'))
+        current.setValue('app_count', refreshed.getValue('app_count'))
+        current.setValue('started', refreshed.getValue('started'))
+        current.setValue('completed', refreshed.getValue('completed'))
+    }
+
     action.setRedirectURL(current)
 })()

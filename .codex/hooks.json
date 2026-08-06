@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -f PREV_SESSION.md ]; then jq -Rs '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:(\"Previous-session handoff (PREV_SESSION.md):\\n\\n\" + .)}}' PREV_SESSION.md; else echo '{}'; fi",
+            "statusMessage": "Loading PREV_SESSION.md handoff..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -77,6 +77,27 @@ export const newManualScanModule = Record({
     },
 })
 
+export const newModulesScanModule = Record({
+    $id: Now.ID['iscan_module_new_modules'],
+    table: 'sys_app_module',
+    data: {
+        title: 'New Modules Scan',
+        application: appMenu,
+        link_type: 'NEW',
+        name: 'x_335329_iscan_run',
+        query: 'scan_mode=modules',
+        hint: 'Scan installed plugins/modules instance-wide (sys_plugins)',
+        roles: ['x_335329_iscan.scanner'],
+        active: true,
+        order: 350,
+        override_menu_roles: false,
+        require_confirmation: false,
+        sys_domain: 'global',
+        sys_domain_path: '/',
+        uncancelable: false,
+    },
+})
+
 export const separatorModule = Record({
     $id: Now.ID['iscan_module_separator'],
     table: 'sys_app_module',

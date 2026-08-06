@@ -126,12 +126,9 @@ Record({
         sys_ui_section: '6b354282470a0310654c57f1d16d4303',
     },
 })
-// comments — the Journal input field, replacing the raw `activities`
-// String textarea on the form (activities is still written and stays
-// queryable, it's just no longer shown as a big textarea). This gives
-// the Incident-style "Additional comments" input box; paired with the
-// activity.xml formatter below it renders the same Activity stream
-// Incident uses.
+// comments — the Journal input field. Gives the Incident-style
+// "Additional comments" input box; paired with the activity.xml
+// formatter below it renders the same Activity stream Incident uses.
 Record({
     $id: Now.ID['iscan_form_comments'],
     table: 'sys_ui_element',
@@ -150,5 +147,19 @@ Record({
         sys_ui_formatter: '444ea5c6bf310100e628555b3f0739d6',
         sys_ui_section: '6b354282470a0310654c57f1d16d4303',
         type: 'formatter',
+    },
+})
+// scan_findings — the plain queryable String log (renamed from
+// `activities` 2026-07-22; that name read as the native Activity stream,
+// which this is NOT). Shown alongside `comments`/the Activity formatter
+// above, not instead of them — both are written on every
+// IscanScanOrchestrator._appendScanFinding() call.
+Record({
+    $id: Now.ID['iscan_form_scan_findings'],
+    table: 'sys_ui_element',
+    data: {
+        element: 'scan_findings',
+        position: 15,
+        sys_ui_section: '6b354282470a0310654c57f1d16d4303',
     },
 })

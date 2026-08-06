@@ -61,6 +61,7 @@ IscanAppFilesScanner.prototype = {
 			scheduled_jobs: [],
 			notifications: [],
 			scripted_rest_apis: [],
+			scripted_rest_resources: [],
 			transform_maps: [],
 			catalog_items: [],
 			workflows: [],
@@ -74,9 +75,14 @@ IscanAppFilesScanner.prototype = {
 			dashboards: [],
 			pa_indicators: [],
 			service_portals: [],
+			service_portal_pages: [],
 			service_portal_widgets: [],
 			flow_actions: [],
 			catalog_variables: [],
+			sla_definitions: [],
+			ui_pages: [],
+			events: [],
+			import_sets: [],
 			choice_count: 0,
 			role_count: 0,
 			group_count: 0,
@@ -102,7 +108,8 @@ IscanAppFilesScanner.prototype = {
 			}
 			result[bucket].push({
 				sys_id: meta.getUniqueValue(),
-				name: meta.getValue('name') || meta.getValue('sys_name') || ''
+				name: meta.getValue('name') || meta.getValue('sys_name') || '',
+				description: meta.getValue('description') || ''
 			});
 		}
 
@@ -112,10 +119,33 @@ IscanAppFilesScanner.prototype = {
 			// PA tables may not carry a direct sys_scope field on all instance versions — needs verification.
 			result.pa_indicators = this._scanSimpleScopedTable(appScopeSysId, 'pa_indicators');
 			result.service_portals = this._scanSimpleScopedTable(appScopeSysId, 'sp_portal');
+			result.service_portal_pages = this._scanSimpleScopedTable(appScopeSysId, 'sp_page');
 			result.service_portal_widgets = this._scanSimpleScopedTable(appScopeSysId, 'sp_widget');
 			// Table name needs verification against a real instance.
 			result.flow_actions = this._scanSimpleScopedTable(appScopeSysId, 'sys_hub_action_type_definition');
 			result.catalog_variables = this._scanCatalogVariables(appScopeSysId);
+			// Table name needs verification against a real instance —
+			// sys_ws_operation may lack a direct `name`, hence the
+			// operation_uri fallback baked into _scanSimpleScopedTable.
+			result.scripted_rest_resources = this._scanSimpleScopedTable(appScopeSysId, 'sys_ws_operation');
+			// SLA definition table name needs verification against a real
+			// instance (contract_sla on most versions).
+			result.sla_definitions = this._scanSimpleScopedTable(appScopeSysId, 'contract_sla');
+			// UI pages: added as a Group B simple-scoped-table scan rather
+			// than a CLASS_BUCKETS entry — unconfirmed whether sys_ui_page
+			// extends sys_metadata on all instance versions.
+			result.ui_pages = this._scanSimpleScopedTable(appScopeSysId, 'sys_ui_page');
+			// Events (Event Registrations) and Import Sets — from the
+			// original v3 "count everything" list, added later than the
+			// rest of Counting. Table names are low-confidence, same as
+			// several others above — verify against the real instance:
+			// `sysevent_register` (event registration definitions) and
+			// `sys_import_set_source` (configured Import Set sources) are
+			// the closest stock ServiceNow equivalents, but neither is
+			// confirmed to carry a direct `sys_scope` field on every
+			// version.
+			result.events = this._scanSimpleScopedTable(appScopeSysId, 'sysevent_register');
+			result.import_sets = this._scanSimpleScopedTable(appScopeSysId, 'sys_import_set_source');
 			result.choice_count = this._countChoices(appScopeSysId);
 			// Per the original v3 spec: count roles, groups, and system
 			// properties per scope. Count-only (no name list), same
@@ -130,13 +160,15 @@ IscanAppFilesScanner.prototype = {
 	},
 
 	/**
-	 * Group B helper: {sys_id, name} list for any table that carries a
-	 * direct sys_scope field. Covers dashboards, PA indicators, service
-	 * portals/widgets, and Flow Designer custom action definitions — all
-	 * share this exact query shape.
+	 * Group B helper: {sys_id, name, description} list for any table that
+	 * carries a direct sys_scope field. Covers dashboards, PA indicators,
+	 * service portals/pages/widgets, Flow Designer custom action
+	 * definitions, Scripted REST resources, SLA definitions, and UI pages
+	 * — all share this exact query shape. Falls back to `operation_uri`
+	 * for tables (sys_ws_operation) with no `name`/`sys_name` field.
 	 * @param {String} appScopeSysId
 	 * @param {String} tableName
-	 * @returns {Array} [{sys_id, name}]
+	 * @returns {Array} [{sys_id, name, description}]
 	 */
 	_scanSimpleScopedTable: function(appScopeSysId, tableName) {
 		var items = [];
@@ -149,7 +181,8 @@ IscanAppFilesScanner.prototype = {
 		while (gr.next()) {
 			items.push({
 				sys_id: gr.getUniqueValue(),
-				name: gr.getValue('name') || gr.getValue('sys_name') || ''
+				name: gr.getValue('name') || gr.getValue('sys_name') || gr.getValue('operation_uri') || '',
+				description: gr.getValue('description') || ''
 			});
 		}
 		return items;
@@ -220,7 +253,8 @@ IscanAppFilesScanner.prototype = {
 		while (gr.next()) {
 			vars.push({
 				sys_id: gr.getUniqueValue(),
-				name: gr.getValue('name') || ''
+				name: gr.getValue('name') || '',
+				description: gr.getValue('description') || ''
 			});
 		}
 		return vars;

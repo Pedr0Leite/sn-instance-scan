@@ -39,6 +39,31 @@ Ledger: `.superpowers/sdd/progress.md` (all 3 tasks complete, merged to main
 directly — no branch was used). No numeric-threshold flags were added, per
 the design's explicit rejection of invented cutoffs.
 
+## 2026-07-22: "fully implemented" doesn't mean "visible in the run log"
+
+A run's `scan_findings`/`comments` log is a terse PER-APP PROGRESS log by
+design (table/business-rule/script-include/flow counts + a customization
+line, then "Scan complete.") — it has never held the full v3 assessment
+and was never meant to. Diagnosed after a report that a Custom Apps Only
+run "only produces a terse log line instead of the full report" — traced
+the whole path (UI Action → orchestrator → report generator) and found
+no disconnect: it's working as designed, the confusion was about WHERE
+the output lives. The actual v3 assessment is:
+- ~30 per-artifact-type count fields on each `x_335329_iscan_result` row
+  (client scripts, UI policies, roles, groups, choices, etc. — see
+  `IscanScanOrchestrator._scanOneApp`'s `result.setValue()` calls).
+- Field + cross-reference data on `x_335329_iscan_table` /
+  `x_335329_iscan_crossref` / `x_335329_iscan_global_customization` child
+  records (one row per table/reference/customization found).
+- The exportable status-flagged, itemized, narrative report — generated
+  ON DEMAND, not automatically, via the "Download Report" UI Action on
+  either the Run or Result record → `IscanReportGenerator`.
+Fix applied: the run's closing "Scan complete." log line now appends a
+pointer to where the full data actually lives (see
+`IscanScanOrchestrator._reportPointerMessage()`), so this doesn't need
+re-diagnosing from scratch in a future session or by a user unfamiliar
+with the schema.
+
 ## All 4 sub-specs complete
 
 Modes → Counting → Cross-refs → Report have all shipped to `main`. Recall

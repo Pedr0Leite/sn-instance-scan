@@ -37,18 +37,26 @@ export const downloadRunReportUiAction = UiAction({
     active: true,
     showInsert: false,
     showUpdate: true,
-    hint: 'Export this scan run (every scanned app) as a PDF, with hyperlinks back to each result record.',
+    hint: 'Generate a PDF report for this scan run (every scanned app) and attach it directly to this record.',
     roles: [scannerRole],
     order: 200,
     form: {
         showButton: true,
     },
     client: {
-        isClient: true,
+        // Server-side UI action, same pattern as Run Scan above: runs
+        // directly on `current` in the same request as the form submit
+        // — no GlideAjax, no client-side "open sys_attachment.do in a
+        // new tab" step. This replaced the previous client-side version
+        // (which had isUi16Compatible: false, silently breaking client
+        // script loading on UI16 forms — see git history) specifically
+        // to eliminate that whole failure class, not just patch it.
+        // See DownloadRunReportUiAction.server.js.
+        isClient: false,
         isUi16Compatible: true,
-        onClick: 'downloadRunReport()',
+        isUi11Compatible: true,
     },
-    script: Now.include('../client-scripts/DownloadRunReport.client.js'),
+    script: Now.include('../server/DownloadRunReportUiAction.server.js'),
     messages: [],
 })
 
@@ -94,7 +102,9 @@ export const downloadResultReportUiAction = UiAction({
     },
     client: {
         isClient: true,
-        isUi16Compatible: true,
+        // Same rationale/accepted risk as downloadRunReportUiAction above.
+        isUi16Compatible: false,
+        isUi11Compatible: false,
         onClick: 'downloadResultReport()',
     },
     script: Now.include('../client-scripts/DownloadResultReport.client.js'),

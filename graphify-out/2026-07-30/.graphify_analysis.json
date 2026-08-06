@@ -1,0 +1,394 @@
+{
+  "communities": {
+    "0": [
+      "src_fluent_acls_now",
+      "src_fluent_acls_now_crossrefcreateacl",
+      "src_fluent_acls_now_crossrefreadacl",
+      "src_fluent_acls_now_globalcustomizationcreateacl",
+      "src_fluent_acls_now_globalcustomizationreadacl",
+      "src_fluent_acls_now_modulecreateacl",
+      "src_fluent_acls_now_modulereadacl",
+      "src_fluent_acls_now_reportgeneratorexecuteacl",
+      "src_fluent_acls_now_resultcreateacl",
+      "src_fluent_acls_now_resultreadacl",
+      "src_fluent_acls_now_runcreateacl",
+      "src_fluent_acls_now_runreadacl",
+      "src_fluent_acls_now_runwriteacl",
+      "src_fluent_acls_now_tablecreateacl",
+      "src_fluent_acls_now_tablereadacl",
+      "src_fluent_roles_now",
+      "src_fluent_roles_now_scannerrole",
+      "src_fluent_ui_actions_now",
+      "src_fluent_ui_actions_now_copyllmcontextuiaction",
+      "src_fluent_ui_actions_now_downloadresultreportuiaction",
+      "src_fluent_ui_actions_now_downloadrunreportuiaction",
+      "src_fluent_ui_actions_now_runscanuiaction"
+    ],
+    "1": [
+      "claude_doc",
+      "claude_report_subspec",
+      "deploy_doc",
+      "docs_future_schema_ideas_choices_count_only_decision",
+      "docs_future_schema_ideas_doc",
+      "docs_future_schema_ideas_group_b_gating_decision",
+      "docs_future_schema_ideas_oob_scope_relax_rejected",
+      "docs_future_schema_ideas_single_table_full_tally_decision",
+      "docs_outstanding_work_doc",
+      "docs_outstanding_work_working_conventions",
+      "docs_superpowers_instance_assessment_status_doc",
+      "docs_superpowers_instance_assessment_status_working_conventions",
+      "docs_superpowers_plans_2026_07_21_counting_implementation_doc",
+      "docs_superpowers_plans_2026_07_21_modes_implementation_doc",
+      "docs_superpowers_plans_2026_07_22_crossrefs_implementation_doc",
+      "docs_superpowers_plans_2026_07_22_report_implementation_doc",
+      "docs_superpowers_specs_2026_07_21_counting_design_doc",
+      "docs_superpowers_specs_2026_07_21_modes_design_doc",
+      "docs_superpowers_specs_2026_07_22_crossrefs_design_doc",
+      "docs_superpowers_specs_2026_07_22_report_design_doc",
+      "readme_doc"
+    ],
+    "2": [
+      "claude_iscanappselector",
+      "claude_iscanmodulescanner",
+      "claude_iscanscanorchestrator",
+      "claude_iscansummarygenerator",
+      "claude_iscantablescanner",
+      "claude_llm_context_vs_summary_text",
+      "claude_modules_scan_mode",
+      "claude_read_only_no_elevated_privilege_convention",
+      "claude_x335329_iscan_module_table",
+      "deploy_genai_controller_dependency",
+      "deploy_scanner_role_open_decision",
+      "docs_future_schema_ideas_no_owning_app_fallback_decision",
+      "docs_future_schema_ideas_orchestrator_positional_param_decision",
+      "docs_future_schema_ideas_profiletable_unscoped_decision",
+      "docs_future_schema_ideas_roles_groups_excluded_decision",
+      "docs_superpowers_instance_assessment_status_report_pointer_fix",
+      "docs_superpowers_plans_2026_07_21_modes_implementation_orchestrator_task",
+      "docs_superpowers_plans_2026_07_22_crossrefs_implementation_findinboundreferences_task",
+      "docs_superpowers_specs_2026_07_21_modes_design_single_table_resolution",
+      "docs_superpowers_specs_2026_07_22_crossrefs_design_findinboundreferences"
+    ],
+    "3": [
+      "package",
+      "package_description",
+      "package_devdependencies",
+      "package_devdependencies_servicenow_glide",
+      "package_devdependencies_servicenow_sdk",
+      "package_imports",
+      "package_imports_now",
+      "package_license",
+      "package_name",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_deploy",
+      "package_scripts_tosn",
+      "package_scripts_transform",
+      "package_scripts_types",
+      "package_version",
+      "servicenow_glide",
+      "servicenow_sdk"
+    ],
+    "4": [
+      "claude_crossrefs_subspec",
+      "claude_downloadresultreportuiaction",
+      "claude_glideajax_checklist_pattern",
+      "claude_global_scope_qualifier_convention",
+      "claude_iscanreportgenerator",
+      "claude_scan_findings_comments_dual_write",
+      "claude_scan_findings_log_and_recommendations",
+      "claude_table_overflow_css_fix",
+      "claude_x335329_iscan_crossref_table",
+      "deploy_pdf_generation_utilities_dependency",
+      "docs_outstanding_work_backlog_items",
+      "docs_outstanding_work_verification_checklist",
+      "docs_superpowers_plans_2026_07_22_crossrefs_implementation_orchestrator_task",
+      "docs_superpowers_plans_2026_07_22_report_implementation_resultreport_task",
+      "docs_superpowers_plans_2026_07_22_report_implementation_statusflags_task",
+      "docs_superpowers_specs_2026_07_22_crossrefs_design_crossref_schema",
+      "docs_superpowers_specs_2026_07_22_report_design_status_flags"
+    ],
+    "5": [
+      "claude_artifact_inventory_and_customizations",
+      "claude_counting_subspec",
+      "claude_iscanappfilesscanner",
+      "claude_modes_subspec",
+      "claude_x335329_iscan_global_customization_table",
+      "claude_x335329_iscan_run_table",
+      "claude_x335329_iscan_table_table",
+      "docs_future_schema_ideas_manual_app_list_kept_decision",
+      "docs_future_schema_ideas_table_picker_unrestricted_decision",
+      "docs_superpowers_plans_2026_07_21_counting_implementation_group_a_task",
+      "docs_superpowers_plans_2026_07_21_counting_implementation_group_b_task",
+      "docs_superpowers_specs_2026_07_21_counting_design_group_a",
+      "docs_superpowers_specs_2026_07_21_counting_design_group_b",
+      "readme_scan_scope_modes_overview"
+    ],
+    "6": [
+      "src_fluent_navigation_now",
+      "src_fluent_navigation_now_appmenu",
+      "src_fluent_navigation_now_newcustomonlyscanmodule",
+      "src_fluent_navigation_now_newfullscanmodule",
+      "src_fluent_navigation_now_newmanualscanmodule",
+      "src_fluent_navigation_now_newmodulesscanmodule",
+      "src_fluent_navigation_now_scanresultslistmodule",
+      "src_fluent_navigation_now_scanrunslistmodule",
+      "src_fluent_navigation_now_separatormodule"
+    ],
+    "7": [
+      "claude_download_run_report_serverside_conversion",
+      "claude_downloadrunreportuiaction",
+      "claude_manual_mode_multiselect",
+      "claude_run_scan_glideajax_failure_pattern",
+      "claude_runscanuiaction",
+      "docs_outstanding_work_uncommitted_changes",
+      "docs_superpowers_plans_2026_07_21_modes_implementation_runscanuiaction_task",
+      "docs_superpowers_specs_2026_07_21_modes_design_manual_precedence"
+    ],
+    "8": [
+      "src_fluent_script_includes_now",
+      "src_fluent_script_includes_now_iscanappfilesscanner",
+      "src_fluent_script_includes_now_iscanappselector",
+      "src_fluent_script_includes_now_iscanmodulescanner",
+      "src_fluent_script_includes_now_iscanreportgenerator",
+      "src_fluent_script_includes_now_iscanscanorchestrator",
+      "src_fluent_script_includes_now_iscansummarygenerator",
+      "src_fluent_script_includes_now_iscantablescanner"
+    ],
+    "9": [
+      "src_fluent_tables_now",
+      "src_fluent_tables_now_x_335329_iscan_crossref",
+      "src_fluent_tables_now_x_335329_iscan_global_customization",
+      "src_fluent_tables_now_x_335329_iscan_module",
+      "src_fluent_tables_now_x_335329_iscan_result",
+      "src_fluent_tables_now_x_335329_iscan_run",
+      "src_fluent_tables_now_x_335329_iscan_table"
+    ],
+    "10": [
+      "src_fluent_properties_now",
+      "src_fluent_properties_now_customscopeprefixproperty",
+      "src_fluent_properties_now_genaienabledproperty",
+      "src_fluent_properties_now_genaimaxinputcharsproperty",
+      "src_fluent_properties_now_includeextendedcountsonfullscanproperty",
+      "src_fluent_properties_now_rowcounttimeoutproperty"
+    ],
+    "11": [
+      "src_fluent_related_lists_now",
+      "src_fluent_related_lists_now_iscanmodulerelatedlist",
+      "src_fluent_related_lists_now_iscanmodulerelatedlistentry",
+      "src_fluent_related_lists_now_iscanresultrelatedlist",
+      "src_fluent_related_lists_now_iscanresultrelatedlistentry"
+    ],
+    "12": [
+      "src_fluent_generated_keys",
+      "src_fluent_generated_keys_internal",
+      "src_fluent_generated_keys_keys",
+      "src_fluent_generated_keys_now"
+    ],
+    "13": [
+      "src_fluent_ui_policies_now",
+      "src_fluent_ui_policies_now_manualappvisibilitypolicy",
+      "src_fluent_ui_policies_now_singletablevisibilitypolicy"
+    ],
+    "14": [
+      "src_client_scripts_copyllmcontext_client",
+      "src_client_scripts_copyllmcontext_client_copyllmcontext"
+    ],
+    "15": [
+      "src_client_scripts_downloadresultreport_client",
+      "src_client_scripts_downloadresultreport_client_downloadresultreport"
+    ],
+    "16": [
+      "src_server_iscanappselector_server",
+      "src_server_iscanappselector_server_rationale_89"
+    ],
+    "17": [
+      "claude_copyllmcontext"
+    ],
+    "18": [
+      "claude_sn_instance_scan_app"
+    ],
+    "19": [
+      "src_fluent_generated_data_form_section_sys_ui_section_6b354282470a0310654c57f1d16d4303_now"
+    ],
+    "20": [
+      "src_fluent_generated_other_sys_ui_element_sys_ui_section_6b354282470a0310654c57f1d16d4303_now"
+    ],
+    "21": [
+      "src_fluent_generated_user_interface_list_sys_ui_list_x_335329_iscan_result_null_now"
+    ],
+    "22": [
+      "src_fluent_generated_user_interface_list_sys_ui_list_x_335329_iscan_run_null_now"
+    ],
+    "23": [
+      "src_server_downloadrunreportuiaction_server"
+    ],
+    "24": [
+      "src_server_iscanappfilesscanner_server"
+    ],
+    "25": [
+      "src_server_iscanmodulescanner_server"
+    ],
+    "26": [
+      "src_server_iscanreportgenerator_server"
+    ],
+    "27": [
+      "src_server_iscanscanorchestrator_server"
+    ],
+    "28": [
+      "src_server_iscansummarygenerator_server"
+    ],
+    "29": [
+      "src_server_iscantablescanner_server"
+    ],
+    "30": [
+      "src_server_runscanuiaction_server"
+    ]
+  },
+  "cohesion": {
+    "0": 0.09956709956709957,
+    "1": 0.14285714285714285,
+    "2": 0.11578947368421053,
+    "3": 0.1111111111111111,
+    "4": 0.13970588235294118,
+    "5": 0.1978021978021978,
+    "6": 0.2222222222222222,
+    "7": 0.2857142857142857,
+    "8": 0.25,
+    "9": 0.2857142857142857,
+    "10": 0.3333333333333333,
+    "11": 0.4,
+    "12": 0.5,
+    "13": 0.6666666666666666,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0,
+    "17": 1.0,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0,
+    "27": 1.0,
+    "28": 1.0,
+    "29": 1.0,
+    "30": 1.0
+  },
+  "gods": [
+    {
+      "id": "claude_iscanscanorchestrator",
+      "label": "IscanScanOrchestrator script include",
+      "degree": 13
+    },
+    {
+      "id": "claude_iscanreportgenerator",
+      "label": "IscanReportGenerator script include",
+      "degree": 11
+    },
+    {
+      "id": "docs_superpowers_instance_assessment_status_doc",
+      "label": "INSTANCE_ASSESSMENT_STATUS.md (cross-session status)",
+      "degree": 10
+    },
+    {
+      "id": "claude_x335329_iscan_run_table",
+      "label": "x_335329_iscan_run table",
+      "degree": 9
+    },
+    {
+      "id": "claude_doc",
+      "label": "CLAUDE.md (sn-instance-scan project memory)",
+      "degree": 8
+    },
+    {
+      "id": "claude_iscantablescanner",
+      "label": "IscanTableScanner script include",
+      "degree": 8
+    },
+    {
+      "id": "claude_iscanappfilesscanner",
+      "label": "IscanAppFilesScanner script include",
+      "degree": 7
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 6
+    },
+    {
+      "id": "docs_superpowers_specs_2026_07_21_counting_design_doc",
+      "label": "Sub-spec 2: Counting \u2014 Design",
+      "degree": 6
+    },
+    {
+      "id": "claude_x335329_iscan_crossref_table",
+      "label": "x_335329_iscan_crossref table (inbound reference child table)",
+      "degree": 6
+    }
+  ],
+  "surprises": [
+    {
+      "source": "scan_findings/comments dual-write pattern (queryable log vs Activity stream)",
+      "target": "Design: 3 presence/absence status flags (fallback, dictionary override, dependents)",
+      "source_files": [
+        "CLAUDE.md",
+        "docs/superpowers/specs/2026-07-22-report-design.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link; peripheral node `scan_findings/comments dual-write pattern (queryable log vs Activity stream)` unexpectedly reaches hub `Design: 3 presence/absence status flags (fallback, dictionary override, dependents)`"
+    },
+    {
+      "source": "Working conventions still in force (no build/deploy/commit, no new ATF tests)",
+      "target": "CLAUDE.md (sn-instance-scan project memory)",
+      "source_files": [
+        "docs/OUTSTANDING_WORK.md",
+        "CLAUDE.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; peripheral node `Working conventions still in force (no build/deploy/commit, no new ATF tests)` unexpectedly reaches hub `CLAUDE.md (sn-instance-scan project memory)`"
+    },
+    {
+      "source": "CLAUDE.md (sn-instance-scan project memory)",
+      "target": "DEPLOY.md (build/install guide)",
+      "source_files": [
+        "CLAUDE.md",
+        "DEPLOY.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; peripheral node `DEPLOY.md (build/install guide)` unexpectedly reaches hub `CLAUDE.md (sn-instance-scan project memory)`"
+    },
+    {
+      "source": "README.md (project overview)",
+      "target": "Read-only app / no elevated privilege convention",
+      "source_files": [
+        "README.md",
+        "CLAUDE.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "conceptually_related_to",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "Decision: change profileTable() itself to be unscoped, not add a parallel method",
+      "target": "IscanTableScanner script include",
+      "source_files": [
+        "docs/future-schema-ideas.md",
+        "CLAUDE.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "rationale_for",
+      "why": "connects across different repos/directories; peripheral node `Decision: change profileTable() itself to be unscoped, not add a parallel method` unexpectedly reaches hub `IscanTableScanner script include`"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

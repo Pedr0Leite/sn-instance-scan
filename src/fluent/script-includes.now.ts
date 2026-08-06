@@ -50,6 +50,19 @@ export const iscanSummaryGenerator = ScriptInclude({
     sandboxCallable: false,
 })
 
+export const iscanModuleScanner = ScriptInclude({
+    $id: Now.ID['iscan_module_scanner_si'],
+    name: 'IscanModuleScanner',
+    script: Now.include('../server/IscanModuleScanner.server.js'),
+    description:
+        'Installed Modules scan mode: instance-wide sys_plugins profile, cross-checked against GlidePluginManager().isActive(). No app/table scoping.',
+    clientCallable: false,
+    active: true,
+    apiName: 'x_335329_iscan.IscanModuleScanner',
+    mobileCallable: false,
+    sandboxCallable: false,
+})
+
 export const iscanScanOrchestrator = ScriptInclude({
     $id: Now.ID['iscan_scan_orchestrator_si'],
     name: 'IscanScanOrchestrator',

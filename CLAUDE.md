@@ -1,5 +1,31 @@
 # sn-instance-scan
 
+## Communication style (caveman mode)
+Short sentences. 3-6 words. No filler. Tools run, results shown, stop.
+
+## Session handoff (PREV_SESSION.md)
+
+This project has automated cross-session handoff, wired via hooks in
+`.claude/settings.json` (not memory/CLAUDE.md text, since this needs to
+fire on an EVENT):
+- **PreCompact hook** (both `auto` and `manual` matchers, `agent` type):
+  fires right before this session gets compacted (auto-compact near the
+  context limit, or manual `/compact`). Overwrites `PREV_SESSION.md` at
+  the repo root with a fresh handoff — clears old content first, doesn't
+  append — covering what was done, what's outstanding, what's
+  built-but-undeployed/uncommitted, and concrete next steps.
+- **SessionStart hook** (`command` type): on every session start —
+  including `claude --resume <session-id>` — reads `PREV_SESSION.md` if
+  it exists and injects its content as additional context before the
+  conversation proceeds. No file means no-op (first session, or nothing
+  to hand off yet).
+
+`PREV_SESSION.md` is scratch/transient by design (unlike
+`docs/OUTSTANDING_WORK.md`, which is a deliberate, human-curated snapshot) —
+it gets overwritten every compaction, so don't treat it as a durable
+record; if something in it matters long-term, promote it into
+`docs/OUTSTANDING_WORK.md` or this file instead.
+
 ServiceNow **custom scoped** application (scope `x_335329_iscan`,
 app name `SN Instance Scan`) that scans an instance
 application-by-application and produces a per-app architecture summary,
@@ -49,9 +75,11 @@ Do not revert this to a GlideAjax pattern without a strong reason — if
 you do, redo the whole three-point checklist below and expect the same
 class of silent-failure bug.
 
-**"Download Report" still uses GlideAjax into `IscanReportGenerator`** —
-that path is unaffected and still needs all three of the following to
-line up, or the client gets an empty answer with no error anywhere:
+**"Download Report" on the Result table still uses GlideAjax into
+`IscanReportGenerator`** (the Run-table version was converted to a
+server-side UI Action, same as Run Scan — see below) — that path is
+unaffected and still needs all three of the following to line up, or the
+client gets an empty answer with no error anywhere:
 
 1. Client calls `new GlideAjax('x_335329_iscan.IscanReportGenerator')`
    — the scope-qualified `apiName`, NOT the bare class name.
@@ -75,6 +103,56 @@ Copy this pattern for any *new* GlideAjax entry point — but prefer a
 server-side UI Action (like Run Scan) over GlideAjax whenever the caller
 is this app's own form and the round trip doesn't need to be
 asynchronous; it sidesteps this whole failure class.
+
+**"Download Report" — where the button is, and what it actually produces
+(2026-07-22 investigation, confirmed by code trace):** the button is a
+plain form action button (`form: { showButton: true }`), not a related
+link or list-view action — `showInsert: false, showUpdate: true` on both
+UI Actions, so it only renders on an *existing* record, never on an
+unsaved one. On `x_335329_iscan_run` it's `order: 200` (after Run Scan
+at `order: 100`); on `x_335329_iscan_result` it's `order: 100` (before
+Copy LLM Context at `order: 200`) — both require the
+`x_335329_iscan.scanner` role, so it won't render at all without it.
+`IscanReportGenerator._convertToPdf()` calls the real platform **PDF
+Generation Utilities** plugin (`sn_pdfgeneratorutils.PDFGenerationAPI
+().convertToPDFWithHeaderFooter(...)`), NOT a Jelly print view — this
+produces an actual `sys_attachment` on the same Run/Result record the
+button was clicked from, and the client script opens it via
+`sys_attachment.do?sys_id=...`, which streams a real binary PDF. Whether
+`com.snc.apppdfgenerator` is actually active is the one thing that still
+needs confirming against the live instance (see DEPLOY.md's flagged
+dependency) — the code path itself has no gap: a missing/inactive plugin
+throws inside `_convertToPdf`'s try/catch, which surfaces as "Report
+generation failed" client-side plus a `gs.error` line server-side, not a
+silent no-op. To restructure the report's sections/ordering: edit the
+`parts.push(...)` sequence in `_buildRunReportHtml`/
+`_buildResultReportHtml`; to change page size/footer: edit the
+`headerFooterInfo` object in `_convertToPdf`. No separate template file
+exists — it's hand-built HTML string concatenation.
+
+**Table overflow fix (2026-07-29):** every `<table>` in the report used
+browser-default auto column sizing with no wrap, so a long unbreakable
+cell value (e.g. a dotted plugin ID like
+`com.glide.delete_recovery.partial_undelete` in the Installed Modules
+table) pushed total table width past the printable page area and got cut
+off at the edge. Fixed once at the CSS level, not per table:
+`_reportStyles()` (a `<style>` block prepended once at the top of both
+`_buildRunReportHtml()`/`_buildResultReportHtml()`'s output) sets
+`table-layout:fixed` + `word-break:break-word` on every table/cell, and
+each of the 6 tables in the report now opens with an explicit
+`_colgroup([...])` call (percentages summing to 100, sized per table to
+its own column count/content shape — e.g. Installed Modules gives Plugin
+ID the widest column since that's the long-string one) instead of
+leaving column widths to auto-sizing. Cells wrap, they are never
+truncated/ellipsized — full plugin IDs and table/field names stay
+readable. Page orientation was deliberately left at `PORTRAIT` (not
+switched to landscape) — the wrap-based fix resolves the overflow without
+needing a wider page; revisit only if a real render still looks
+cramped. **Verify at build time** (append to the existing
+`sys_app.source`/GenAI API/PDF plugin name list): whether
+`sn_pdfgeneratorutils`'s `convertToPDFWithHeaderFooter()` actually
+respects `table-layout:fixed`/`<colgroup>` — most HTML-to-PDF renderers
+do, but this hasn't been confirmed against a live instance render.
 
 **`global.` qualifier**: `AbstractAjaxProcessor` lives in global scope,
 not this app's scope, so any client-callable script include
@@ -146,10 +224,22 @@ wants a note created/appended there.
 - `src/fluent/roles.now.ts`, `properties.now.ts` — the scanner role, the 3 system properties
 - `src/fluent/script-includes.now.ts` — registers the 6 script includes, each `Now.include`-ing its body from `src/server/`
 - `src/fluent/acls.now.ts` — record ACLs on the 3 tables + the execute ACL for the 1 client-callable script include (`IscanReportGenerator`)
-- `src/fluent/ui-actions.now.ts` — "Run Scan" (server-side, `Now.include`-ing `src/server/RunScanUiAction.server.js`) and 2x "Download Report" + "Copy LLM Context" (client-side, `Now.include`-ing their scripts from `src/client-scripts/`)
-- `src/server/*.server.js` — script include bodies: `IscanAppSelector`, `IscanTableScanner`, `IscanAppFilesScanner`, `IscanSummaryGenerator`, `IscanScanOrchestrator` (called directly, server-side, by `RunScanUiAction`), `IscanReportGenerator` (GlideAjax entry point for PDF reports), and `RunScanUiAction` (the "Run Scan" UI Action's server-side script body)
-- `src/client-scripts/*.client.js` — the client-side UI Action scripts
-  (2x report download, and `CopyLlmContext`) — "Run Scan" has no client script, see above
+- `src/fluent/ui-actions.now.ts` — "Run Scan" and Run-table "Download
+  Report" (both server-side, `Now.include`-ing their scripts from
+  `src/server/`) plus Result-table "Download Report" + "Copy LLM Context"
+  (client-side, `Now.include`-ing their scripts from `src/client-scripts/`)
+- `src/server/*.server.js` — script include bodies: `IscanAppSelector`,
+  `IscanTableScanner`, `IscanAppFilesScanner`, `IscanModuleScanner`,
+  `IscanSummaryGenerator`,
+  `IscanScanOrchestrator` (called directly, server-side, by
+  `RunScanUiAction`), `IscanReportGenerator` (GlideAjax entry point for
+  the Result-table PDF report; its Run-table report methods are also
+  called directly, server-side, by `DownloadRunReportUiAction`), and the
+  two server-side UI Action scripts `RunScanUiAction`/
+  `DownloadRunReportUiAction`
+- `src/client-scripts/*.client.js` — the remaining client-side UI Action
+  scripts (Result-table report download, and `CopyLlmContext`) — "Run
+  Scan" and Run-table "Download Report" have no client script, see above
 - `tests/atf_tests.json` — ATF test definitions (mirrors test-plan.md)
 - `DEPLOY.md` — `now-sdk` build/install workflow
 
@@ -176,12 +266,25 @@ wants a note created/appended there.
   always stays full-length. On the fallback path the data-model section
   is *omitted with an explanation*, never zero-filled — a reader seeing
   "0 tables" would wrongly conclude the app has none.
-- **`activities` and `comments` are both written** by
-  `_appendActivity()`, deliberately. `activities` (String) is the
-  queryable log; `comments` (Journal, via `GenericColumn` with
-  `columnType: 'journal_input'`) feeds the native Activity formatter,
-  which only renders Journal fields. Use `setValue()` — `setJournalEntry()`
-  exists only in the *global* GlideElement API, not the scoped one.
+- **`scan_findings` and `comments` are both written** by
+  `_appendScanFinding()`, deliberately. `scan_findings` (String — renamed
+  from `activities` 2026-07-22; that name read as the native Activity
+  stream, which it is NOT) is the queryable log; `comments` (Journal, via
+  `GenericColumn` with `columnType: 'journal_input'`) feeds the native
+  Activity formatter, which only renders Journal fields. Use `setValue()`
+  — `setJournalEntry()` exists only in the *global* GlideElement API, not
+  the scoped one. **The `run` GlideRecord is reused across every
+  `_appendScanFinding()` call in one scan** (once per app plus start/end
+  markers) — fine for `scan_findings` (plain field, each `update()` just
+  overwrites it with the latest full log string) but NOT reliable for the
+  `comments` Journal field: repeated set+update on the same long-lived
+  instance can silently fail to register new journal entries past the
+  first call. `_appendScanFinding()` re-fetches a fresh `GlideRecord` by
+  sys_id specifically for the journal write — don't "simplify" that back
+  to a single shared `update()` without re-verifying multi-entry journal
+  appends against a real instance. Both fields are visible on the run
+  form (`comments` + the native Activity formatter, `scan_findings` as a
+  plain textarea) — don't remove one thinking the other makes it redundant.
 - **Custom-scope filtering must also check source/vendor** — store-installed
   apps get customer-looking scopes too. See `IscanAppSelector.getCustomApps()`.
 - **Client-callable script includes need a matching execute ACL** — see
@@ -268,7 +371,7 @@ already considered and rejected.
   lookup at all) and, since `x_335329_iscan_result.app` stays mandatory
   and isn't being relaxed, writes NO `x_335329_iscan_result`/
   `x_335329_iscan_table` row for this case — the profile data (fields,
-  row count, references) is written into `run.activities`/`comments`
+  row count, references) is written into `run.scan_findings`/`comments`
   only, visible on the run form but not queryable via the result
   tables.
 - New UI Policy (this app's first) on `x_335329_iscan_run`: symmetric
@@ -324,7 +427,7 @@ plus a new child table `x_335329_iscan_crossref` (one row per referencing
 field, including the resolved `referencing_app`) for the Report sub-spec to
 query/group/filter. No rows are written to `x_335329_iscan_crossref` from
 Single Table mode's no-owning-app fallback path (`_scanOneTable`) — that
-path only logs the inbound reference count to `run.activities`, consistent
+path only logs the inbound reference count to `run.scan_findings`, consistent
 with how it already handles dictionary overrides.
 
 **Report (sub-spec 4 — IMPLEMENTED):** `IscanReportGenerator`'s existing
@@ -345,6 +448,138 @@ and a "Cross-references" section (one row per `x_335329_iscan_crossref`
 record tied to the app's tables, omitted entirely when there are none). No
 new script include, table, property, or UI Action — `_convertToPdf` and
 the GlideAjax entry points are unchanged.
+
+**Later addition (2026-07-22):** the Result report's old flat "Automation
+surface" + "Extended counts" sections were replaced with a fully itemized
+"Artifact inventory" (count line + name/description bullets per artifact,
+built via a LIVE `IscanAppFilesScanner.scanApp()` re-query at report time
+— no new storage for item lists) covering every artifact type including 4
+new ones (Scripted REST resources, SLA definitions, UI pages, Service
+Portal pages). Both reports also gained a "Customizations on base-system
+tables" section reading the new `x_335329_iscan_global_customization`
+table — populated for EVERY scan mode via two write paths: per-app
+(`IscanTableScanner.findAppCustomizationsOnGlobalTables`, called for
+every app scanned in every mode) and per-table (`findGlobalCustomizations`,
+the table-only fallback path only). See
+`docs/superpowers/INSTANCE_ASSESSMENT_STATUS.md`'s 2026-07-22 entry for an
+important clarification: the run's `scan_findings`/`comments` log is a
+terse per-app PROGRESS log by design, not the report — the full
+assessment lives on the result/table/crossref/global_customization
+records and is exported on demand via "Download Report", not printed
+inline. Don't mistake a terse log for a wiring bug without checking those
+records first.
+
+**Later addition #2 (2026-07-22):** closed the remaining v3 backlog items.
+The Run report gained a "Scan Findings Log" section (`run.scan_findings`,
+`<pre>`-formatted) — previously the only report content for
+`single_table`/Full-fallback scans (no result record exists) was the PDF
+attachment itself with no findings text inside it. The Result report
+gained a "Recommendations" section (`_computeRecommendations()`/
+`_renderRecommendations()`) rendered right after Status, before the
+artifact inventory — deterministic presence/absence checks only (no ACLs
+on an app with tables, dictionary overrides present, zero-row tables,
+base-system customizations present, app-files-fallback scan), no invented
+numeric thresholds, same philosophy as `_computeStatusFlags`. Two more
+artifact types added throughout the counting/itemization pipeline:
+Events (`sysevent_register`) and Import Sets (`sys_import_set_source`) —
+both newly added and lowest-confidence of all the flagged table names,
+verify first. Also added an explicit related list
+(`src/fluent/related-lists.now.ts`): `x_335329_iscan_result` (via `run`)
+on the Run form — related lists for a reference field normally
+auto-render, but this form's custom `sys_ui_section` was suspected of
+suppressing that default (same failure class as the earlier
+target_app/target_table bug), so it's now explicit rather than assumed.
+On user request, `downloadRunReportUiAction`/`downloadResultReportUiAction`
+had `isUi16Compatible`/`isUi11Compatible` both set to `false` —
+**this broke the Run-table button**, confirming the accepted risk flagged
+above (this file's own `copyLlmContextUiAction` comment already documented
+that `isUi16Compatible: false` stops the platform loading the client
+script on a UI16 form at all).
+
+**Later addition #3 (2026-07-22): Run-table "Download Report" converted
+to server-side, fixing the isUi16Compatible break.** Rather than just
+reverting the flag, `downloadRunReportUiAction` was converted to a
+server-side UI Action (`isClient: false`, `isUi16Compatible: true`,
+`isUi11Compatible: true`) running `src/server/DownloadRunReportUiAction.server.js`
+— same architecture as Run Scan, and for the same reason: eliminate the
+whole "client script never loads / GlideAjax round trip" failure class
+rather than keep patching it. The script instantiates
+`IscanReportGenerator` directly and calls `generateRunReport(current.getUniqueValue())`
+— NOT `generateRunReportAjax()` or `this.getParameter()` — which is safe
+even though the class still extends `global.AbstractAjaxProcessor` (kept
+for the Result-table path, see below), since those are the only methods
+that touch the request context this script never provides.
+`generateRunReport()` itself is UNCHANGED: it still builds the report via
+`_buildRunReportHtml()`, converts it via the platform's PDF Generation
+Utilities plugin, and attaches the resulting PDF to the
+`x_335329_iscan_run` record — that attachment target was already correct
+before this change, only the trigger mechanism was broken/fragile. No
+`current.update()` in the new script (it never touches the run record's
+own fields, only writes an attachment), so there's no "Invalid update"
+double-save risk either. `src/client-scripts/DownloadRunReport.client.js`
+was deleted (dead code — nothing references it anymore).
+`downloadResultReportUiAction` (Result table) was deliberately LEFT as
+GlideAjax + client-side, out of scope for this fix — it can get the same
+treatment later if the same failure class shows up there.
+
+**Later addition #4 (2026-07-29): "Installed Modules" scan mode +
+Manual mode multi-select.** Two independent changes.
+
+*5th scan mode, `modules`* — instance-wide, no app/table scoping, unlike
+every other mode. New Script Include `IscanModuleScanner` profiles
+`sys_plugins` (deterministic `canReadPlugins()` gate before querying, same
+hard convention as `IscanTableScanner.canAccessMetadata()` — never a
+try/catch fallback), cross-checking each plugin's stored `active` flag
+against a live `new GlidePluginManager().isActive(pluginId)` call and
+flagging any disagreement as `status_mismatch`. Results land in a new
+child table `x_335329_iscan_module`, keyed directly off `run` (mandatory
+`run` reference, no `result` — same shape as
+`x_335329_iscan_global_customization`'s no-owning-app rows, not
+`x_335329_iscan_table`'s `result`-keyed shape), since there is no owning
+app to tally against. `IscanScanOrchestrator._executeModulesRun()` mirrors
+`_executeSingleTableRun()`'s update()-guard/try-catch/status shape;
+`_resolveAppList()` gained a `case 'modules': return { modulesOnly: true
+}` sentinel, same pattern Single Table mode uses. Unlike the per-app
+modes, **there is no ACL-denial fallback for modules mode** — a
+`canReadPlugins()` denial ends the run in `status = 'error'` with an
+explicit `scan_findings` line, not a silent zero-row `'complete'`. The
+optional GenAI summary reuses `IscanSummaryGenerator.generate()`
+unchanged (same degrade-gracefully-if-unavailable contract every other
+mode relies on) — no new field on `x_335329_iscan_run` for it; the
+returned paragraph, if any, is appended via the existing
+`_appendScanFinding()` dual-write helper instead. Known accepted
+tradeoff: `buildPrompt()`'s 5 sections are hardcoded to an app-scan shape,
+so the GenAI *input* prompt reads a bit app-shaped for what's actually a
+plugin scan (e.g. a "Data model" section saying "owns no tables") — this
+only affects prompt quality, not pipeline correctness, and no user ever
+sees the raw input, only the returned summary. `src/fluent/related-lists.now.ts`
+got an explicit related-list pair for `x_335329_iscan_module` (via
+`run`) on the Run form — same requirement as the existing
+`x_335329_iscan_result` one, since this app's custom `sys_ui_section`
+form layout has already been found to suppress default related-list
+rendering. `IscanReportGenerator._buildRunReportHtml()` gained an
+"Installed Modules" table section, gated on rows existing for the run
+(same `hasNext()`-gated pattern as the global-customization section) —
+without it, modules-mode data would never appear in the PDF report,
+unlike every other mode's output. New nav entry "New Modules Scan"
+(`order: 350`, between "New Manual Scan" and the Browse separator).
+**Verify at build time** (append to the existing `sys_app.source`/GenAI
+API/PDF plugin name list): exact `sys_plugins.active` string
+serialization from `getValue()` on the target instance.
+
+*Manual mode multi-select* — `target_app` changed from `ReferenceColumn`
+to `ListColumn` (`referenceTable: 'sys_app'`, `attributes: { no_sort:
+true, slushbucket_ref_no_expand: true }` — same shape OOB `task.watch_list`
+uses), so a Manual run can target several apps in one go instead of just
+one. The entire multi-app plumbing (`IscanAppSelector.getManualApps()`,
+`IscanScanOrchestrator`'s array handling end to end) already supported an
+array — the only actual gap was the form field only being able to submit
+one sys_id. The fix is a single line in `RunScanUiAction.server.js`:
+`targetAppId.split(',')` instead of `[targetAppId]`, since a List field's
+`getValue()` returns the same comma-separated sys_id string format a
+Reference field already returns for one value. Everything else
+(`IscanAppSelector`, orchestrator, `manualAppVisibilityPolicy`,
+generated form layout) needed zero changes.
 
 ## /caveman
 

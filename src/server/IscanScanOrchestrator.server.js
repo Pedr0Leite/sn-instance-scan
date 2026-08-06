@@ -15,13 +15,14 @@ IscanScanOrchestrator.prototype = {
         this.tableScanner = new IscanTableScanner()
         this.appFilesScanner = new IscanAppFilesScanner()
         this.summaryGenerator = new IscanSummaryGenerator()
+        this.moduleScanner = new IscanModuleScanner()
     },
 
     /**
      * Runs a scan against an already-existing run record (e.g. the one
      * open in the form when "Run Scan" was clicked), updating it in place.
      * @param {String} runSysId - sys_id of an existing x_335329_iscan_run record
-     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table'
+     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules'
      * @param {Array} manualAppList - array of sys_app sys_ids, only used
      *   when scanMode === 'manual'
      * @param {String} [targetTableSysId] - sys_id of a sys_db_object record,
@@ -55,7 +56,7 @@ IscanScanOrchestrator.prototype = {
      * Creates a brand-new run record and scans it. Used for programmatic/
      * ATF-style invocation where there's no pre-existing form record to
      * update — see runScanForRecord() for the UI Action path.
-     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table'
+     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules'
      * @param {Array} manualAppList - array of sys_app sys_ids, only used
      *   when scanMode === 'manual'
      * @param {String} [targetTableSysId] - sys_id of a sys_db_object record,
@@ -84,6 +85,9 @@ IscanScanOrchestrator.prototype = {
      *   - a plain Array — every other mode (custom_only, manual), unchanged.
      */
     _executeRun: function (run, appIdsOrTarget) {
+        if (appIdsOrTarget && appIdsOrTarget.modulesOnly) {
+            return this._executeModulesRun(run)
+        }
         if (appIdsOrTarget && appIdsOrTarget.tableOnly) {
             return this._executeSingleTableRun(run, appIdsOrTarget.tableName)
         }
@@ -97,7 +101,7 @@ IscanScanOrchestrator.prototype = {
             // update() returns null/empty when the write is ACL-denied.
             // Fail loudly instead of "scanning" into a record nobody can
             // see change — the classic symptom is status stuck on
-            // 'pending' with an empty activities log.
+            // 'pending' with an empty scan_findings log.
             throw new Error(
                 'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
             )
@@ -113,7 +117,7 @@ IscanScanOrchestrator.prototype = {
                 ' for scan_mode=' +
                 run.getValue('scan_mode')
         )
-        this._appendActivity(
+        this._appendScanFinding(
             run,
             'Resolved ' + appIds.length + ' app(s)' +
                 (tableOnlyTables.length ? ' and ' + tableOnlyTables.length + ' table-only fallback table(s) (scopes with no owning sys_app)' : '') +
@@ -131,7 +135,7 @@ IscanScanOrchestrator.prototype = {
                         this._scanOneTable(run, tableOnlyTables[t])
                     }
                 } else {
-                    this._appendActivity(
+                    this._appendScanFinding(
                         run,
                         'Skipping ' + tableOnlyTables.length + ' table-only fallback table(s): caller lacks metadata read access.'
                     )
@@ -139,10 +143,10 @@ IscanScanOrchestrator.prototype = {
             }
             run.setValue('status', 'complete')
             gs.info('IscanScanOrchestrator._executeRun: run=' + run.getUniqueValue() + ' completed successfully')
-            this._appendActivity(run, 'Scan complete.')
+            this._appendScanFinding(run, 'Scan complete. ' + this._reportPointerMessage(appIds.length))
         } catch (e) {
             gs.error('IscanScanOrchestrator._executeRun failed: ' + e.message)
-            this._appendActivity(run, 'ERROR: ' + e.message)
+            this._appendScanFinding(run, 'ERROR: ' + e.message)
             run.setValue('status', 'error')
         }
 
@@ -154,7 +158,7 @@ IscanScanOrchestrator.prototype = {
      * Single Table mode, no-owning-app case: no x_335329_iscan_result/
      * x_335329_iscan_table row gets written (result.app is a mandatory
      * sys_app reference and there's no sys_app to point it at) — the
-     * table's profile goes into the run's activities/comments log only.
+     * table's profile goes into the run's scan_findings/comments log only.
      * @param {GlideRecord} run
      * @param {String} tableName
      */
@@ -174,7 +178,7 @@ IscanScanOrchestrator.prototype = {
                 tableName +
                 ' (no owning sys_app, table-only profile)'
         )
-        this._appendActivity(
+        this._appendScanFinding(
             run,
             'Table "' +
                 tableName +
@@ -185,10 +189,10 @@ IscanScanOrchestrator.prototype = {
             this._scanOneTable(run, tableName)
             run.setValue('status', 'complete')
             gs.info('IscanScanOrchestrator._executeSingleTableRun: run=' + run.getUniqueValue() + ' completed')
-            this._appendActivity(run, 'Scan complete.')
+            this._appendScanFinding(run, 'Scan complete. ' + this._reportPointerMessage(0))
         } catch (e) {
             gs.error('IscanScanOrchestrator._executeSingleTableRun failed: ' + e.message)
-            this._appendActivity(run, 'ERROR: ' + e.message)
+            this._appendScanFinding(run, 'ERROR: ' + e.message)
             run.setValue('status', 'error')
         }
 
@@ -211,7 +215,7 @@ IscanScanOrchestrator.prototype = {
                     tableName +
                     ' — caller lacks sys_db_object/sys_dictionary read access, cannot profile'
             )
-            this._appendActivity(
+            this._appendScanFinding(
                 run,
                 'Table "' +
                     tableName +
@@ -234,7 +238,7 @@ IscanScanOrchestrator.prototype = {
                 ' inbound_reference_count=' +
                 inboundReferences.length
         )
-        this._appendActivity(
+        this._appendScanFinding(
             run,
             'Table "' +
                 tableName +
@@ -252,6 +256,180 @@ IscanScanOrchestrator.prototype = {
                 inboundReferences.length +
                 ' inbound reference(s).'
         )
+
+        this._scanGlobalCustomizations(run, tableName)
+    },
+
+    /**
+     * Base-system table customization detection — only meaningful for
+     * tables with no owning sys_app (findGlobalCustomizations() no-ops
+     * otherwise). Only writes an x_335329_iscan_global_customization row
+     * when something was actually found, same omit-when-empty precedent
+     * as crossref rows.
+     * @param {GlideRecord} run
+     * @param {String} tableName
+     */
+    _scanGlobalCustomizations: function (run, tableName) {
+        var customizations = this.tableScanner.findGlobalCustomizations(tableName)
+        if (!customizations.applicable) {
+            return
+        }
+        if (!customizations.custom_fields.length && !customizations.custom_artifacts.length) {
+            return
+        }
+
+        this._appendScanFinding(
+            run,
+            'Table "' +
+                tableName +
+                '" (base-system): ' +
+                customizations.custom_fields.length +
+                ' custom field(s), ' +
+                customizations.custom_artifacts.length +
+                ' custom artifact(s) from customer scope(s).'
+        )
+
+        var row = new GlideRecord('x_335329_iscan_global_customization')
+        row.initialize()
+        row.setValue('run', run.getUniqueValue())
+        row.setValue('table_name', tableName)
+        row.setValue('custom_field_count', customizations.custom_fields.length)
+        row.setValue(
+            'custom_field_list',
+            customizations.custom_fields.map(function (f) { return f.name + '(' + f.scope + ')' }).join(',')
+        )
+        row.setValue('custom_artifact_count', customizations.custom_artifacts.length)
+        row.setValue(
+            'custom_artifact_list',
+            customizations.custom_artifacts.map(function (a) { return a.name + '(' + a.type + ')' }).join(',')
+        )
+        row.insert()
+    },
+
+    /**
+     * Installed Modules mode: instance-wide, no app/table scoping. No
+     * x_335329_iscan_result row gets written (there's no owning app to
+     * point one at) — profile rows go straight onto x_335329_iscan_module,
+     * run-keyed, same precedent as x_335329_iscan_global_customization's
+     * no-owning-app rows. Unlike every per-app mode there is NO ACL-denial
+     * fallback path here — a canReadPlugins() denial ends the run in
+     * 'error' status with a clear finding, not a silent zero-row 'complete'.
+     * @param {GlideRecord} run
+     */
+    _executeModulesRun: function (run) {
+        run.setValue('app_count', 0)
+        run.setValue('status', 'running')
+        if (!run.update()) {
+            throw new Error(
+                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+            )
+        }
+
+        gs.info('IscanScanOrchestrator._executeModulesRun: run=' + run.getUniqueValue() + ' scanning installed modules')
+        this._appendScanFinding(run, 'Scanning installed modules (sys_plugins)...')
+
+        try {
+            var canAccess = this.moduleScanner.canReadPlugins()
+            if (!canAccess) {
+                throw new Error(
+                    'Cannot read sys_plugins — the calling user lacks read access to installed plugin metadata (check the x_335329_iscan.scanner role).'
+                )
+            }
+
+            var modules = this.moduleScanner.scanModules()
+            this._writeModuleRows(run.getUniqueValue(), modules)
+
+            var activeCount = 0
+            var mismatchCount = 0
+            for (var i = 0; i < modules.length; i++) {
+                if (modules[i].active_confirmed) { activeCount++ }
+                if (modules[i].status_mismatch) { mismatchCount++ }
+            }
+            this._appendScanFinding(
+                run,
+                'Found ' + modules.length + ' installed module(s), ' + activeCount + ' active, ' +
+                    mismatchCount + ' status mismatch(es).'
+            )
+
+            // Instance-wide GenAI summary. No result row exists for
+            // modules mode, so the returned paragraph is appended to the
+            // run's scan_findings/comments log via the existing dual-write
+            // helper instead of a new field. generate() already degrades
+            // gracefully (returns null/undefined) when GenAI is
+            // unavailable — same skip-if-absent behavior as every other mode.
+            var facts = this._buildModuleFacts(modules, activeCount, mismatchCount)
+            var summary = this.summaryGenerator.generate(facts)
+            if (summary) {
+                this._appendScanFinding(run, 'GenAI summary: ' + summary)
+            }
+
+            run.setValue('status', 'complete')
+            gs.info('IscanScanOrchestrator._executeModulesRun: run=' + run.getUniqueValue() + ' completed')
+            this._appendScanFinding(run, 'Scan complete. ' + this._reportPointerMessage(0))
+        } catch (e) {
+            gs.error('IscanScanOrchestrator._executeModulesRun failed: ' + e.message)
+            this._appendScanFinding(run, 'ERROR: ' + e.message)
+            run.setValue('status', 'error')
+        }
+
+        run.setValue('completed', new GlideDateTime())
+        run.update()
+    },
+
+    _writeModuleRows: function (runSysId, modules) {
+        for (var i = 0; i < modules.length; i++) {
+            var row = new GlideRecord('x_335329_iscan_module')
+            row.initialize()
+            row.setValue('run', runSysId)
+            row.setValue('name', modules[i].name)
+            row.setValue('plugin_id', modules[i].plugin_id)
+            row.setValue('active_flag', modules[i].active_flag)
+            row.setValue('active_confirmed', modules[i].active_confirmed)
+            row.setValue('status_mismatch', modules[i].status_mismatch)
+            row.insert()
+        }
+        gs.info('IscanScanOrchestrator._writeModuleRows: run=' + runSysId + ' wrote ' + modules.length + ' module row(s)')
+    },
+
+    /**
+     * Facts object fed to IscanSummaryGenerator.generate() for the
+     * modules-mode summary. Reuses the existing app-scan-shaped
+     * buildPrompt() unchanged (per spec: "reuse the existing... pattern,
+     * not a new code path") rather than building a dedicated
+     * modules-specific prompt template — buildPrompt()'s field access is
+     * all `||`-guarded, so empty tables/automation/integrations render as
+     * "none" rather than crashing. Known cosmetic tradeoff: the resulting
+     * GenAI input reads a bit app-shaped for what is actually a plugin
+     * scan (e.g. a "Data model" section saying "owns no tables") — this
+     * only affects prompt quality, not pipeline correctness, and no user
+     * ever sees the raw input, only the returned summary paragraph.
+     * @param {Array} modules
+     * @param {Number} activeCount
+     * @param {Number} mismatchCount
+     * @returns {Object}
+     */
+    _buildModuleFacts: function (modules, activeCount, mismatchCount) {
+        var mismatches = []
+        for (var i = 0; i < modules.length; i++) {
+            if (modules[i].status_mismatch) {
+                mismatches.push(modules[i].name + ' (' + modules[i].plugin_id + ')')
+            }
+        }
+        return {
+            appName: 'Installed Modules (instance-wide)',
+            appScope: 'n/a — instance-wide, not scoped to an application',
+            appVendor: '',
+            appSource: '',
+            scanDate: new GlideDateTime().getDisplayValue(),
+            scanModeUsed: 'full_access',
+            tables: [],
+            automation: {},
+            integrations: [],
+            moduleCount: modules.length,
+            activeModuleCount: activeCount,
+            statusMismatchCount: mismatchCount,
+            statusMismatches: mismatches
+        }
     },
 
     _createRun: function (scanMode, manualAppList) {
@@ -278,6 +456,8 @@ IscanScanOrchestrator.prototype = {
                 return this.appSelector.getManualApps(manualAppList)
             case 'single_table':
                 return this._resolveSingleTableApp(targetTableSysId)
+            case 'modules':
+                return { modulesOnly: true }
             default:
                 gs.error('IscanScanOrchestrator._resolveAppList: unknown scan_mode: ' + scanMode)
                 throw new Error('Unknown scan_mode: ' + scanMode)
@@ -331,12 +511,12 @@ IscanScanOrchestrator.prototype = {
     },
 
     /**
-     * Appends a timestamped line to the run's activities log and persists
+     * Appends a timestamped line to the run's scan_findings log and persists
      * it immediately (independent update from the caller's own run.update())
      * so progress is visible on refresh even if a later app fails.
      *
      * TWO fields are written here on purpose — do not "clean up" either one:
-     *   - `activities` (String): the queryable, timestamped running log.
+     *   - `scan_findings` (String): the queryable, timestamped running log.
      *     Deliberately not a Journal field, so it stays reportable and free
      *     of journal-field ACL complications.
      *   - `comments` (Journal): feeds ServiceNow's native Activity
@@ -349,29 +529,73 @@ IscanScanOrchestrator.prototype = {
      * absent from the scoped GlideElement API, and this is a scoped app.
      * The platform timestamps and attributes the journal entry itself, so
      * the raw message is passed here without the manual prefix that
-     * `activities` needs.
+     * `scan_findings` needs.
+     *
+     * The `run` GlideRecord instance is reused across the whole scan (this
+     * method is called once per app plus start/end markers, all sharing
+     * the same object) — fine for `scan_findings` (a plain field, each
+     * update() just overwrites it with the latest full log string), but
+     * NOT reliable for a Journal field: repeated set+update on the same
+     * long-lived instance can silently fail to register a new journal
+     * entry past the first call. So the journal write re-fetches a fresh
+     * GlideRecord by sys_id every time, as its own separate update() —
+     * that's what actually guarantees one new sys_journal_field entry per
+     * call. Do not "simplify" this back to a single shared update() without
+     * re-verifying multi-entry journal appends actually work against a
+     * real instance.
      *
      * @param {GlideRecord} run
      * @param {String} message
      */
-    _appendActivity: function (run, message) {
+    /**
+     * The scan_findings/comments log is a terse per-app PROGRESS log by
+     * design (table/business-rule/script-include/flow counts + a
+     * customization line) — it was never meant to hold the full v3
+     * assessment, and never has. That data is: per-artifact-type counts
+     * (~30 fields) on each x_335329_iscan_result record, field/cross-
+     * reference data on x_335329_iscan_table/_crossref/
+     * _global_customization child records, and the exportable
+     * status-flagged + itemized narrative report via the "Download
+     * Report" UI Action (IscanReportGenerator). This closing line exists
+     * so that's discoverable from the log itself, without prior
+     * knowledge of the schema — see docs/superpowers/INSTANCE_ASSESSMENT_STATUS.md.
+     * @param {Number} resultRecordCount - how many x_335329_iscan_result
+     *   rows this run produced (0 for the table-only fallback path, which
+     *   writes no result record).
+     * @returns {String}
+     */
+    _reportPointerMessage: function (resultRecordCount) {
+        if (resultRecordCount > 0) {
+            return 'Full per-artifact-type counts and field/cross-reference data are on each app\'s Result record below; click Download Report (here or on a Result record) for the exportable status-flagged assessment.'
+        }
+        return 'Table profile and any base-system customizations found are above in this log; click Download Report for an exportable copy.'
+    },
+
+    _appendScanFinding: function (run, message) {
         var line = new GlideDateTime().getDisplayValue() + ' - ' + message
-        var existing = run.getValue('activities')
-        run.setValue('activities', existing ? existing + '\n' + line : line)
-        run.setValue('comments', message)
+        var existing = run.getValue('scan_findings')
+        run.setValue('scan_findings', existing ? existing + '\n' + line : line)
         run.update()
+
+        var journalRun = new GlideRecord('x_335329_iscan_run')
+        if (journalRun.get(run.getUniqueValue())) {
+            journalRun.setValue('comments', message)
+            journalRun.update()
+        } else {
+            gs.error('IscanScanOrchestrator._appendScanFinding: could not re-fetch run ' + run.getUniqueValue() + ' for journal comments write')
+        }
     },
 
     _scanOneApp: function (run, appSysId) {
         var appGr = new GlideRecord('sys_app')
         if (!appGr.get(appSysId)) {
             gs.error('IscanScanOrchestrator._scanOneApp: sys_app not found for sys_id: ' + appSysId)
-            this._appendActivity(run, 'ERROR: sys_app not found for sys_id ' + appSysId + ', skipping.')
+            this._appendScanFinding(run, 'ERROR: sys_app not found for sys_id ' + appSysId + ', skipping.')
             return
         }
 
         gs.info('IscanScanOrchestrator._scanOneApp: scanning app=' + appGr.getValue('name') + ' (' + appSysId + ')')
-        this._appendActivity(run, 'Scanning app: ' + appGr.getValue('name') + '...')
+        this._appendScanFinding(run, 'Scanning app: ' + appGr.getValue('name') + '...')
 
         var canAccess = this.tableScanner.canAccessMetadata()
         var tables = []
@@ -408,9 +632,15 @@ IscanScanOrchestrator.prototype = {
             dashboards: files.dashboards.length,
             pa_indicators: files.pa_indicators.length,
             service_portals: files.service_portals.length,
+            service_portal_pages: files.service_portal_pages.length,
             service_portal_widgets: files.service_portal_widgets.length,
             flow_actions: files.flow_actions.length,
             catalog_variables: files.catalog_variables.length,
+            scripted_rest_resources: files.scripted_rest_resources.length,
+            sla_definitions: files.sla_definitions.length,
+            ui_pages: files.ui_pages.length,
+            events: files.events.length,
+            import_sets: files.import_sets.length,
             choices: files.choice_count,
             roles: files.role_count,
             groups: files.group_count,
@@ -463,6 +693,7 @@ IscanScanOrchestrator.prototype = {
         result.setValue('dashboard_count', automationCounts.dashboards)
         result.setValue('pa_indicator_count', automationCounts.pa_indicators)
         result.setValue('service_portal_count', automationCounts.service_portals)
+        result.setValue('service_portal_page_count', automationCounts.service_portal_pages)
         result.setValue('service_portal_widget_count', automationCounts.service_portal_widgets)
         result.setValue('choice_count', automationCounts.choices)
         result.setValue('flow_action_count', automationCounts.flow_actions)
@@ -470,6 +701,11 @@ IscanScanOrchestrator.prototype = {
         result.setValue('role_count', automationCounts.roles)
         result.setValue('group_count', automationCounts.groups)
         result.setValue('system_property_count', automationCounts.system_properties)
+        result.setValue('scripted_rest_resource_count', automationCounts.scripted_rest_resources)
+        result.setValue('sla_definition_count', automationCounts.sla_definitions)
+        result.setValue('ui_page_count', automationCounts.ui_pages)
+        result.setValue('event_count', automationCounts.events)
+        result.setValue('import_set_count', automationCounts.import_sets)
         result.setValue('table_list', this._tableNames(tables).join(','))
 
         var runFacts = {
@@ -528,7 +764,7 @@ IscanScanOrchestrator.prototype = {
                 ' integrations=' +
                 integrationCount
         )
-        this._appendActivity(
+        this._appendScanFinding(
             run,
             appGr.getValue('name') +
                 ': ' +
@@ -546,6 +782,52 @@ IscanScanOrchestrator.prototype = {
 
         if (canAccess) {
             this._writeTableProfiles(resultId, tables)
+        }
+
+        // Reverse-direction global-scope customization check — runs for
+        // EVERY app in EVERY scan mode (custom_only, manual, full's
+        // per-app branch, single_table's owning-app branch), unlike
+        // _scanGlobalCustomizations() which only covers the table-only
+        // fallback paths. See IscanTableScanner.findAppCustomizationsOnGlobalTables().
+        this._writeAppGlobalCustomizations(run, resultId, appSysId)
+    },
+
+    /**
+     * Writes one x_335329_iscan_global_customization row per base-system
+     * table this app has customized, with `result` set so the Result
+     * report can scope its own section to this app.
+     * @param {GlideRecord} run
+     * @param {String} resultId
+     * @param {String} appScopeSysId
+     */
+    _writeAppGlobalCustomizations: function (run, resultId, appScopeSysId) {
+        var findings = this.tableScanner.findAppCustomizationsOnGlobalTables(appScopeSysId)
+        if (!findings.length) {
+            return
+        }
+
+        this._appendScanFinding(
+            run,
+            'Found customizations on ' + findings.length + ' base-system table(s) from this app.'
+        )
+
+        for (var i = 0; i < findings.length; i++) {
+            var row = new GlideRecord('x_335329_iscan_global_customization')
+            row.initialize()
+            row.setValue('run', run.getUniqueValue())
+            row.setValue('result', resultId)
+            row.setValue('table_name', findings[i].table_name)
+            row.setValue('custom_field_count', findings[i].custom_fields.length)
+            row.setValue(
+                'custom_field_list',
+                findings[i].custom_fields.map(function (f) { return f.name }).join(',')
+            )
+            row.setValue('custom_artifact_count', findings[i].custom_artifacts.length)
+            row.setValue(
+                'custom_artifact_list',
+                findings[i].custom_artifacts.map(function (a) { return a.name + '(' + a.type + ')' }).join(',')
+            )
+            row.insert()
         }
     },
 

@@ -6,6 +6,8 @@ import {
     DateTimeColumn,
     IntegerColumn,
     GenericColumn,
+    BooleanColumn,
+    ListColumn,
 } from '@servicenow/sdk/core'
 
 // Named-scope tables must start with the scope prefix (x_335329_iscan_).
@@ -27,6 +29,9 @@ export const x_335329_iscan_run = Table({
                 custom_only: { label: 'Custom Only', sequence: 1 },
                 manual: { label: 'Manual — App', sequence: 2 },
                 single_table: { label: 'Manual — Single Table', sequence: 3 },
+                // Instance-wide, no app/table scoping — profiles sys_plugins
+                // directly. See IscanModuleScanner / IscanScanOrchestrator._executeModulesRun.
+                modules: { label: 'Installed Modules', sequence: 4 },
             },
         }),
         status: ChoiceColumn({
@@ -56,10 +61,15 @@ export const x_335329_iscan_run = Table({
         // Primary picker for Manual — App mode. Takes precedence over
         // manual_app_list (the legacy multi-app string field, kept for
         // the programmatic/ATF API) when both are set — see
-        // RunScanUiAction.server.js.
-        target_app: ReferenceColumn({
+        // RunScanUiAction.server.js. List (not Reference) so a Manual run
+        // can target several apps at once — renders as a slushbucket,
+        // same attributes OOB task.watch_list uses. getValue() returns the
+        // same comma-separated sys_id string a Reference field would for a
+        // single value, so RunScanUiAction.server.js just .split(',') it.
+        target_app: ListColumn({
             label: 'Target App',
             referenceTable: 'sys_app',
+            attributes: { no_sort: true, slushbucket_ref_no_expand: true },
         }),
         // Picker for Manual — Single Table mode. No reference qualifier:
         // this mode's value is being able to point at ANY table,
@@ -74,17 +84,20 @@ export const x_335329_iscan_run = Table({
         // refresh the form mid-run and see what's happened so far. Plain
         // StringColumn rather than a journal field — this Fluent SDK
         // version has no JournalColumn type (same reason summary_text below
-        // uses a string instead of HTMLColumn).
-        activities: StringColumn({
-            label: 'Activities',
+        // uses a string instead of HTMLColumn). Renamed from `activities`
+        // to `scan_findings` (2026-07-22) — "Activities" read as the
+        // native Activity stream, which this is NOT; it's the queryable
+        // plain-text log.
+        scan_findings: StringColumn({
+            label: 'Scan Findings',
             maxLength: 8000,
         }),
         // v2: a real Journal field so scan progress also renders in the
         // native Activity formatter. This is ADDITIVE alongside
-        // `activities` above, not a replacement — `activities` stays a
-        // plain String because it must remain queryable and free of
+        // `scan_findings` above, not a replacement — `scan_findings` stays
+        // a plain String because it must remain queryable and free of
         // journal-field ACL complications. Both are written on every
-        // _appendActivity() call; see that method's comment.
+        // _appendScanFinding() call; see that method's comment.
         //
         // There is no JournalColumn in this SDK version, so this uses
         // GenericColumn (the documented escape hatch) with the same
@@ -184,6 +197,21 @@ export const x_335329_iscan_result = Table({
         role_count: IntegerColumn({ label: 'Role Count', default: 0 }),
         group_count: IntegerColumn({ label: 'Group Count', default: 0 }),
         system_property_count: IntegerColumn({ label: 'System Property Count', default: 0 }),
+        // Added alongside the itemized-report extension: Scripted REST
+        // resources (sys_ws_operation, child of scripted_rest_api_count's
+        // sys_ws_definition rows), SLA definitions, UI pages, and Service
+        // Portal pages (distinct from service_portal_count, which is the
+        // sp_portal container record itself).
+        scripted_rest_resource_count: IntegerColumn({ label: 'Scripted REST Resource Count', default: 0 }),
+        sla_definition_count: IntegerColumn({ label: 'SLA Definition Count', default: 0 }),
+        ui_page_count: IntegerColumn({ label: 'UI Page Count', default: 0 }),
+        service_portal_page_count: IntegerColumn({ label: 'Service Portal Page Count', default: 0 }),
+        // Events and import sets — from the original v3 "count everything"
+        // list, added later than the rest of Counting. Table names
+        // (sysevent_register, sys_import_set_source) are low-confidence,
+        // see IscanAppFilesScanner.scanApp()'s comment.
+        event_count: IntegerColumn({ label: 'Event Count', default: 0 }),
+        import_set_count: IntegerColumn({ label: 'Import Set Count', default: 0 }),
         table_list: StringColumn({
             label: 'Table List',
             maxLength: 4000,
@@ -268,6 +296,92 @@ export const x_335329_iscan_table = Table({
             name: 'index',
             unique: false,
             element: 'result',
+        },
+    ],
+})
+
+// Base-system (global/OOB) table that a customer scope has customized —
+// custom fields and/or config artifacts (business rules, client scripts,
+// UI policies, ACLs) targeting a table this app doesn't own. Distinct
+// from x_335329_iscan_table, which profiles tables OWNED by a scanned
+// app. Two distinct write paths feed this table, so it gets rows in
+// EVERY scan mode, not just one:
+//   - Per-app (result set): IscanTableScanner.findAppCustomizationsOnGlobalTables()
+//     runs for every app in every mode (custom_only, manual, full's
+//     per-app branch, single_table's owning-app branch) — did THIS app
+//     customize a base-system table it doesn't own?
+//   - Per-table (result blank): IscanTableScanner.findGlobalCustomizations()
+//     runs for the table-only fallback path (full mode's tableOnlyTables,
+//     single_table's no-owning-app case) — what customizations (from ANY
+//     scope) exist on THIS specific OOB table being profiled directly?
+export const x_335329_iscan_global_customization = Table({
+    name: 'x_335329_iscan_global_customization',
+    label: 'Instance Scan Global Customization',
+    display: 'table_name',
+    schema: {
+        run: ReferenceColumn({
+            label: 'Run',
+            referenceTable: 'x_335329_iscan_run',
+            mandatory: true,
+        }),
+        // Blank for the per-table fallback path (no result record exists
+        // there) — set for the per-app path so the Result report can
+        // scope this app's own findings. Blank is expected, not a bug —
+        // same precedent as referencing_app on x_335329_iscan_crossref.
+        result: ReferenceColumn({
+            label: 'Result',
+            referenceTable: 'x_335329_iscan_result',
+        }),
+        table_name: StringColumn({ label: 'Table Name', maxLength: 80 }),
+        custom_field_count: IntegerColumn({ label: 'Custom Field Count', default: 0 }),
+        custom_field_list: StringColumn({
+            label: 'Custom Field List',
+            maxLength: 4000,
+        }),
+        custom_artifact_count: IntegerColumn({ label: 'Custom Artifact Count', default: 0 }),
+        custom_artifact_list: StringColumn({
+            label: 'Custom Artifact List',
+            maxLength: 4000,
+        }),
+    },
+    index: [
+        {
+            name: 'index',
+            unique: false,
+            element: 'run',
+        },
+    ],
+})
+
+// One row per installed plugin/module (sys_plugins), written only by
+// 'modules' scan mode. Instance-wide — no owning app, so this is keyed
+// directly off `run` (no `result`), same precedent as
+// x_335329_iscan_global_customization's no-owning-app rows.
+export const x_335329_iscan_module = Table({
+    name: 'x_335329_iscan_module',
+    label: 'Instance Scan Module',
+    display: 'name',
+    schema: {
+        run: ReferenceColumn({
+            label: 'Run',
+            referenceTable: 'x_335329_iscan_run',
+            mandatory: true,
+        }),
+        name: StringColumn({ label: 'Name', maxLength: 200 }),
+        plugin_id: StringColumn({ label: 'Plugin ID', maxLength: 200 }),
+        // sys_plugins' own stored active flag.
+        active_flag: BooleanColumn({ label: 'Active (sys_plugins)', default: false }),
+        // Live GlidePluginManager().isActive() result — cross-checked
+        // rather than trusting sys_plugins.active alone (can go stale
+        // mid-activation or on a stale cache).
+        active_confirmed: BooleanColumn({ label: 'Active (Confirmed)', default: false }),
+        status_mismatch: BooleanColumn({ label: 'Status Mismatch', default: false }),
+    },
+    index: [
+        {
+            name: 'index',
+            unique: false,
+            element: 'run',
         },
     ],
 })
