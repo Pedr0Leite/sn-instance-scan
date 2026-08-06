@@ -443,8 +443,12 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 				'customized — the table itself isn\'t custom, but these fields/artifacts on it are. ' +
 				'Found while profiling a table directly (Single Table mode, or Full mode\'s table-only ' +
 				'fallback scopes) rather than through a specific app\'s own scan.</i></p>');
+<<<<<<< HEAD
 			parts.push('<table>');
 			parts.push(this._colgroup([20, 40, 40]));
+=======
+			parts.push('<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;width:100%">');
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 			parts.push('<tr><th>Table</th><th>Custom Fields</th><th>Custom Artifacts</th></tr>');
 			while (customization.next()) {
 				parts.push('<tr>');
@@ -458,6 +462,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			parts.push('</table>');
 		}
 
+<<<<<<< HEAD
 		// Modules mode (scan_mode='modules', instance-wide, no per-app
 		// result rows) — sys_plugins profile written directly against the
 		// run, same run-keyed precedent as x_335329_iscan_global_customization's
@@ -489,6 +494,8 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			parts.push('</table>');
 		}
 
+=======
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 		// Full per-app detail, not just the summary row above — every
 		// section already built for the individual Result report (status,
 		// recommendations, itemized artifact inventory, tables, cross-
@@ -616,8 +623,12 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			parts.push('<h2>Customizations on base-system tables</h2>');
 			parts.push('<p><i>Base-system (global/OOB) tables this app doesn\'t own, but has added custom ' +
 				'fields or config artifacts to.</i></p>');
+<<<<<<< HEAD
 			parts.push('<table>');
 			parts.push(this._colgroup([20, 40, 40]));
+=======
+			parts.push('<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;width:100%">');
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 			parts.push('<tr><th>Table</th><th>Custom Fields</th><th>Custom Artifacts</th></tr>');
 			while (appCustomization.next()) {
 				parts.push('<tr>');

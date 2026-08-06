@@ -33,6 +33,7 @@ export const iscanResultRelatedListEntry = Record({
         position: 0,
     },
 })
+<<<<<<< HEAD
 
 // Same explicit-related-list treatment for x_335329_iscan_module
 // (Installed Modules mode child rows) — without this they'd be written
@@ -54,3 +55,5 @@ export const iscanModuleRelatedListEntry = Record({
         position: 1,
     },
 })
+=======
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47

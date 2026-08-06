@@ -108,6 +108,7 @@ export const globalCustomizationCreateAcl = Acl({
     roles: [scannerRole],
 })
 
+<<<<<<< HEAD
 // Module rows (Installed Modules mode): same pattern as table/crossref/
 // global-customization rows — inserted by the orchestrator as the calling
 // user, no write ACL (immutable once written).
@@ -127,6 +128,8 @@ export const moduleCreateAcl = Acl({
     roles: [scannerRole],
 })
 
+=======
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 // Client-callable script includes require their own execute ACL for
 // GlideAjax calls to pass (see fluent-script-include-api.md). The ACL
 // name must be the scope-qualified API name — that's the resource name

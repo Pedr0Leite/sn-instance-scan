@@ -304,6 +304,7 @@ IscanScanOrchestrator.prototype = {
             customizations.custom_artifacts.map(function (a) { return a.name + '(' + a.type + ')' }).join(',')
         )
         row.insert()
+<<<<<<< HEAD
     },
 
     /**
@@ -430,6 +431,8 @@ IscanScanOrchestrator.prototype = {
             statusMismatchCount: mismatchCount,
             statusMismatches: mismatches
         }
+=======
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
     },
 
     _createRun: function (scanMode, manualAppList) {

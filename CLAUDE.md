@@ -130,6 +130,7 @@ silent no-op. To restructure the report's sections/ordering: edit the
 `headerFooterInfo` object in `_convertToPdf`. No separate template file
 exists — it's hand-built HTML string concatenation.
 
+<<<<<<< HEAD
 **Table overflow fix (2026-07-29):** every `<table>` in the report used
 browser-default auto column sizing with no wrap, so a long unbreakable
 cell value (e.g. a dotted plugin ID like
@@ -154,6 +155,8 @@ cramped. **Verify at build time** (append to the existing
 respects `table-layout:fixed`/`<colgroup>` — most HTML-to-PDF renderers
 do, but this hasn't been confirmed against a live instance render.
 
+=======
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 **`global.` qualifier**: `AbstractAjaxProcessor` lives in global scope,
 not this app's scope, so any client-callable script include
 (`IscanReportGenerator` is the only one now) must extend
@@ -229,8 +232,12 @@ wants a note created/appended there.
   `src/server/`) plus Result-table "Download Report" + "Copy LLM Context"
   (client-side, `Now.include`-ing their scripts from `src/client-scripts/`)
 - `src/server/*.server.js` — script include bodies: `IscanAppSelector`,
+<<<<<<< HEAD
   `IscanTableScanner`, `IscanAppFilesScanner`, `IscanModuleScanner`,
   `IscanSummaryGenerator`,
+=======
+  `IscanTableScanner`, `IscanAppFilesScanner`, `IscanSummaryGenerator`,
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
   `IscanScanOrchestrator` (called directly, server-side, by
   `RunScanUiAction`), `IscanReportGenerator` (GlideAjax entry point for
   the Result-table PDF report; its Run-table report methods are also
@@ -522,6 +529,7 @@ was deleted (dead code — nothing references it anymore).
 GlideAjax + client-side, out of scope for this fix — it can get the same
 treatment later if the same failure class shows up there.
 
+<<<<<<< HEAD
 **Later addition #4 (2026-07-29): "Installed Modules" scan mode +
 Manual mode multi-select.** Two independent changes.
 
@@ -581,6 +589,8 @@ Reference field already returns for one value. Everything else
 (`IscanAppSelector`, orchestrator, `manualAppVisibilityPolicy`,
 generated form layout) needed zero changes.
 
+=======
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 ## /caveman
 
 If the user invokes `/caveman`, switch to ultra-concise mode for the

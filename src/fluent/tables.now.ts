@@ -353,6 +353,7 @@ export const x_335329_iscan_global_customization = Table({
     ],
 })
 
+<<<<<<< HEAD
 // One row per installed plugin/module (sys_plugins), written only by
 // 'modules' scan mode. Instance-wide — no owning app, so this is keyed
 // directly off `run` (no `result`), same precedent as
@@ -386,6 +387,8 @@ export const x_335329_iscan_module = Table({
     ],
 })
 
+=======
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 export const x_335329_iscan_crossref = Table({
     name: 'x_335329_iscan_crossref',
     label: 'Instance Scan Cross-Reference',

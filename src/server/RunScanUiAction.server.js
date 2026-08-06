@@ -44,10 +44,14 @@
 
     // target_app takes precedence over the legacy manual_app_list field
     // when both are set — see docs/superpowers/specs/2026-07-21-modes-design.md.
+<<<<<<< HEAD
     // target_app is now a List field (multi-select slushbucket), so
     // getValue() returns a comma-separated sys_id string the same way
     // manual_app_list already does — split it the same way.
     var manualAppList = targetAppId ? targetAppId.split(',') : (manualAppListRaw ? manualAppListRaw.split(',') : [])
+=======
+    var manualAppList = targetAppId ? [targetAppId] : (manualAppListRaw ? manualAppListRaw.split(',') : [])
+>>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 
     gs.info('RunScanUiAction: starting scan, run=' + current.getUniqueValue() + ', scan_mode=' + scanMode)
     try {
