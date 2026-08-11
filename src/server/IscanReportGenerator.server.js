@@ -443,12 +443,8 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 				'customized — the table itself isn\'t custom, but these fields/artifacts on it are. ' +
 				'Found while profiling a table directly (Single Table mode, or Full mode\'s table-only ' +
 				'fallback scopes) rather than through a specific app\'s own scan.</i></p>');
-<<<<<<< HEAD
 			parts.push('<table>');
 			parts.push(this._colgroup([20, 40, 40]));
-=======
-			parts.push('<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;width:100%">');
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 			parts.push('<tr><th>Table</th><th>Custom Fields</th><th>Custom Artifacts</th></tr>');
 			while (customization.next()) {
 				parts.push('<tr>');
@@ -462,7 +458,6 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			parts.push('</table>');
 		}
 
-<<<<<<< HEAD
 		// Modules mode (scan_mode='modules', instance-wide, no per-app
 		// result rows) — sys_plugins profile written directly against the
 		// run, same run-keyed precedent as x_335329_iscan_global_customization's
@@ -494,8 +489,35 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			parts.push('</table>');
 		}
 
-=======
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
+		// AI Agent Discovery mode (scan_mode='ai_agents', instance-wide, no
+		// per-app result rows) — same run-keyed precedent as Installed
+		// Modules above. Rendered whenever any x_335329_iscan_ai_agent rows
+		// exist for this run. Grouped by layer so native/confirmed findings
+		// aren't buried among heuristic ones; confidence gets its own icon
+		// column (✅ confirmed vs ❓ needs review) reusing the same
+		// icon-column pattern as the Status column elsewhere in this report.
+		var aiAgentRow = new GlideRecord('x_335329_iscan_ai_agent');
+		aiAgentRow.addQuery('run', run.getUniqueValue());
+		aiAgentRow.orderBy('layer');
+		aiAgentRow.query();
+		if (aiAgentRow.hasNext()) {
+			parts.push('<h2>AI Agent Discovery</h2>');
+			parts.push('<table>');
+			parts.push(this._colgroup([12, 20, 38, 15, 15]));
+			parts.push('<tr><th>Layer</th><th>Name</th><th>Detail</th><th>Source Table</th><th>Confidence</th></tr>');
+			while (aiAgentRow.next()) {
+				var confirmed = aiAgentRow.getValue('confidence') === 'confirmed';
+				parts.push('<tr>');
+				parts.push('<td>' + this._esc(aiAgentRow.getDisplayValue('layer')) + '</td>');
+				parts.push('<td>' + this._esc(aiAgentRow.getValue('name')) + '</td>');
+				parts.push('<td>' + this._esc(aiAgentRow.getValue('detail')) + '</td>');
+				parts.push('<td>' + this._esc(aiAgentRow.getValue('source_table')) + '</td>');
+				parts.push('<td>' + (confirmed ? '✅ Confirmed' : '❓ Needs Review') + '</td>');
+				parts.push('</tr>');
+			}
+			parts.push('</table>');
+		}
+
 		// Full per-app detail, not just the summary row above — every
 		// section already built for the individual Result report (status,
 		// recommendations, itemized artifact inventory, tables, cross-
@@ -623,12 +645,8 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			parts.push('<h2>Customizations on base-system tables</h2>');
 			parts.push('<p><i>Base-system (global/OOB) tables this app doesn\'t own, but has added custom ' +
 				'fields or config artifacts to.</i></p>');
-<<<<<<< HEAD
 			parts.push('<table>');
 			parts.push(this._colgroup([20, 40, 40]));
-=======
-			parts.push('<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse;width:100%">');
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 			parts.push('<tr><th>Table</th><th>Custom Fields</th><th>Custom Artifacts</th></tr>');
 			while (appCustomization.next()) {
 				parts.push('<tr>');

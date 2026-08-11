@@ -98,6 +98,27 @@ export const newModulesScanModule = Record({
     },
 })
 
+export const newAiAgentsScanModule = Record({
+    $id: Now.ID['iscan_module_new_ai_agents'],
+    table: 'sys_app_module',
+    data: {
+        title: 'New AI Agent Discovery Scan',
+        application: appMenu,
+        link_type: 'NEW',
+        name: 'x_335329_iscan_run',
+        query: 'scan_mode=ai_agents',
+        hint: 'Scan instance-wide for AI agents, tools, and LLM integrations',
+        roles: ['x_335329_iscan.scanner'],
+        active: true,
+        order: 375,
+        override_menu_roles: false,
+        require_confirmation: false,
+        sys_domain: 'global',
+        sys_domain_path: '/',
+        uncancelable: false,
+    },
+})
+
 export const separatorModule = Record({
     $id: Now.ID['iscan_module_separator'],
     table: 'sys_app_module',

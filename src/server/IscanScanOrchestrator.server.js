@@ -16,13 +16,14 @@ IscanScanOrchestrator.prototype = {
         this.appFilesScanner = new IscanAppFilesScanner()
         this.summaryGenerator = new IscanSummaryGenerator()
         this.moduleScanner = new IscanModuleScanner()
+        this.aiAgentScanner = new IscanAiAgentScanner()
     },
 
     /**
      * Runs a scan against an already-existing run record (e.g. the one
      * open in the form when "Run Scan" was clicked), updating it in place.
      * @param {String} runSysId - sys_id of an existing x_335329_iscan_run record
-     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules'
+     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules' | 'ai_agents'
      * @param {Array} manualAppList - array of sys_app sys_ids, only used
      *   when scanMode === 'manual'
      * @param {String} [targetTableSysId] - sys_id of a sys_db_object record,
@@ -56,7 +57,7 @@ IscanScanOrchestrator.prototype = {
      * Creates a brand-new run record and scans it. Used for programmatic/
      * ATF-style invocation where there's no pre-existing form record to
      * update — see runScanForRecord() for the UI Action path.
-     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules'
+     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules' | 'ai_agents'
      * @param {Array} manualAppList - array of sys_app sys_ids, only used
      *   when scanMode === 'manual'
      * @param {String} [targetTableSysId] - sys_id of a sys_db_object record,
@@ -87,6 +88,9 @@ IscanScanOrchestrator.prototype = {
     _executeRun: function (run, appIdsOrTarget) {
         if (appIdsOrTarget && appIdsOrTarget.modulesOnly) {
             return this._executeModulesRun(run)
+        }
+        if (appIdsOrTarget && appIdsOrTarget.aiAgentsOnly) {
+            return this._executeAiAgentsRun(run)
         }
         if (appIdsOrTarget && appIdsOrTarget.tableOnly) {
             return this._executeSingleTableRun(run, appIdsOrTarget.tableName)
@@ -225,6 +229,9 @@ IscanScanOrchestrator.prototype = {
         }
 
         var profile = this.tableScanner.profileTable(tableName)
+        if (profile.cross_scope_denial) {
+            this._appendScanFinding(run, profile.cross_scope_denial)
+        }
         var inboundReferences = this.tableScanner.findInboundReferences(tableName)
         gs.info(
             'IscanScanOrchestrator._scanOneTable: table=' +
@@ -304,7 +311,6 @@ IscanScanOrchestrator.prototype = {
             customizations.custom_artifacts.map(function (a) { return a.name + '(' + a.type + ')' }).join(',')
         )
         row.insert()
-<<<<<<< HEAD
     },
 
     /**
@@ -431,8 +437,99 @@ IscanScanOrchestrator.prototype = {
             statusMismatchCount: mismatchCount,
             statusMismatches: mismatches
         }
-=======
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
+    },
+
+    /**
+     * AI Agent Discovery mode: instance-wide, no app/table scoping — same
+     * shape as _executeModulesRun. No x_335329_iscan_result row gets
+     * written (there's no owning app to point one at) — findings land
+     * straight on x_335329_iscan_ai_agent, run-keyed. Unlike Modules mode,
+     * a per-table access gap here is a per-layer finding, not a hard
+     * run-level failure — each of IscanAiAgentScanner's 5 layers already
+     * reports its own accessGaps rather than gating the whole scan on one
+     * table (see IscanAiAgentScanner's class doc comment).
+     * @param {GlideRecord} run
+     */
+    _executeAiAgentsRun: function (run) {
+        run.setValue('app_count', 0)
+        run.setValue('status', 'running')
+        if (!run.update()) {
+            throw new Error(
+                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+            )
+        }
+
+        gs.info('IscanScanOrchestrator._executeAiAgentsRun: run=' + run.getUniqueValue() + ' scanning for AI agents/tools/credentials')
+        this._appendScanFinding(run, 'Scanning for AI agents, tools, and LLM integrations...')
+
+        try {
+            var native = this.aiAgentScanner.scanNativePlatform()
+            var outbound = this.aiAgentScanner.scanOutboundIntegrations()
+            var allFindings = native.findings.concat(outbound.findings)
+            var allAccessGaps = native.accessGaps.concat(outbound.accessGaps)
+
+            var includeKeywordScan = gs.getProperty('x_335329_iscan.include_ai_agent_keyword_scan', 'false') === 'true'
+            if (includeKeywordScan) {
+                var scriptScan = this.aiAgentScanner.scanScriptKeywords()
+                allFindings = allFindings.concat(scriptScan.findings)
+                allAccessGaps = allAccessGaps.concat(scriptScan.accessGaps)
+            }
+
+            var flowScan = this.aiAgentScanner.scanFlowDesigner()
+            allFindings = allFindings.concat(flowScan.findings)
+            allAccessGaps = allAccessGaps.concat(flowScan.accessGaps)
+
+            var configScan = this.aiAgentScanner.scanConfiguration()
+            allFindings = allFindings.concat(configScan.findings)
+            allAccessGaps = allAccessGaps.concat(configScan.accessGaps)
+
+            this._writeAiAgentRows(run.getUniqueValue(), allFindings)
+
+            var confirmedCount = 0
+            for (var i = 0; i < allFindings.length; i++) {
+                if (allFindings[i].confidence === 'confirmed') { confirmedCount++ }
+            }
+            this._appendScanFinding(
+                run,
+                'Found ' + allFindings.length + ' finding(s): ' + confirmedCount + ' confirmed, ' +
+                    (allFindings.length - confirmedCount) + ' needs review.' +
+                    (includeKeywordScan
+                        ? ''
+                        : ' (Script keyword scan skipped — enable x_335329_iscan.include_ai_agent_keyword_scan to include it.)')
+            )
+            if (allAccessGaps.length) {
+                this._appendScanFinding(
+                    run,
+                    'Could not read the following table(s), coverage is incomplete: ' + allAccessGaps.join(', ') + '.'
+                )
+            }
+
+            run.setValue('status', 'complete')
+            gs.info('IscanScanOrchestrator._executeAiAgentsRun: run=' + run.getUniqueValue() + ' completed')
+            this._appendScanFinding(run, 'Scan complete. ' + this._reportPointerMessage(0))
+        } catch (e) {
+            gs.error('IscanScanOrchestrator._executeAiAgentsRun failed: ' + e.message)
+            this._appendScanFinding(run, 'ERROR: ' + e.message)
+            run.setValue('status', 'error')
+        }
+
+        run.setValue('completed', new GlideDateTime())
+        run.update()
+    },
+
+    _writeAiAgentRows: function (runSysId, findings) {
+        for (var i = 0; i < findings.length; i++) {
+            var row = new GlideRecord('x_335329_iscan_ai_agent')
+            row.initialize()
+            row.setValue('run', runSysId)
+            row.setValue('layer', findings[i].layer)
+            row.setValue('name', findings[i].name)
+            row.setValue('detail', findings[i].detail)
+            row.setValue('source_table', findings[i].source_table)
+            row.setValue('confidence', findings[i].confidence)
+            row.insert()
+        }
+        gs.info('IscanScanOrchestrator._writeAiAgentRows: run=' + runSysId + ' wrote ' + findings.length + ' row(s)')
     },
 
     _createRun: function (scanMode, manualAppList) {
@@ -461,6 +558,8 @@ IscanScanOrchestrator.prototype = {
                 return this._resolveSingleTableApp(targetTableSysId)
             case 'modules':
                 return { modulesOnly: true }
+            case 'ai_agents':
+                return { aiAgentsOnly: true }
             default:
                 gs.error('IscanScanOrchestrator._resolveAppList: unknown scan_mode: ' + scanMode)
                 throw new Error('Unknown scan_mode: ' + scanMode)
@@ -657,7 +756,7 @@ IscanScanOrchestrator.prototype = {
             // reference graph BEFORE the result row is inserted. The profile is
             // attached to each table object and reused by _writeTableProfiles,
             // so this is one profileTable() call per table, same as v1.
-            tables = this._profileOwnedTables(appSysId)
+            tables = this._profileOwnedTables(appSysId, run)
         } else {
             scanModeUsed = 'app_files_fallback'
         }
@@ -840,9 +939,11 @@ IscanScanOrchestrator.prototype = {
      * itself so both the v2 briefing and the table-profile rows can read
      * it without profiling twice.
      * @param {String} appScopeSysId
+     * @param {GlideRecord} run - needed to surface a cross-scope-privilege
+     *   denial finding (see IscanTableScanner.profileTable's cross_scope_denial)
      * @returns {Array} table objects enriched with profile data
      */
-    _profileOwnedTables: function (appScopeSysId) {
+    _profileOwnedTables: function (appScopeSysId, run) {
         var tables = this.tableScanner.getOwnedTables(appScopeSysId)
         for (var i = 0; i < tables.length; i++) {
             var profile = this.tableScanner.profileTable(tables[i].name)
@@ -853,6 +954,9 @@ IscanScanOrchestrator.prototype = {
             tables[i].dictionary_override_count = profile.dictionary_override_count
             tables[i].inbound_references = this.tableScanner.findInboundReferences(tables[i].name)
             tables[i].inbound_reference_count = tables[i].inbound_references.length
+            if (profile.cross_scope_denial) {
+                this._appendScanFinding(run, profile.cross_scope_denial)
+            }
         }
         return tables
     },

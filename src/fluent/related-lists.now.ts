@@ -33,7 +33,6 @@ export const iscanResultRelatedListEntry = Record({
         position: 0,
     },
 })
-<<<<<<< HEAD
 
 // Same explicit-related-list treatment for x_335329_iscan_module
 // (Installed Modules mode child rows) — without this they'd be written
@@ -55,5 +54,23 @@ export const iscanModuleRelatedListEntry = Record({
         position: 1,
     },
 })
-=======
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
+
+// Same explicit-related-list treatment for x_335329_iscan_ai_agent
+// (AI Agent Discovery mode child rows) — same failure class as above.
+export const iscanAiAgentRelatedList = Record({
+    $id: Now.ID['iscan_ai_agent_related_list'],
+    table: 'sys_ui_related_list',
+    data: {
+        name: 'x_335329_iscan_run',
+    },
+})
+
+export const iscanAiAgentRelatedListEntry = Record({
+    $id: Now.ID['iscan_ai_agent_related_list_entry'],
+    table: 'sys_ui_related_list_entry',
+    data: {
+        list_id: iscanAiAgentRelatedList,
+        related_list: 'x_335329_iscan_ai_agent.run',
+        position: 2,
+    },
+})

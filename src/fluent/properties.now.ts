@@ -41,3 +41,12 @@ export const includeExtendedCountsOnFullScanProperty = Property({
     description:
         'When false (default), Group B artifact counts (dashboards, PA indicators, service portals/widgets, choices, Flow Designer actions, catalog variables — see IscanAppFilesScanner) are skipped for scan_mode=full to avoid 7 extra queries per app on a full-instance scan. Custom Only / Manual / Single Table modes always include Group B regardless of this property (their app counts are inherently small). Set true to include Group B in full scans too.',
 })
+
+export const includeAiAgentKeywordScanProperty = Property({
+    $id: Now.ID['sn_inst_scan_include_ai_agent_keyword_scan_property'],
+    name: 'x_335329_iscan.include_ai_agent_keyword_scan',
+    type: 'boolean',
+    value: 'false',
+    description:
+        'When false (default), AI Agent Discovery mode (scan_mode=ai_agents) skips Layer 3 — a CONTAINS query on the script body field across every row of Business Rules, Script Includes, Scheduled Jobs, and UI Actions, instance-wide. Real per-instance perf cost, same rationale as include_extended_counts_on_full_scan. Layers 1, 2, 4, and 5 always run regardless of this property. Set true to include the script keyword scan too.',
+})

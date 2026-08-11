@@ -108,7 +108,6 @@ export const globalCustomizationCreateAcl = Acl({
     roles: [scannerRole],
 })
 
-<<<<<<< HEAD
 // Module rows (Installed Modules mode): same pattern as table/crossref/
 // global-customization rows — inserted by the orchestrator as the calling
 // user, no write ACL (immutable once written).
@@ -128,8 +127,25 @@ export const moduleCreateAcl = Acl({
     roles: [scannerRole],
 })
 
-=======
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
+// AI agent finding rows (AI Agent Discovery mode): same pattern as module
+// rows — inserted by the orchestrator as the calling user, no write ACL
+// (immutable once written).
+export const aiAgentReadAcl = Acl({
+    $id: Now.ID['sn_inst_scan_ai_agent_read_acl'],
+    type: 'record',
+    table: 'x_335329_iscan_ai_agent',
+    operation: 'read',
+    roles: [scannerRole],
+})
+
+export const aiAgentCreateAcl = Acl({
+    $id: Now.ID['sn_inst_scan_ai_agent_create_acl'],
+    type: 'record',
+    table: 'x_335329_iscan_ai_agent',
+    operation: 'create',
+    roles: [scannerRole],
+})
+
 // Client-callable script includes require their own execute ACL for
 // GlideAjax calls to pass (see fluent-script-include-api.md). The ACL
 // name must be the scope-qualified API name — that's the resource name

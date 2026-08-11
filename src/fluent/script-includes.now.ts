@@ -63,6 +63,19 @@ export const iscanModuleScanner = ScriptInclude({
     sandboxCallable: false,
 })
 
+export const iscanAiAgentScanner = ScriptInclude({
+    $id: Now.ID['iscan_ai_agent_scanner_si'],
+    name: 'IscanAiAgentScanner',
+    script: Now.include('../server/IscanAiAgentScanner.server.js'),
+    description:
+        'AI Agent Discovery scan mode: layered inventory of AI agents/tools/credentials (native platform, outbound integrations, script keywords, Flow Designer, configuration). No app/table scoping.',
+    clientCallable: false,
+    active: true,
+    apiName: 'x_335329_iscan.IscanAiAgentScanner',
+    mobileCallable: false,
+    sandboxCallable: false,
+})
+
 export const iscanScanOrchestrator = ScriptInclude({
     $id: Now.ID['iscan_scan_orchestrator_si'],
     name: 'IscanScanOrchestrator',

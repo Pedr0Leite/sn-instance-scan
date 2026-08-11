@@ -32,6 +32,10 @@ export const x_335329_iscan_run = Table({
                 // Instance-wide, no app/table scoping — profiles sys_plugins
                 // directly. See IscanModuleScanner / IscanScanOrchestrator._executeModulesRun.
                 modules: { label: 'Installed Modules', sequence: 4 },
+                // Instance-wide, no app/table scoping — layered AI agent/
+                // tool/credential inventory. See IscanAiAgentScanner /
+                // IscanScanOrchestrator._executeAiAgentsRun.
+                ai_agents: { label: 'AI Agent Discovery', sequence: 5 },
             },
         }),
         status: ChoiceColumn({
@@ -353,7 +357,6 @@ export const x_335329_iscan_global_customization = Table({
     ],
 })
 
-<<<<<<< HEAD
 // One row per installed plugin/module (sys_plugins), written only by
 // 'modules' scan mode. Instance-wide — no owning app, so this is keyed
 // directly off `run` (no `result`), same precedent as
@@ -387,8 +390,51 @@ export const x_335329_iscan_module = Table({
     ],
 })
 
-=======
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
+// One row per AI agent/tool/credential finding, written only by
+// 'ai_agents' scan mode. Instance-wide — no owning app, same run-keyed
+// (no `result`) precedent as x_335329_iscan_module above. See
+// IscanAiAgentScanner for the 5 detection layers this feeds from.
+export const x_335329_iscan_ai_agent = Table({
+    name: 'x_335329_iscan_ai_agent',
+    label: 'Instance Scan AI Agent Finding',
+    display: 'name',
+    schema: {
+        run: ReferenceColumn({
+            label: 'Run',
+            referenceTable: 'x_335329_iscan_run',
+            mandatory: true,
+        }),
+        layer: ChoiceColumn({
+            label: 'Layer',
+            dropdown: 'dropdown_without_none',
+            choices: {
+                native_platform: { label: 'Native Platform (AI Agent Studio)', sequence: 0 },
+                custom_shadow: { label: 'Custom / Shadow Integration', sequence: 1 },
+                flow_designer: { label: 'Flow Designer', sequence: 2 },
+                credential: { label: 'Credential / Configuration', sequence: 3 },
+            },
+        }),
+        name: StringColumn({ label: 'Name', maxLength: 200 }),
+        detail: StringColumn({ label: 'Detail', maxLength: 1000 }),
+        source_table: StringColumn({ label: 'Source Table', maxLength: 80 }),
+        confidence: ChoiceColumn({
+            label: 'Confidence',
+            dropdown: 'dropdown_without_none',
+            choices: {
+                confirmed: { label: 'Confirmed', sequence: 0 },
+                needs_review: { label: 'Needs Review', sequence: 1 },
+            },
+        }),
+    },
+    index: [
+        {
+            name: 'index',
+            unique: false,
+            element: 'run',
+        },
+    ],
+})
+
 export const x_335329_iscan_crossref = Table({
     name: 'x_335329_iscan_crossref',
     label: 'Instance Scan Cross-Reference',

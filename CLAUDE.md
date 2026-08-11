@@ -130,7 +130,6 @@ silent no-op. To restructure the report's sections/ordering: edit the
 `headerFooterInfo` object in `_convertToPdf`. No separate template file
 exists — it's hand-built HTML string concatenation.
 
-<<<<<<< HEAD
 **Table overflow fix (2026-07-29):** every `<table>` in the report used
 browser-default auto column sizing with no wrap, so a long unbreakable
 cell value (e.g. a dotted plugin ID like
@@ -155,8 +154,6 @@ cramped. **Verify at build time** (append to the existing
 respects `table-layout:fixed`/`<colgroup>` — most HTML-to-PDF renderers
 do, but this hasn't been confirmed against a live instance render.
 
-=======
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
 **`global.` qualifier**: `AbstractAjaxProcessor` lives in global scope,
 not this app's scope, so any client-callable script include
 (`IscanReportGenerator` is the only one now) must extend
@@ -232,12 +229,8 @@ wants a note created/appended there.
   `src/server/`) plus Result-table "Download Report" + "Copy LLM Context"
   (client-side, `Now.include`-ing their scripts from `src/client-scripts/`)
 - `src/server/*.server.js` — script include bodies: `IscanAppSelector`,
-<<<<<<< HEAD
   `IscanTableScanner`, `IscanAppFilesScanner`, `IscanModuleScanner`,
   `IscanSummaryGenerator`,
-=======
-  `IscanTableScanner`, `IscanAppFilesScanner`, `IscanSummaryGenerator`,
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
   `IscanScanOrchestrator` (called directly, server-side, by
   `RunScanUiAction`), `IscanReportGenerator` (GlideAjax entry point for
   the Result-table PDF report; its Run-table report methods are also
@@ -529,7 +522,6 @@ was deleted (dead code — nothing references it anymore).
 GlideAjax + client-side, out of scope for this fix — it can get the same
 treatment later if the same failure class shows up there.
 
-<<<<<<< HEAD
 **Later addition #4 (2026-07-29): "Installed Modules" scan mode +
 Manual mode multi-select.** Two independent changes.
 
@@ -589,8 +581,109 @@ Reference field already returns for one value. Everything else
 (`IscanAppSelector`, orchestrator, `manualAppVisibilityPolicy`,
 generated form layout) needed zero changes.
 
-=======
->>>>>>> dd36c29a6a14e52801e9864e5ac48855b837ca47
+**Later addition #5 (2026-08-11): cross-scope-privilege denial surfaced as
+a finding, + "AI Agent Discovery" scan mode.** Two independent changes.
+
+*Cross-scope-privilege denial detection* — the user originally asked for
+auto-remediation (this app creating/approving the missing
+`sys_restricted_caller_access` record on denial); rejected after
+investigation, since it would mean writing outside `x_335329_iscan_*`
+(breaks the read-only rule) and self-granting elevated cross-scope access
+on denial (breaks the "no elevated privilege" rule) — see KB2291532 and
+`application-development/set-RCA-level.md`: a denial creates a
+`sys_restricted_caller_access` row with status "Requested", and a human
+admin is meant to flip it to "Allowed", never the requesting app. Built
+LOG + SURFACE ONLY instead. Confirmed exact error signature against the
+docs corpus (KB2291532, KB0831584, KB0691402): `"<operation> operation on
+table '<table>' from scope '<scope>' was denied. The application
+'<scope>' must declare a cross scope access privilege."` — NOT a thrown
+exception; it surfaces via `getLastErrorMessage()` after `query()`/
+`next()`, same mechanism as a Data Policy Exception, so no try/catch is
+needed around the query itself. New
+`IscanTableScanner._detectCrossScopePrivDenial(gr, tableName)` (substring
+match on the one stable phrase, not a regex) is the single shared
+detection point, called only from `_countRows()` — the ONE reachable
+query site in this app's whole surface that reads a scanned app's own
+DATA table (row counts via `GlideAggregate`) rather than a global platform
+metadata table. Every other query site in `IscanTableScanner`/
+`IscanScanOrchestrator` (`sys_db_object`, `sys_dictionary`, `sys_script`,
+`sys_script_client`, `sys_ui_policy`, `sys_security_acl`, `sys_plugins`,
+`sys_rest_message`) reads global/platform config tables, which aren't
+subject to per-app Caller Access Restrictions — deliberately NOT wrapped,
+per the "narrow, not blanket" constraint. `profileTable()` returns the new
+`cross_scope_denial` string (`''` when none) alongside its existing
+fields; `IscanScanOrchestrator._profileOwnedTables()` (gained a `run`
+param specifically for this) and `_scanOneTable()` both check it and call
+the existing `_appendScanFinding()` dual-write helper — no new table, no
+new write path, reuses `scan_findings`/`comments` exactly like every other
+finding in this app.
+
+*AI Agent Discovery scan mode (`ai_agents`)* — ported the DETECTION
+STRATEGY/LAYERING from AgentCensus (github.com/BrianMcD47/AgentCensus, an
+external Python project — not its code), built natively following the
+`modules` mode template (`IscanModuleScanner`/`x_335329_iscan_module`,
+see "Later addition #4" above) exactly: instance-wide, no app/table
+scoping, own child table keyed directly to `run` (no `result`), explicit
+related-list entry (this app's custom `sys_ui_section` form layout
+suppresses default related-list rendering — same requirement as every
+other child table), nav module entry (order 375, between Modules at 350
+and the Browse separator at 400). New table `x_335329_iscan_ai_agent`:
+`run` (mandatory reference), `layer` (choice: `native_platform` /
+`custom_shadow` / `flow_designer` / `credential`), `name`, `detail`,
+`source_table`, `confidence` (choice: `confirmed` / `needs_review`). New
+Script Include `IscanAiAgentScanner` — 5 layers, each returning
+`{findings, accessGaps}` so a scan account's inability to read a candidate
+table is reported explicitly rather than silently read as "0 agents
+found" (same access-transparency philosophy as this app's own "0 isn't a
+bug, explain why" precedent) — `accessGaps` is distinct from a table not
+existing at all (`isValid()===false`, e.g. AI Agent Studio plugin not
+installed on this instance — normal, not a gap) versus existing but denied
+(`canRead()===false` — a real gap). Layer 1 (native platform) queries
+`sn_aia_agent`/`sn_aia_usecase`/`sn_aia_tool`/`sn_aia_team` — table names
+confirmed against the docs corpus
+(`intelligent-experiences/na-aia-reference.md`); Build Agent trial app
+tables were NOT included, no confirmed table names found for that trial
+app in the corpus. Layer 2 (outbound integration) matches
+`sys_rest_message.rest_endpoint` against a hostname list for major LLM
+providers (openai.com, openai.azure.com, anthropic.com, bedrock-runtime,
+generativelanguage.googleapis.com, cohere.ai, mistral.ai, huggingface.co)
+— `confirmed` confidence, since these are full-ish hostnames rather than
+bare provider names. Layer 3 (script keyword scan across
+`sys_script`/`sys_script_include`/`sysauto_script`/`sys_ui_action` script
+bodies) is the only layer gated behind a property,
+`x_335329_iscan.include_ai_agent_keyword_scan` (default `false`) — same
+precedent as Counting's `include_extended_counts_on_full_scan`: a
+`CONTAINS` query on a script-body field across every row of 4 tables,
+instance-wide, is real per-instance perf cost, unlike every other layer's
+small/name-indexed lookups. Layers 4 (Flow Designer — `sys_hub_flow` names
++ `sys_hub_action_type_definition` for installed IntegrationHub LLM
+spokes) and 5 (configuration — `sys_properties` values +
+`sys_alias_id` Connection & Credential Alias names) always run. `layer`
+3-5 matches are always `needs_review` (heuristic name/keyword matching,
+never structural proof) — only Layers 1 and 2 can produce `confirmed`.
+`sys_alias_id`'s exact table name is UNVERIFIED against the docs corpus
+(no direct hit found) — guarded with `isValid()` so an instance without it
+just yields an empty result, not an error; add to the existing
+verify-before-go-live list (`sys_app.source`, GenAI Controller API, PDF
+plugin name, `sys_plugins.active` serialization) alongside the other
+low-confidence table names (`sys_hub_flow`/`sys_hub_action_type_definition`,
+same flagged-uncertainty class as Counting's `sysevent_register`/
+`sys_import_set_source`). `_executeAiAgentsRun()` mirrors
+`_executeModulesRun()`'s shape (update()-guard, try/catch, status shape),
+but does NOT share its hard "no ACL-fallback, denial = run status error"
+policy — a layer's `accessGaps` are per-table findings appended to the log,
+not a run-level failure, since AI Agent Discovery is inherently a
+best-effort multi-layer sweep rather than a single deterministic gate like
+`sys_plugins`. No GenAI summary for this mode (not requested, keeps the
+diff smaller — `modules` mode's GenAI reuse was an explicit spec ask for
+that mode specifically, not a required precedent for every future
+instance-wide mode). `IscanReportGenerator._buildRunReportHtml()` gained
+an "AI Agent Discovery" section, gated on `hasNext()` for
+`x_335329_iscan_ai_agent`, grouped by layer, with a confidence icon column
+(✅ confirmed vs ❓ needs review) — same insertion point and
+`hasNext()`-gated pattern as the Installed Modules section immediately
+above it.
+
 ## /caveman
 
 If the user invokes `/caveman`, switch to ultra-concise mode for the

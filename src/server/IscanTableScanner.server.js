@@ -10,7 +10,26 @@ IscanTableScanner.prototype = {
 	initialize: function() {
 		this.WELL_KNOWN_BASES = ['task', 'cmdb_ci'];
 		this.MAX_SUPERCLASS_DEPTH = 3;
+		// Set by _countRows() when it detects a cross-scope-privilege /
+		// Restricted Caller Access denial (see _detectCrossScopePrivDenial),
+		// read and cleared by profileTable() right after. Instance state
+		// rather than a return-value tuple from _countRows() — keeps
+		// _countRows()'s existing Number return type (row count) unchanged
+		// for its other, simpler callers.
+		this._lastCrossScopeDenial = '';
 	},
+
+	// Exact error signature confirmed against ServiceNow docs (KB2291532,
+	// KB0831584): "<op> operation on table '<table>' from scope '<scope>'
+	// was denied. The application '<scope>' must declare a cross scope
+	// access privilege." This is a DIFFERENT failure class from a plain ACL
+	// denial (canAccessMetadata()'s gate, checked before querying) — cross-
+	// scope privilege is enforced deeper, at query execution time, and
+	// surfaces via getLastErrorMessage() after query()/next() rather than a
+	// thrown exception (same mechanism as a Data Policy Exception). Substring
+	// match, not a regex — cheaper and this is the one stable phrase across
+	// every KB example regardless of table/scope/operation named in it.
+	CROSS_SCOPE_DENIAL_SIGNATURE: 'must declare a cross scope access privilege',
 
 	/**
 	 * Deterministic gate: can the caller read table/field metadata at all?
@@ -58,11 +77,21 @@ IscanTableScanner.prototype = {
 	 * gets a complete picture. This widens field_count/reference_field_list
 	 * for all 4 scan modes, not just Single Table — see CLAUDE.md.
 	 * @param {String} tableName
-	 * @returns {Object} {row_count, fields, reference_fields, dictionary_overrides, dictionary_override_count}
+	 * @returns {Object} {row_count, fields, reference_fields, dictionary_overrides, dictionary_override_count, cross_scope_denial}
 	 */
 	profileTable: function(tableName) {
 		gs.info('IscanTableScanner.profileTable: profiling table=' + tableName);
+		this._lastCrossScopeDenial = '';
 		var rowCount = this._countRows(tableName);
+		// _countRows() is the one query site in this app that reads a
+		// scanned app's own DATA table (row counts), as opposed to global
+		// platform metadata tables (sys_db_object/sys_dictionary/sys_script/
+		// etc, queried everywhere else in this file) — metadata tables are
+		// not subject to per-app Caller Access Restrictions, but a scanned
+		// app's own business table can be. This is the only reachable site
+		// for a cross-scope-privilege denial; see CROSS_SCOPE_DENIAL_SIGNATURE.
+		var crossScopeDenial = this._lastCrossScopeDenial;
+		this._lastCrossScopeDenial = '';
 		var fields = this._getAppAddedFields(tableName);
 		var referenceFields = [];
 		var tableOwningScope = this._getTableOwningScope(tableName);
@@ -82,7 +111,13 @@ IscanTableScanner.prototype = {
 			fields: fields,
 			reference_fields: referenceFields,
 			dictionary_overrides: dictionaryOverrides,
-			dictionary_override_count: dictionaryOverrides.length
+			dictionary_override_count: dictionaryOverrides.length,
+			// '' when no denial was detected — a distinct, clearly-labeled
+			// finding string otherwise (see CROSS_SCOPE_DENIAL_SIGNATURE /
+			// _detectCrossScopePrivDenial). Never surfaced as auto-
+			// remediation — log + surface only, per the "no elevated
+			// privilege" / "read-only" rules this app is built on.
+			cross_scope_denial: crossScopeDenial
 		};
 	},
 
@@ -382,10 +417,41 @@ IscanTableScanner.prototype = {
 		var ga = new GlideAggregate(tableName);
 		ga.addAggregate('COUNT');
 		ga.query();
+		this._lastCrossScopeDenial = this._detectCrossScopePrivDenial(ga, tableName);
 		if (ga.next()) {
 			return parseInt(ga.getAggregate('COUNT'), 10) || 0;
 		}
 		return 0;
+	},
+
+	/**
+	 * Narrow, single-purpose check — NOT a blanket try/catch. Called only
+	 * right after the one query site (_countRows, via profileTable) that
+	 * reads a scanned app's own data table rather than global platform
+	 * metadata. Anything other than this one exact signature is left alone
+	 * to surface/fail normally, same as before this change existed.
+	 * @param {GlideAggregate} gr - just-queried GlideAggregate
+	 * @param {String} tableName
+	 * @returns {String} descriptive finding, or '' if no denial detected
+	 */
+	_detectCrossScopePrivDenial: function(gr, tableName) {
+		var lastError = gr.getLastErrorMessage ? gr.getLastErrorMessage() : '';
+		if (!lastError || lastError.indexOf(this.CROSS_SCOPE_DENIAL_SIGNATURE) === -1) {
+			return '';
+		}
+		var targetScope = this._getTableOwningScope(tableName);
+		var targetScopeLabel = targetScope ? this._scopeLabel(targetScope) : 'unknown scope';
+		gs.error('IscanTableScanner: cross-scope privilege denied reading table=' + tableName + ': ' + lastError);
+		return 'Cross-scope privilege required: x_335329_iscan -> ' + targetScopeLabel + '.' + tableName +
+			' — request denied, an admin must approve a Restricted Caller Access record manually. (' + lastError + ')';
+	},
+
+	_scopeLabel: function(scopeSysId) {
+		var scope = new GlideRecord('sys_scope');
+		if (scope.get(scopeSysId)) {
+			return scope.getValue('scope') || scope.getValue('name') || scopeSysId;
+		}
+		return scopeSysId;
 	},
 
 	/**
