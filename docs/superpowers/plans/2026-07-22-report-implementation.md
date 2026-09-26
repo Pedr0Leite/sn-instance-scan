@@ -10,11 +10,11 @@
 
 ## Global Constraints
 
-- Read-only app: no script may write to a scanned table, only to `x_335329_iscan_*` tables. This plan only reads (`GlideRecord`/`GlideAggregate` queries), never writes.
+- Read-only app: no script may write to a scanned table, only to `x_nold_iscan_*` tables. This plan only reads (`GlideRecord`/`GlideAggregate` queries), never writes.
 - No numeric-threshold status flags — only the 3 presence/absence checks named below. Do not invent a count-based cutoff anywhere in this plan.
-- The 3 status flags are: (1) `scan_mode_used === 'app_files_fallback'` → warning; (2) summed `dictionary_override_count` across the app's `x_335329_iscan_table` rows `> 0` → warning; (3) count of distinct `referencing_app` values (excluding blank, excluding this app's own `sys_app` sys_id) across `x_335329_iscan_crossref` rows tied to this app's tables `> 0` → informational (not a warning).
+- The 3 status flags are: (1) `scan_mode_used === 'app_files_fallback'` → warning; (2) summed `dictionary_override_count` across the app's `x_nold_iscan_table` rows `> 0` → warning; (3) count of distinct `referencing_app` values (excluding blank, excluding this app's own `sys_app` sys_id) across `x_nold_iscan_crossref` rows tied to this app's tables `> 0` → informational (not a warning).
 - No local unit-test runner; `npm run build` is the only automated local check. **Do NOT add ATF test entries for this sub-spec** — `tests/atf_tests.json` is not touched by this plan.
-- `x_335329_iscan_crossref.table` is a Reference to `x_335329_iscan_table`, which itself has a `result` Reference to `x_335329_iscan_result` — so `x_335329_iscan_crossref` rows for a given result can be queried with the dot-walked condition `addQuery('table.result', resultSysId)`, no need to first collect table sys_ids into an array.
+- `x_nold_iscan_crossref.table` is a Reference to `x_nold_iscan_table`, which itself has a `result` Reference to `x_nold_iscan_result` — so `x_nold_iscan_crossref` rows for a given result can be queried with the dot-walked condition `addQuery('table.result', resultSysId)`, no need to first collect table sys_ids into an array.
 
 ---
 
@@ -37,7 +37,7 @@ In `src/server/IscanReportGenerator.server.js`, immediately after the existing `
 	 * numeric thresholds (see CLAUDE.md/design doc for why: there's no
 	 * real basis for picking a count cutoff, so every flag here is a
 	 * plain yes/no check).
-	 * @param {GlideRecord} result - an x_335329_iscan_result record
+	 * @param {GlideRecord} result - an x_nold_iscan_result record
 	 * @returns {Array} [{type: 'warning'|'info', text: String}]
 	 */
 	_computeStatusFlags: function(result) {
@@ -47,7 +47,7 @@ In `src/server/IscanReportGenerator.server.js`, immediately after the existing `
 			flags.push({ type: 'warning', text: 'Scanned via Application Files fallback (limited data)' });
 		}
 
-		var overrideAgg = new GlideAggregate('x_335329_iscan_table');
+		var overrideAgg = new GlideAggregate('x_nold_iscan_table');
 		overrideAgg.addQuery('result', result.getUniqueValue());
 		overrideAgg.addAggregate('SUM', 'dictionary_override_count');
 		overrideAgg.query();
@@ -59,7 +59,7 @@ In `src/server/IscanReportGenerator.server.js`, immediately after the existing `
 			flags.push({ type: 'warning', text: overrideCount + ' dictionary override(s) detected' });
 		}
 
-		var crossref = new GlideRecord('x_335329_iscan_crossref');
+		var crossref = new GlideRecord('x_nold_iscan_crossref');
 		crossref.addQuery('table.result', result.getUniqueValue());
 		crossref.addNotNullQuery('referencing_app');
 		crossref.addQuery('referencing_app', '!=', result.getValue('app'));
@@ -125,13 +125,13 @@ Replace:
 			'<th>Business Rules</th><th>Script Includes</th><th>Flows</th>' +
 			'<th>ACLs</th><th>UI Actions</th><th>Integrations</th></tr>');
 
-		var result = new GlideRecord('x_335329_iscan_result');
+		var result = new GlideRecord('x_nold_iscan_result');
 		result.addQuery('run', run.getUniqueValue());
 		result.query();
 
 		while (result.next()) {
 			parts.push('<tr>');
-			parts.push('<td><a href="' + this._recordUrl('x_335329_iscan_result', result.getUniqueValue()) +
+			parts.push('<td><a href="' + this._recordUrl('x_nold_iscan_result', result.getUniqueValue()) +
 				'">' + this._esc(result.getDisplayValue('app')) + '</a></td>');
 			parts.push('<td>' + this._esc(result.getValue('scan_mode_used')) + '</td>');
 			parts.push('<td>' + this._esc(result.getValue('table_count')) + '</td>');
@@ -155,13 +155,13 @@ with:
 			'<th>Business Rules</th><th>Script Includes</th><th>Flows</th>' +
 			'<th>ACLs</th><th>UI Actions</th><th>Integrations</th><th>Status</th></tr>');
 
-		var result = new GlideRecord('x_335329_iscan_result');
+		var result = new GlideRecord('x_nold_iscan_result');
 		result.addQuery('run', run.getUniqueValue());
 		result.query();
 
 		while (result.next()) {
 			parts.push('<tr>');
-			parts.push('<td><a href="' + this._recordUrl('x_335329_iscan_result', result.getUniqueValue()) +
+			parts.push('<td><a href="' + this._recordUrl('x_nold_iscan_result', result.getUniqueValue()) +
 				'">' + this._esc(result.getDisplayValue('app')) + '</a></td>');
 			parts.push('<td>' + this._esc(result.getValue('scan_mode_used')) + '</td>');
 			parts.push('<td>' + this._esc(result.getValue('table_count')) + '</td>');
@@ -209,7 +209,7 @@ Replace:
 		parts.push('<h1>sn-instance-scan — ' + this._esc(result.getDisplayValue('app')) + '</h1>');
 		parts.push('<p><b>Scan date:</b> ' + this._esc(result.getDisplayValue('scan_date')) +
 			' &nbsp; <b>Scan mode used:</b> ' + this._esc(result.getValue('scan_mode_used')) + '</p>');
-		parts.push('<p><a href="' + this._recordUrl('x_335329_iscan_result', result.getUniqueValue()) +
+		parts.push('<p><a href="' + this._recordUrl('x_nold_iscan_result', result.getUniqueValue()) +
 			'">Open this result record</a> &nbsp; ' +
 			'<a href="' + this._recordUrl('sys_app', result.getValue('app')) + '">Open application record</a></p>');
 
@@ -235,7 +235,7 @@ Replace:
 		}
 
 		parts.push('<h2>Tables</h2>');
-		var tableRow = new GlideRecord('x_335329_iscan_table');
+		var tableRow = new GlideRecord('x_nold_iscan_table');
 		tableRow.addQuery('result', result.getUniqueValue());
 		tableRow.query();
 
@@ -247,7 +247,7 @@ Replace:
 				'<th>Row Count</th><th>Field Count</th><th>Reference Fields</th></tr>');
 			while (tableRow.next()) {
 				parts.push('<tr>');
-				parts.push('<td><a href="' + this._recordUrl('x_335329_iscan_table', tableRow.getUniqueValue()) +
+				parts.push('<td><a href="' + this._recordUrl('x_nold_iscan_table', tableRow.getUniqueValue()) +
 					'">' + this._esc(tableRow.getValue('table_name')) + '</a></td>');
 				parts.push('<td>' + this._esc(tableRow.getValue('extends_table')) + '</td>');
 				parts.push('<td>' + this._esc(tableRow.getValue('well_known_base')) + '</td>');
@@ -272,7 +272,7 @@ with:
 		parts.push(this._renderStatusDetail(this._computeStatusFlags(result)));
 		parts.push('<p><b>Scan date:</b> ' + this._esc(result.getDisplayValue('scan_date')) +
 			' &nbsp; <b>Scan mode used:</b> ' + this._esc(result.getValue('scan_mode_used')) + '</p>');
-		parts.push('<p><a href="' + this._recordUrl('x_335329_iscan_result', result.getUniqueValue()) +
+		parts.push('<p><a href="' + this._recordUrl('x_nold_iscan_result', result.getUniqueValue()) +
 			'">Open this result record</a> &nbsp; ' +
 			'<a href="' + this._recordUrl('sys_app', result.getValue('app')) + '">Open application record</a></p>');
 
@@ -334,7 +334,7 @@ with:
 		}
 
 		parts.push('<h2>Tables</h2>');
-		var tableRow = new GlideRecord('x_335329_iscan_table');
+		var tableRow = new GlideRecord('x_nold_iscan_table');
 		tableRow.addQuery('result', result.getUniqueValue());
 		tableRow.query();
 
@@ -347,7 +347,7 @@ with:
 				'<th>Dictionary Overrides</th><th>Inbound References</th></tr>');
 			while (tableRow.next()) {
 				parts.push('<tr>');
-				parts.push('<td><a href="' + this._recordUrl('x_335329_iscan_table', tableRow.getUniqueValue()) +
+				parts.push('<td><a href="' + this._recordUrl('x_nold_iscan_table', tableRow.getUniqueValue()) +
 					'">' + this._esc(tableRow.getValue('table_name')) + '</a></td>');
 				parts.push('<td>' + this._esc(tableRow.getValue('extends_table')) + '</td>');
 				parts.push('<td>' + this._esc(tableRow.getValue('well_known_base')) + '</td>');
@@ -361,7 +361,7 @@ with:
 			parts.push('</table>');
 		}
 
-		var crossrefRow = new GlideRecord('x_335329_iscan_crossref');
+		var crossrefRow = new GlideRecord('x_nold_iscan_crossref');
 		crossrefRow.addQuery('table.result', result.getUniqueValue());
 		crossrefRow.query();
 		if (crossrefRow.hasNext()) {
@@ -415,16 +415,16 @@ Run/Result report HTML builders gained 3 presence/absence status flags —
 no numeric thresholds, since there's no real basis for picking a count
 cutoff. Warnings: `scan_mode_used === 'app_files_fallback'` (incomplete
 data), and summed `dictionary_override_count > 0` across the app's
-`x_335329_iscan_table` rows (a real governance signal — another app
+`x_nold_iscan_table` rows (a real governance signal — another app
 modified a table it doesn't own, or this app did). Informational (not a
-warning): count of distinct apps with `x_335329_iscan_crossref` rows
+warning): count of distinct apps with `x_nold_iscan_crossref` rows
 pointing at this app's tables (excluding this app itself) — having
 dependents isn't inherently bad. The Run report's per-app table gained a
 condensed icon-only Status column; the Result report gained a full Status
 line, an "Extended counts" section (Counting's ~22 non-Group-A/B-overlap
 counts, zero values skipped), 2 new Tables columns (Dictionary Overrides,
 Inbound References — both already stored, just not previously rendered),
-and a "Cross-references" section (one row per `x_335329_iscan_crossref`
+and a "Cross-references" section (one row per `x_nold_iscan_crossref`
 record tied to the app's tables, omitted entirely when there are none). No
 new script include, table, property, or UI Action — `_convertToPdf` and
 the GlideAjax entry points are unchanged.
@@ -465,4 +465,4 @@ git commit -m "Mark Report sub-spec implemented in docs"
 - **Spec coverage**: design's "Status flags" section → Task 1 (computation) + Task 1/2 (rendering in both reports); "Run report changes" → Task 1 Step 2; "Result report changes" (Status line, Extended counts, Tables columns, Cross-references) → Task 2 Step 1; doc-sync convention → Task 3. All design sections have a corresponding task.
 - **Type/signature consistency**: `_computeStatusFlags(result)` (Task 1) is called identically by both `_buildRunReportHtml` (Task 1) and `_buildResultReportHtml` (Task 2) with a single `result` GlideRecord argument. `_renderStatusIcons`/`_renderStatusDetail` each consume the same `[{type, text}]` shape `_computeStatusFlags` produces — no mismatch between what Task 1 returns and what Task 1/2 render.
 - **No ATF changes**: confirmed no task in this plan touches `tests/atf_tests.json`, per the global constraint.
-- **No new queries duplicated**: Task 2's Cross-references section and Task 1's dependent-app-count flag both query `x_335329_iscan_crossref` but for different purposes (one needs distinct apps only, the other needs every row rendered) — each uses its own `addQuery('table.result', ...)` call; this is an accepted, intentional duplication (two different result shapes needed), not a bug to fix.
+- **No new queries duplicated**: Task 2's Cross-references section and Task 1's dependent-app-count flag both query `x_nold_iscan_crossref` but for different purposes (one needs distinct apps only, the other needs every row rendered) — each uses its own `addQuery('table.result', ...)` call; this is an accepted, intentional duplication (two different result shapes needed), not a bug to fix.

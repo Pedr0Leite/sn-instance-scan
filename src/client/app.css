@@ -1,0 +1,1633 @@
+/* ===========================================================================
+   Instance Scan Console — Liquid Glass
+
+   Two rules shape this file, and they pull in the same direction:
+
+   1. Horizon: NO hardcoded colors. Every colour is a design token wrapped in
+      rgb()/rgba() with a chained var() fallback. Tokens carry a light AND a
+      dark value, so dark mode inverts on its own. A hex here is the bug.
+   2. Liquid Glass is a NAVIGATION-AND-CONTROLS material, applied sparingly,
+      with content kept on its own clearer layer. So the side nav is the glass
+      -- lensing edge, specular sweep, morphing active item -- and the content
+      panels holding dense platform lists get MORE opaque, not less. Glassing
+      everything is what puts list text at the mercy of whatever is behind it.
+
+   Structure below goes: tokens -> chrome (glass) -> content layer -> status ->
+   motion -> fallbacks. Chrome and content are styled by separate selectors
+   rather than one shared rule plus overrides, so nothing cancels out.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Palette -- the ONLY two blocks allowed to hold a literal colour value.
+   Two-theme oklch palette (hue 265), approved design decision: implement
+   exactly, do not tint/lower-contrast. Everything past this point reads
+   colour ONLY through the --snx-* custom properties these blocks define --
+   a literal colour anywhere else in this file is the bug.
+
+   Dark applies two ways, deliberately: the media-query block covers a first
+   visit with no stored preference (matches the OS), and the attribute block
+   covers the explicit toggle (SideNav's theme switch, via utils/theme.ts) so
+   a manual choice always wins over prefers-color-scheme in both directions. */
+:root {
+    color-scheme: light;
+
+    --snx-color-bg: oklch(98% 0.004 265);
+    --snx-color-surface: oklch(100% 0 265);
+    --snx-color-surface-alt: oklch(96.5% 0.008 265);
+    --snx-color-text: oklch(22% 0.02 265);
+    --snx-color-text-muted: oklch(48% 0.02 265);
+    --snx-color-border: oklch(89% 0.012 265);
+    --snx-color-accent: oklch(55% 0.19 265);
+    --snx-color-accent-soft: oklch(93% 0.05 265);
+    /* Pure black at every lightness -- shadows don't carry theme meaning, but
+       still route through a token (via color-mix below) rather than a literal. */
+    --snx-shadow-color: oklch(0% 0 265);
+
+    --snx-status-running: oklch(55% 0.18 235);
+    --snx-status-complete: oklch(50% 0.13 150);
+    --snx-status-error: oklch(55% 0.19 25);
+    --snx-status-review: oklch(72% 0.14 80);
+    /* Pills are opaque; text is white on every status EXCEPT review, whose
+       lighter background needs dark text to hold 4.5:1 -- per spec. */
+    --snx-status-text-onstrong: oklch(100% 0 265);
+    --snx-status-review-text: oklch(22% 0.02 265);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+        color-scheme: dark;
+
+        --snx-color-bg: oklch(15% 0.018 265);
+        --snx-color-surface: oklch(20.5% 0.018 265);
+        --snx-color-surface-alt: oklch(25% 0.02 265);
+        --snx-color-text: oklch(95% 0.008 265);
+        --snx-color-text-muted: oklch(66% 0.02 265);
+        --snx-color-border: oklch(33% 0.02 265);
+        --snx-color-accent: oklch(72% 0.16 265);
+        --snx-color-accent-soft: oklch(28% 0.06 265);
+
+        --snx-status-running: oklch(68% 0.16 235);
+        --snx-status-complete: oklch(66% 0.14 150);
+        --snx-status-error: oklch(66% 0.19 25);
+        --snx-status-review: oklch(78% 0.13 80);
+    }
+}
+
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --snx-color-bg: oklch(15% 0.018 265);
+    --snx-color-surface: oklch(20.5% 0.018 265);
+    --snx-color-surface-alt: oklch(25% 0.02 265);
+    --snx-color-text: oklch(95% 0.008 265);
+    --snx-color-text-muted: oklch(66% 0.02 265);
+    --snx-color-border: oklch(33% 0.02 265);
+    --snx-color-accent: oklch(72% 0.16 265);
+    --snx-color-accent-soft: oklch(28% 0.06 265);
+
+    --snx-status-running: oklch(68% 0.16 235);
+    --snx-status-complete: oklch(66% 0.14 150);
+    --snx-status-error: oklch(66% 0.19 25);
+    --snx-status-review: oklch(78% 0.13 80);
+}
+
+:root {
+    /* --- Aliases kept for every downstream rule below -- content-tree/
+           navigation-sidebar Horizon tokens are gone; the nav rail now just
+           reuses the same surface/text/accent palette as everything else. */
+    --snx-color-nav-surface: var(--snx-color-surface);
+    --snx-color-nav-text: var(--snx-color-text);
+    --snx-color-nav-selected: var(--snx-color-accent-soft);
+    --snx-color-focus: var(--snx-color-accent);
+
+    /* --- Spacing: dense dashboard rhythm */
+    --snx-space-tight: var(--now-static-space--sm, 0.5rem);
+    --snx-space-inner: var(--now-static-space--md, 0.75rem);
+    --snx-space-outer: var(--now-static-space--lg, 1rem);
+    --snx-space-section: var(--now-static-space--xl, 1.5rem);
+
+    /* --- Radius. Chrome gets the larger, squircle-ish radius the material
+           calls for; content keeps the platform container radius. */
+    --snx-radius-container: var(--now-container-card--border-radius, 8px);
+    --snx-radius-chrome: calc(var(--now-container-card--border-radius, 8px) * 2);
+    --snx-radius-indicator: var(--now-static-border-radius--lg, 0.5rem);
+
+    /* --- Typography. Fallback stacks are REQUIRED (Google Fonts may be
+           blocked by the instance CSP) -- both pick close metrics so a block
+           degrades the look, not the layout. */
+    --snx-font-display: 'Sora', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Helvetica, Arial, sans-serif;
+    --snx-font-body: 'Work Sans', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Helvetica, Arial, sans-serif;
+    --snx-line-height: var(--now-static-line-height, 1.25);
+
+    /* --- Liquid Glass material -------------------------------------------
+       Adaptive translucency: the SAME palette tokens above, alpha-mixed via
+       color-mix() instead of unpacking an rgb() triplet -- oklch values
+       aren't a bare "r,g,b" you can feed into rgba(), and color-mix keeps
+       one source of truth per token instead of duplicating L/C/H at every
+       alpha use. Alpha stays high (0.68+) because text sits on this: the
+       material is decorative, legibility is not negotiable. Do not lower
+       these to chase a glassier look -- lower them and body text drops
+       under 4.5:1. */
+    --snx-glass-chrome: color-mix(in oklch, var(--snx-color-surface) 68%, transparent);
+    --snx-glass-border: color-mix(in oklch, var(--snx-color-border) 60%, transparent);
+    --snx-glass-blur: blur(20px) saturate(1.7);
+
+    /* Specular / lensing. Both derive from the background/text tokens, so in
+       light mode they read as a bright highlight and in dark mode as a soft
+       lift -- the adaptive behaviour the material is supposed to have, rather
+       than a fixed white that would glare on a dark theme. */
+    --snx-lens-light: color-mix(in oklch, var(--snx-color-bg) 60%, transparent);
+    --snx-lens-shade: color-mix(in oklch, var(--snx-color-text) 9%, transparent);
+
+    --snx-shadow-chrome:
+        0 1px 2px color-mix(in oklch, var(--snx-shadow-color) 5%, transparent),
+        0 10px 30px color-mix(in oklch, var(--snx-shadow-color) 9%, transparent);
+    --snx-shadow-raised:
+        0 2px 6px color-mix(in oklch, var(--snx-shadow-color) 8%, transparent),
+        0 18px 40px color-mix(in oklch, var(--snx-shadow-color) 14%, transparent);
+
+    /* Fluid morph easing -- a slight overshoot, so state changes feel like
+       material settling rather than a linear fade. */
+    --snx-morph: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* box-sizing: border-box everywhere. Without it, any 100%-width element with
+   its own padding/border (e.g. .iscan-select) overflows its parent by that
+   padding -- which is exactly what was bleeding the "Scan result detail"
+   panel into its neighbour in the dashboard's two-column split. */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Height chain so the shell can actually fill the viewport. The UI Page
+   renders into #root inside an iframe; with no explicit height anywhere in
+   that chain, `min-block-size: 100%` on .iscan-shell had nothing to be a
+   percentage OF, so the page stopped wherever its content ended and left
+   dead space below. */
+html,
+body {
+    block-size: 100%;
+}
+#root {
+    block-size: 100%;
+}
+
+/* Push the body font through the shadow boundary of every remaining platform
+   component on this page (Button, Alert, Heading, Modal, ...) -- custom
+   properties inherit through shadow DOM even though rules don't (the same
+   cross-boundary technique this app used pre-v4 for a Card's background
+   alpha, before Card itself was replaced with plain markup). A component
+   version that doesn't read --now-font-family just keeps its own default;
+   this only upgrades what already listens for it. */
+.iscan-shell {
+    --now-font-family: var(--snx-font-body);
+}
+
+/* Reset browser defaults on the base elements this page uses. */
+.iscan-shell,
+.iscan-shell header,
+.iscan-shell nav,
+.iscan-shell main,
+.iscan-shell section,
+.iscan-shell ul,
+.iscan-shell li,
+.iscan-shell p {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.iscan-shell ul {
+    list-style: none;
+}
+
+/* ---------------------------------------------------------------- shell -- */
+.iscan-shell {
+    display: grid;
+    /* Rail is 230px per spec -- fixed, not proportional. */
+    grid-template-columns: 230px minmax(0, 1fr);
+    /* Two rows: the header sizes to content, the body row takes ALL remaining
+       height. Both halves of this are load-bearing.
+
+       Without the explicit rows + `align-content: start`, the grid had two
+       auto rows and a 100% min-height, so the leftover viewport space was
+       distributed BETWEEN them (align-content resolves to stretch by default).
+       The header row ballooned, the whole page appeared vertically centred
+       with ~260px of dead space under the title, and the rail could never
+       reach full height. Do not drop either declaration. */
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: start;
+    gap: var(--snx-space-outer);
+    /* stretch, not start: the rail and the content column both fill the body
+       row, which is what makes the rail a full-height rail. */
+    align-items: stretch;
+    padding: var(--snx-space-outer);
+    min-block-size: 100%;
+    font-family: var(--snx-font-body);
+    line-height: var(--snx-line-height);
+    color: var(--snx-color-text);
+    background-color: var(--snx-color-bg);
+    /* One faint token wash, not two. background-position (not the gradient's
+       own "at %") is what drifts here -- background-size larger than the box
+       gives that position room to move. Same technique .iscan-nav::before
+       already uses for its specular sweep, just driving a page-level wash
+       instead of a linear-gradient sheen. */
+    background-image: radial-gradient(
+        70rem 36rem,
+        color-mix(in oklch, var(--snx-color-accent) 10%, transparent),
+        transparent 62%
+    );
+    background-position: 10% -12%;
+    background-size: 160% 160%;
+    /* No-repeat is load-bearing: background-repeat defaults to "repeat", which
+       tiled this gradient. Its own fade-to-transparent stop then abutted the
+       next tile at a dead stop -- a hard rectangular seam behind the tile rows,
+       not a rendering glitch. One gradient, not a pattern. */
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    animation: iscan-shell-drift 26s ease-in-out infinite alternate;
+}
+
+@keyframes iscan-shell-drift {
+    from {
+        background-position: 10% -12%;
+    }
+    to {
+        background-position: 18% -4%;
+    }
+}
+
+/* The header is chrome too -- an app bar, not page content -- so it gets the
+   same glass treatment as the nav rail (separate selector, same tokens, no
+   shared rule to fight later). It stays in normal flow (not sticky): only the
+   nav rail needs to stay reachable while a long record list scrolls. */
+.iscan-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+
+.iscan-header__top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--snx-space-outer);
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.iscan-header__subtitle {
+    max-inline-size: 280px;
+    text-align: end;
+    color: var(--snx-color-text-muted);
+    font-size: var(--now-static-font-size--sm, 0.75rem);
+}
+
+/* ------------------------------------------------- chrome: the glass rail --
+   The signature element. Everything else on the page stays quiet so this can
+   be the one memorable surface. */
+.iscan-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--snx-space-tight);
+    padding: var(--snx-space-inner);
+    color: var(--snx-color-nav-text);
+    background-color: var(--snx-glass-chrome);
+    -webkit-backdrop-filter: var(--snx-glass-blur);
+    backdrop-filter: var(--snx-glass-blur);
+    border: 1px solid var(--snx-glass-border);
+    border-radius: var(--snx-radius-chrome);
+    /* The lensing cue: a bright inner edge along the top, a shaded inner edge
+       along the bottom. Reads as a thick pane catching light, and costs
+       nothing at runtime (no extra element, no filter). */
+    box-shadow:
+        inset 0 1px 0 var(--snx-lens-light),
+        inset 0 -1px 0 var(--snx-lens-shade),
+        var(--snx-shadow-chrome);
+    position: sticky;
+    top: var(--snx-space-outer);
+    isolation: isolate;
+    overflow: hidden;
+}
+
+/* Specular sweep across the pane. Decorative, so it is inert to pointers and
+   invisible to assistive tech. */
+.iscan-nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        var(--snx-lens-light) 0%,
+        transparent 38%,
+        transparent 100%
+    );
+    background-size: 200% 200%;
+    opacity: 0.65;
+    pointer-events: none;
+    z-index: -1;
+    /* Slow drift so the signature surface never looks perfectly static --
+       small enough that it reads as ambient light, not attention-seeking. */
+    animation: iscan-aurora-drift 16s ease-in-out infinite alternate;
+}
+
+@keyframes iscan-aurora-drift {
+    from {
+        background-position: 0% 0%;
+    }
+    to {
+        background-position: 100% 100%;
+    }
+}
+
+.iscan-nav__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 10px 20px;
+}
+.iscan-nav__brand-name {
+    font-family: var(--snx-font-display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+}
+.iscan-nav__brand-sub {
+    font-size: 12px;
+    color: var(--snx-color-text-muted);
+}
+
+/* The list is the pill's positioning context. Item height and gap here are the
+   two numbers SideNav's ITEM_STEP is built from -- change one, change both. */
+.iscan-nav__list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+/* One pill that travels, rather than a background on each item -- that is what
+   makes moving between sections read as a single continuous motion. */
+.iscan-nav__pill {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    block-size: 38px;
+    border-radius: 9px;
+    background-color: var(--snx-color-accent-soft);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+.iscan-nav__link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    inline-size: 100%;
+    block-size: 38px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 9px;
+    background: none;
+    color: var(--snx-color-text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: start;
+    cursor: pointer;
+}
+.iscan-nav__link:hover {
+    opacity: 0.85;
+}
+.iscan-nav__link--active {
+    font-weight: 700;
+}
+/* Square, not round: the design uses a 7px chip with a 2px radius. */
+.iscan-nav__dot {
+    flex: 0 0 auto;
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 2px;
+    background-color: var(--snx-color-border);
+    transition: background-color 0.25s ease;
+}
+.iscan-nav__link--active .iscan-nav__dot {
+    background-color: var(--snx-color-accent);
+}
+.iscan-nav__theme-label {
+    font-size: 12px;
+    color: var(--snx-color-text-muted);
+}
+
+.iscan-nav__item--active {
+    background-color: var(--snx-color-nav-selected);
+    border-radius: var(--snx-radius-container);
+    /* Fluid morph: the active pill settles into place instead of snapping. */
+    transition: background-color var(--snx-morph), border-radius var(--snx-morph);
+}
+
+/* Rail footer: the theme toggle, per spec (38x22 track, 18px knob). Pushed to
+   the bottom of the rail by the nav's own flex-column layout (see .iscan-nav
+   above -- it's already `display: flex; flex-direction: column`). */
+.iscan-nav__footer {
+    margin-block-start: auto;
+    padding-block-start: var(--snx-space-tight);
+    display: flex;
+    justify-content: center;
+}
+
+.iscan-theme-toggle {
+    position: relative;
+    inline-size: 38px;
+    block-size: 22px;
+    padding: 2px;
+    border-radius: 999px;
+    border: 1px solid var(--snx-glass-border);
+    background-color: color-mix(in oklch, var(--snx-color-text) 12%, transparent);
+    cursor: pointer;
+}
+
+.iscan-theme-toggle__knob {
+    display: block;
+    inline-size: 18px;
+    block-size: 18px;
+    border-radius: 50%;
+    background-color: var(--snx-color-surface);
+    box-shadow: var(--snx-shadow-chrome);
+    transform: translateX(0);
+    transition: transform var(--snx-morph);
+}
+
+.iscan-theme-toggle[aria-checked='true'] {
+    background-color: var(--snx-color-accent);
+}
+
+.iscan-theme-toggle[aria-checked='true'] .iscan-theme-toggle__knob {
+    /* Track is 38px, padding 2px each side, knob 18px -> travels 16px. */
+    transform: translateX(16px);
+}
+
+/* ------------------------------------------- content layer: keep it clear --
+   Platform lists and forms render dense text in here. Per the material's own
+   guidance, content sits on its own layer: near-opaque, no blur, so nothing
+   behind it competes with the data. */
+/* Two soft accent fields drifting behind the content -- the design's depth cue.
+   Pointer-events off and aria-hidden by construction (no DOM node, just
+   pseudo-elements on the main column). */
+.iscan-main::before,
+.iscan-main::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--snx-color-accent-soft);
+    pointer-events: none;
+    z-index: 0;
+}
+.iscan-main::before {
+    inset-block-start: -120px;
+    inset-inline-end: -100px;
+    inline-size: 420px;
+    block-size: 420px;
+    filter: blur(70px);
+    opacity: 0.55;
+    animation: iscan-aurora-float 14s ease-in-out infinite;
+}
+.iscan-main::after {
+    inset-block-start: 60px;
+    inset-inline-end: 280px;
+    inline-size: 280px;
+    block-size: 280px;
+    filter: blur(60px);
+    opacity: 0.35;
+    animation: iscan-aurora-float-alt 18s ease-in-out infinite;
+}
+.iscan-main > * {
+    position: relative;
+    z-index: 1;
+}
+@keyframes iscan-aurora-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, -20px) scale(1.08); }
+}
+@keyframes iscan-aurora-float-alt {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-25px, 25px) scale(1.05); }
+}
+
+.iscan-main {
+    position: relative;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--snx-space-section);
+    min-inline-size: 0;
+    /* No page-level width cap -- the user wants full-width use of a wide
+       monitor. Line-length is capped per-element instead, only where prose
+       actually needs it (.iscan-hint at 68ch, .iscan-text at 88ch below). */
+}
+
+/* Every view's last top-level block (the metrics/detail split on the
+   dashboard, the record list on every other view) grows to use whatever
+   viewport height is left, instead of the page ending mid-height with a bare
+   background void below it. min-block-size:0 is required on a flex child that
+   will itself need to shrink/scroll its own content. */
+.iscan-main > *:last-child {
+    flex: 1 1 auto;
+    min-block-size: 0;
+}
+
+.iscan-panel {
+    /* Flex column so a panel can stack a heading, a hint, an action row and a
+       platform list with one consistent rhythm -- no per-child margins to keep
+       in sync, and no `> * + *` rule to fight later. */
+    display: flex;
+    flex-direction: column;
+    gap: var(--snx-space-inner);
+    /* Grid/flex items default to a content-based minimum width, which is what
+       let a panel's intrinsic content (e.g. the platform detail form) push
+       past its track and collide with its neighbour in .iscan-dash-split.
+       This is the actual fix for that -- .iscan-table-scroll below is the
+       single, sole horizontal-scroll owner now (see comment there). */
+    min-inline-size: 0;
+    background-color: var(--snx-color-surface);
+    border: 1px solid var(--snx-color-border);
+    border-radius: var(--snx-radius-container);
+    padding: var(--snx-space-inner);
+    box-shadow: var(--snx-shadow-chrome);
+    /* Same settle-in entrance the metric tiles use, so switching views (a
+       full panel swap, not a per-tile stagger) still reads as motion rather
+       than a hard cut. */
+    animation: iscan-fade-in 280ms ease-out both;
+}
+
+/* The dashboard's lower half: a narrow result-detail column beside the wide
+   recent-runs list. Collapses to one column before the panels get too tight to
+   read -- 340px + a list needs real width. */
+.iscan-dash-split {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 20px;
+    /* Stretch, not start: with start, the narrow result-detail panel sized to
+       its own (often sparse) content while the runs list beside it ran taller
+       -- two cards of different heights that read as unrelated. Stretching
+       both to the row's height is also what gives the result panel room for
+       a real empty state instead of a stub. */
+    align-items: stretch;
+}
+@media (max-width: 1080px) {
+    .iscan-dash-split {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.iscan-panel__titlegroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* "?" disclosure. Anchored so the popover hangs under the toggle without
+   pushing the list down. */
+.iscan-help {
+    position: relative;
+    display: flex;
+}
+.iscan-help__toggle {
+    inline-size: 22px;
+    block-size: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--snx-color-text-muted);
+    background: none;
+    color: var(--snx-color-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    line-height: 1;
+    cursor: pointer;
+}
+.iscan-help__popover {
+    position: absolute;
+    inset-block-start: 30px;
+    inset-inline-start: 0;
+    inline-size: 360px;
+    max-inline-size: 80vw;
+    padding: 16px;
+    border: 1px solid var(--snx-color-border);
+    border-radius: 12px;
+    background-color: var(--snx-color-surface);
+    box-shadow: var(--snx-shadow-chrome);
+    color: var(--snx-color-text-muted);
+    font-size: 12.5px;
+    line-height: 1.55;
+    z-index: 10;
+}
+
+/* Inline row detail. The strip is a normal table row spanning every column, so
+   the table's own semantics stay intact for assistive tech. */
+.iscan-table__detailrow > td {
+    padding: 0;
+}
+.iscan-rowdetail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 32px;
+    padding: 16px 20px;
+    border-block-start: 1px solid var(--snx-color-border);
+    background-color: var(--snx-color-surface-alt);
+}
+.iscan-rowdetail__label {
+    font-size: 11px;
+    color: var(--snx-color-text-muted);
+}
+.iscan-rowdetail__value {
+    font-family: var(--snx-font-display);
+    font-size: 18px;
+    font-weight: 700;
+}
+.iscan-rowdetail__open {
+    margin-inline-start: auto;
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--snx-color-accent);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Disclosure toggle + preformatted block (LLM context). */
+.iscan-disclosure {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--snx-color-text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.iscan-disclosure__chevron {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+.iscan-disclosure__chevron--open {
+    transform: rotate(90deg);
+}
+.iscan-pre {
+    margin: 0;
+    padding: 12px;
+    border: 1px solid var(--snx-color-border);
+    border-radius: 10px;
+    background-color: var(--snx-color-surface-alt);
+    font-size: 11.5px;
+    line-height: 1.6;
+    max-block-size: 32rem;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+/* --------------------------------- re-theming the kept platform components -- */
+/* Four components stay platform: RecordProvider + FormColumnLayout (the record
+   form), Modal (preview shell), Notifications. Their internals live in a shadow
+   root app.css cannot select into -- BUT custom properties inherit THROUGH a
+   shadow boundary, and Horizon components read their colours from --now-*
+   tokens. So mapping the design palette onto those tokens here is the one
+   supported lever that reaches inside them. Precedent: the old metric cards
+   were themed exactly this way via --now-container-card--background-color-alpha.
+
+   Limits, so nobody expects more of this block than it can do: it changes
+   COLOUR only. Internal layout, spacing, markup and structure are not
+   reachable, and any token name the platform does not actually use is simply
+   ignored -- silently. That silence is why the design's own controls became
+   plain HTML instead (see components/ui.tsx) rather than being token-nudged
+   into shape. Unknown-name risk is one-way: a wrong name loses the re-theme,
+   it cannot break the component.
+
+   Horizon expects several of these as bare "r, g, b" triplets rather than
+   colour values, which oklch cannot express -- those are left alone rather
+   than fed a value the platform would fail to parse. */
+.iscan-shell {
+    --now-font-family: var(--snx-font-body);
+
+    --now-container-card--background-color: var(--snx-color-surface);
+    --now-container--color: var(--snx-color-surface);
+    --now-container--border-color: var(--snx-color-border);
+    --now-container-card--border-radius: 14px;
+
+    --now-text--primary: var(--snx-color-text);
+    --now-text--secondary: var(--snx-color-text-muted);
+    --now-text--tertiary: var(--snx-color-text-muted);
+    --now-line--primary: var(--snx-color-border);
+
+    --now-actionable--primary--background-color: var(--snx-color-accent);
+    --now-actionable--primary--color: var(--snx-status-text-onstrong);
+    --now-actionable--secondary--color: var(--snx-color-text);
+    --now-actionable--border-radius: 9px;
+}
+
+/* ----------------------------------------------- toast / dialog / fields --- */
+
+.iscan-toasts {
+    position: fixed;
+    inset-block-end: 24px;
+    inset-inline-end: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 50;
+}
+.iscan-toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border: 1px solid var(--snx-color-border);
+    border-radius: 12px;
+    background-color: var(--snx-color-surface);
+    box-shadow: var(--snx-shadow-chrome);
+    font-size: 13.5px;
+    animation: iscan-toast-in 0.25s ease both;
+}
+.iscan-toast__dot {
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: 50%;
+    background-color: var(--snx-color-accent);
+    flex: 0 0 auto;
+}
+.iscan-toast--positive .iscan-toast__dot { background-color: var(--snx-status-complete); }
+.iscan-toast--critical .iscan-toast__dot { background-color: var(--snx-status-error); }
+.iscan-toast__close {
+    border: none;
+    background: none;
+    color: var(--snx-color-text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+}
+@keyframes iscan-toast-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.iscan-backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background-color: color-mix(in oklch, var(--snx-shadow-color) 45%, transparent);
+    z-index: 60;
+}
+.iscan-dialog {
+    display: flex;
+    flex-direction: column;
+    inline-size: 380px;
+    max-inline-size: 100%;
+    max-block-size: 88vh;
+    padding: 24px;
+    border: 1px solid var(--snx-color-border);
+    border-radius: 16px;
+    background-color: var(--snx-color-surface);
+    box-shadow: var(--snx-shadow-chrome);
+    animation: iscan-dialog-in 0.2s ease both;
+}
+.iscan-dialog--wide {
+    inline-size: min(1100px, 92vw);
+    block-size: min(850px, 88vh);
+}
+.iscan-dialog__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    margin-block-end: 14px;
+}
+.iscan-dialog__close {
+    border: none;
+    background: none;
+    color: var(--snx-color-text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+}
+.iscan-dialog__body {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-y: auto;
+}
+.iscan-dialog__foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-block-start: 18px;
+}
+@keyframes iscan-dialog-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Read-only record view. Two columns on wide screens, stacking when narrow --
+   a label/value list, not a form. */
+.iscan-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 14px 24px;
+    margin: 0;
+}
+.iscan-fields__row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-inline-size: 0;
+}
+.iscan-fields__label {
+    font-size: 11px;
+    color: var(--snx-color-text-muted);
+}
+.iscan-fields__value {
+    margin: 0;
+    font-size: 13.5px;
+    overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------ plain-HTML primitives ---- */
+/* Everything the design draws as ordinary HTML rather than a platform
+   component. See components/ui.tsx for why. */
+
+.iscan-h1 {
+    font-family: var(--snx-font-display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+.iscan-h2 {
+    font-family: var(--snx-font-display);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 var(--snx-space-inner);
+}
+.iscan-h3 {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+}
+/* Breathing room above every group label, including the first one under a
+   section heading -- that pairing ("Scan state" / "Run activity") was the
+   most cramped spot on the page, not a candidate to collapse back to zero. */
+.iscan-grouplabel {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--snx-color-text-muted);
+    margin: var(--snx-space-section) 0 var(--snx-space-tight);
+}
+.iscan-crumbs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--snx-color-text-muted);
+}
+
+.iscan-btn {
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 20px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.iscan-btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+.iscan-btn--primary {
+    background-color: var(--snx-color-accent);
+    color: var(--snx-status-text-onstrong);
+}
+.iscan-btn--primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px var(--snx-color-accent);
+}
+.iscan-btn--secondary {
+    background: none;
+    color: var(--snx-color-text);
+    border-color: var(--snx-color-border);
+}
+.iscan-btn--secondary:hover:not(:disabled) {
+    border-color: var(--snx-color-accent);
+}
+.iscan-btn--small {
+    background-color: var(--snx-color-surface-alt);
+    color: var(--snx-color-text);
+    border-color: var(--snx-color-border);
+    border-radius: 8px;
+    font-size: 13px;
+    padding: 7px 14px;
+}
+.iscan-btn--small:hover:not(:disabled) {
+    border-color: var(--snx-color-accent);
+}
+
+.iscan-link {
+    color: var(--snx-color-accent);
+    font-size: 13px;
+    text-decoration: none;
+}
+.iscan-link:hover {
+    opacity: 0.75;
+}
+
+.iscan-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.iscan-field__label {
+    font-size: 12px;
+    color: var(--snx-color-text-muted);
+}
+.iscan-select {
+    inline-size: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--snx-color-accent);
+    border-radius: 9px;
+    background-color: var(--snx-color-surface-alt);
+    color: var(--snx-color-text);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.iscan-note {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--snx-color-border);
+    border-radius: 12px;
+    background-color: var(--snx-color-surface-alt);
+    font-size: 13px;
+}
+.iscan-note--critical {
+    border-color: var(--snx-status-error);
+}
+.iscan-note--warning {
+    border-color: var(--snx-status-review);
+}
+.iscan-note--info {
+    border-color: var(--snx-status-running);
+}
+.iscan-note__title {
+    font-weight: 600;
+}
+.iscan-note__body {
+    color: var(--snx-color-text-muted);
+    line-height: 1.5;
+}
+
+.iscan-spinner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--snx-color-text-muted);
+}
+.iscan-spinner__label {
+    color: var(--snx-color-text-muted);
+}
+.iscan-spinner__ring {
+    inline-size: 16px;
+    block-size: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--snx-color-border);
+    border-block-start-color: var(--snx-color-accent);
+    animation: iscan-spin 0.8s linear infinite;
+}
+@keyframes iscan-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------- panel content ---- */
+
+/* One-line explanatory notes under a heading or above a control row. */
+.iscan-hint {
+    color: var(--snx-color-text-muted);
+    font-size: var(--now-static-font-size--sm, 0.75rem);
+    max-inline-size: 68ch;
+    overflow-wrap: anywhere;
+}
+
+/* Long prose (GenAI summary, LLM context). Wraps; never widens the panel. */
+.iscan-text {
+    color: var(--snx-color-text);
+    font-size: var(--now-static-font-size--md, 0.875rem);
+    max-inline-size: 88ch;
+    overflow-wrap: anywhere;
+}
+
+/* The LLM context is a structured briefing -- keep its line breaks, but let it
+   wrap rather than scroll the page sideways. */
+.iscan-text--pre {
+    white-space: pre-wrap;
+    max-block-size: 32rem;
+    overflow-y: auto;
+}
+
+/* Screen-reader-only live region. Announces busy/idle transitions when focus
+   never moves. clip-path over display:none -- a hidden element is not
+   announced at all. */
+.iscan-visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* Body of our own record preview modal (see RecordPreviewModal). The Modal is
+   already sized; this makes the form scroll INSIDE it rather than clipping, so
+   a long result record stays fully reachable without the page moving. */
+.iscan-preview-body {
+    block-size: 100%;
+    overflow-y: auto;
+    padding-inline: var(--snx-space-inner);
+}
+
+/* A context/info note (e.g. why a list/panel can legitimately be empty)
+   paired with a small icon -- reads as a considered aside instead of a stray
+   paragraph of grey text. Used both inline (a list's empty state) and, via
+   the flex-grow + centering below, as a panel's whole-height placeholder --
+   e.g. the dashboard's result-detail card before a result is picked. */
+.iscan-empty-note {
+    display: flex;
+    gap: var(--snx-space-inner);
+    align-items: flex-start;
+}
+
+/* When the note is the only content standing in for a taller panel (see
+   .iscan-dash-split's stretch + ResultDashboard's empty state), grow to fill
+   the panel and center the message in it rather than pinning it to the top
+   of a tall, mostly-blank card. */
+.iscan-panel > .iscan-empty-note {
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-inline-size: 26rem;
+    margin-inline: auto;
+    gap: var(--snx-space-tight);
+}
+
+.iscan-empty-note__icon {
+    flex: none;
+    inline-size: 2rem;
+    block-size: 2rem;
+    color: var(--snx-color-text-muted);
+    opacity: 0.7;
+}
+
+/* Rows of platform Buttons. Wraps rather than overflowing on narrow screens. */
+.iscan-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--snx-space-tight);
+    align-items: center;
+}
+
+.iscan-panel__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--snx-space-tight);
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: var(--snx-space-inner);
+}
+
+.iscan-panel__title {
+    font-size: var(--now-static-font-size--lg, 1rem);
+    font-weight: var(--now-display-type_label--font-weight, 600);
+    color: var(--snx-color-text);
+}
+
+/* -------------------------------------------------------- RecordTable ----
+   Our own replacement for NowRecordListConnected -- real table semantics,
+   sortable headers, first-cell row-open buttons. Solid content surface
+   (see the file banner): dense text never sits on the glass material. */
+/* The sole horizontal-scroll owner for a wide table -- .iscan-panel no longer
+   also sets overflow-x:auto (it used to; two nested auto-overflow boxes made
+   the actual clipped edge ambiguous, which is how the "App count" column was
+   getting cut off instead of reachable via scroll). */
+.iscan-table-scroll {
+    overflow-x: auto;
+    min-inline-size: 0;
+    /* Grows to fill whatever height .iscan-panel has been given (see
+       .iscan-main > *:last-child) instead of leaving blank card padding below
+       a short page of rows; overflow-y follows so a page that still overflows
+       scrolls inside the panel rather than growing the panel past its row. */
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-y: auto;
+}
+
+.iscan-table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--now-static-font-size--md, 0.875rem);
+}
+
+.iscan-table th,
+.iscan-table td {
+    padding: var(--snx-space-tight) var(--snx-space-inner);
+    text-align: start;
+    border-block-end: 1px solid var(--snx-color-border);
+    white-space: nowrap;
+}
+
+/* Explicit, full-contrast body text -- never inherit anything dimmer.
+   (Column headers are deliberately --snx-color-text-muted below; that's a
+   normal, still-AA-compliant convention for header labels, not a leak into
+   the data cells themselves.) */
+.iscan-table tbody td {
+    color: var(--snx-color-text);
+}
+
+.iscan-table thead th {
+    color: var(--snx-color-text-muted);
+    font-size: var(--now-static-font-size--sm, 0.75rem);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-block-end: 2px solid var(--snx-color-border);
+}
+
+.iscan-table__sort {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--now-static-space--xs, 0.25rem);
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+}
+
+.iscan-table__sort-icon {
+    inline-size: 0.75rem;
+    display: inline-block;
+}
+
+.iscan-table tbody tr {
+    transition: background-color var(--snx-morph);
+    /* Same entrance treatment as the metric tiles, staggered per row via
+       --row-index (set inline by RecordTable -- a JS-driven custom property
+       rather than a fixed nth-child list, since row count is dynamic/paged). */
+    animation: iscan-fade-in 220ms ease-out both;
+    animation-delay: calc(var(--row-index, 0) * 30ms);
+}
+
+.iscan-table tbody tr:hover {
+    background-color: color-mix(in oklch, var(--snx-color-accent) 6%, transparent);
+}
+
+/* The row-open control. Looks like a link (this app's whole "click a row"
+   affordance, kept from the platform list it replaces) but is a real
+   <button> in the first cell -- keyboard reachable, unambiguous focus
+   target, no role="button" div hack. */
+.iscan-row-link {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: var(--snx-color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    cursor: pointer;
+}
+
+.iscan-row-link:hover {
+    text-decoration-thickness: 2px;
+}
+
+/* --------------------------------------------------------- metric tiles -- */
+/* Every tile is the same box, whatever it holds.
+
+   Grid, not flex. A flex row with flex-grow divides ALL leftover width among
+   however many items are in THAT row -- a 4-tile row and a 6-tile row in the
+   same panel therefore land on two different tile widths, and their column
+   edges don't line up even though both rows share a container. Grid's
+   auto-fill instead lays down a fixed number of equal-width tracks sized by
+   the container alone: a 4-tile row and a 6-tile row get the SAME track
+   width, so their tiles align into one shared column grid -- a short row
+   just leaves its trailing columns empty rather than stretching to fill them.
+   Equal HEIGHT still comes from stretch (grid's own default): every item in a
+   row fills that row's tallest tile. min-inline-size: 0 still matters -- grid
+   items default to a content-based minimum just like flex items, and without
+   it a long label would widen its column instead of wrapping. */
+.iscan-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    /* auto-fit, NOT auto-fill: auto-fill keeps the empty trailing tracks it
+       created, so a 4-tile row filled only the first 4 of ~8 tracks and stopped
+       dead mid-page. auto-fit collapses the empties, so every row spans the full
+       width. The trade-off is deliberate: a 4-tile row and a 6-tile row no longer
+       share column positions, but each row is evenly divided and full-bleed,
+       which reads as intentional where a half-empty row does not. */;
+    gap: 14px;
+    list-style: none;
+    /* Depth for the tilt effect below -- without it rotateX/Y look flat. */
+    perspective: 60rem;
+}
+
+.iscan-tiles > li {
+    min-inline-size: 0;
+}
+
+/* Our own element (see MetricTile.tsx) -- no shadow root, so it is styled
+   directly rather than reaching for a platform <now-card>'s host. A discrete,
+   fully-opaque card per the design (glass on tiles read as one merged block
+   against the new oklch palette -- the material's own "sparingly" guidance
+   means tiles are content, not chrome, so they're solid like every other
+   content surface). Keeps the cursor-tracking tilt + glow
+   (--iscan-tilt-x/y, --iscan-glow-x/y set by MetricTile's onMouseMove;
+   default to a resting flat state via the fallback values below so a tile
+   with JS disabled, or before the first mousemove, just sits flat), now
+   layered on top of the solid surface instead of a glass one. */
+.iscan-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    /* Fill the list item, so the label sits at a consistent place in every
+       tile and the severity pill lands on the same baseline across the row. */
+    block-size: 100%;
+    inline-size: 100%;
+    min-inline-size: 0;
+    padding: 18px;
+    background-color: var(--snx-color-surface);
+    border: 1px solid var(--snx-color-border);
+    border-radius: 14px;
+    box-shadow: var(--snx-shadow-chrome);
+    transform: translateY(0) rotateX(var(--iscan-tilt-x, 0deg)) rotateY(var(--iscan-tilt-y, 0deg));
+    transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+    transform-style: preserve-3d;
+    animation: iscan-fade-in 320ms ease-out both;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+/* Optional hit target -- MetricTile only renders this when it's given
+   onActivate (e.g. Dashboard's cross-reference/customization tiles link to
+   their own views). `all: unset` strips default <button> chrome; the tile's
+   own flex/gap/color rules still apply since .iscan-tile stays on the parent
+   element, not overridden here. */
+.iscan-tile__hit {
+    all: unset;
+    display: flex;
+    flex-direction: column;
+    gap: inherit;
+    inline-size: 100%;
+    block-size: 100%;
+    cursor: pointer;
+    text-align: start;
+}
+
+/* Cursor-follow glow -- a reactbits "spotlight card" pattern, reimplemented
+   as a plain radial-gradient layer instead of a canvas/WebGL spotlight (that
+   family all needs a dependency this repo can't add). Positioned by the same
+   custom properties the tilt uses, so one mousemove handler drives both. */
+.iscan-tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        14rem circle at var(--iscan-glow-x, 50%) var(--iscan-glow-y, 50%),
+        color-mix(in oklch, var(--snx-color-accent) 16%, transparent),
+        transparent 65%
+    );
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Hover lift, per the design: a 3px rise plus a softer/deeper shadow. Layers
+   onto the existing tilt transform rather than replacing it, so cursor-tilt
+   and lift both hold at once. */
+.iscan-tile:hover,
+.iscan-tile:focus-within {
+    transform: translateY(-3px) rotateX(var(--iscan-tilt-x, 0deg)) rotateY(var(--iscan-tilt-y, 0deg));
+    box-shadow: var(--snx-shadow-raised);
+}
+
+.iscan-tile:hover::after {
+    opacity: 1;
+}
+
+/* A short stagger on entrance -- each tile settles a beat after the one
+   before it, rather than the whole row popping in as one flat block. */
+.iscan-tiles > li:nth-child(2) .iscan-tile {
+    animation-delay: 40ms;
+}
+.iscan-tiles > li:nth-child(3) .iscan-tile {
+    animation-delay: 80ms;
+}
+.iscan-tiles > li:nth-child(4) .iscan-tile {
+    animation-delay: 120ms;
+}
+.iscan-tiles > li:nth-child(5) .iscan-tile {
+    animation-delay: 160ms;
+}
+.iscan-tiles > li:nth-child(6) .iscan-tile {
+    animation-delay: 200ms;
+}
+
+/* All metric numerals are Sora 700, per spec -- only the size varies by
+   context (MetricTile's `size` prop selects the modifier). */
+.iscan-tile__value {
+    font-family: var(--snx-font-display);
+    font-weight: 700;
+    color: var(--snx-color-text);
+    /* Tabular figures so the metric row does not jitter as counts change. */
+    font-variant-numeric: tabular-nums;
+}
+
+.iscan-tile__value--xl {
+    font-size: 30px;
+}
+
+.iscan-tile__value--lg {
+    font-size: 26px;
+}
+
+.iscan-tile__value--md {
+    font-size: 20px;
+}
+
+.iscan-tile__label {
+    font-size: var(--now-static-font-size--sm, 0.75rem);
+    color: var(--snx-color-text-muted);
+    overflow-wrap: anywhere;
+}
+
+/* -------------------------------------------------------- status pills ----
+   Deliberately fully opaque. These encode meaning, and the
+   indicator/indicator_label pair is contrast-checked as a SOLID pair --
+   translucency would hand their contrast to whatever sits behind them. */
+/* Pushed to the foot of its tile, so pills line up across a row of equal-height
+   tiles instead of floating wherever the label happened to end. */
+.iscan-tile .iscan-status {
+    margin-block-start: auto;
+}
+
+.iscan-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--now-static-space--xs, 0.25rem);
+    padding: var(--now-static-space--xxs, 0.125rem) var(--snx-space-tight);
+    border-radius: var(--snx-radius-indicator);
+    /* 11px per spec's status-pill type size. */
+    font-size: 11px;
+    font-weight: 600;
+    align-self: flex-start;
+}
+
+/* Severity-to-status mapping matches utils/severity.ts exactly: positive =
+   complete, critical = error, info = running/pending, warning = review (the
+   "needs review" governance signal reused for the customizations tile).
+   Opaque fills, so contrast is a solid pair regardless of what's behind them --
+   see the banner comment above. */
+.iscan-status--positive {
+    background-color: var(--snx-status-complete);
+    color: var(--snx-status-text-onstrong);
+    border: 1px solid color-mix(in oklch, var(--snx-status-complete) 80%, var(--snx-shadow-color) 20%);
+}
+
+.iscan-status--critical {
+    background-color: var(--snx-status-error);
+    color: var(--snx-status-text-onstrong);
+    border: 1px solid color-mix(in oklch, var(--snx-status-error) 80%, var(--snx-shadow-color) 20%);
+}
+
+.iscan-status--warning {
+    background-color: var(--snx-status-review);
+    color: var(--snx-status-review-text);
+    border: 1px solid color-mix(in oklch, var(--snx-status-review) 80%, var(--snx-shadow-color) 20%);
+}
+
+.iscan-status--info {
+    background-color: var(--snx-status-running);
+    color: var(--snx-status-text-onstrong);
+    border: 1px solid color-mix(in oklch, var(--snx-status-running) 80%, var(--snx-shadow-color) 20%);
+}
+
+/* pulseDot -- a small "live" cue on Running/in-flight pills only, per spec.
+   Reuses the same reduced-motion guard as every other animation below. */
+.iscan-status--info {
+    position: relative;
+}
+
+.iscan-status--info::before {
+    content: '';
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background-color: var(--snx-status-text-onstrong);
+    animation: iscan-pulse-dot 1.4s ease-in-out infinite;
+}
+
+@keyframes iscan-pulse-dot {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.35;
+    }
+}
+
+.iscan-icon {
+    inline-size: 1rem;
+    block-size: 1rem;
+    fill: currentColor;
+    flex: none;
+}
+
+/* Keyboard focus must stay visible on top of a translucent pane, where a
+   subtle ring would wash out. Outline (not border) so nothing reflows. */
+.iscan-shell :focus-visible {
+    outline: 2px solid var(--snx-color-focus);
+    outline-offset: 2px;
+}
+
+/* -------------------------------------------------------------- motion --- */
+@keyframes iscan-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.25rem);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .iscan-shell {
+        animation: none;
+    }
+
+    .iscan-panel {
+        animation: none;
+    }
+
+    .iscan-tile {
+        animation: none;
+        transition: none;
+        transform: none;
+    }
+
+    .iscan-tile::after {
+        transition: none;
+        opacity: 0;
+    }
+
+    .iscan-nav::before {
+        animation: none;
+    }
+
+    .iscan-nav__item--active,
+    .iscan-row-link {
+        transition: none;
+    }
+
+    /* The travelling pill, its dot and the aurora fields all rest. */
+    .iscan-nav__pill,
+    .iscan-nav__dot {
+        transition: none;
+    }
+
+    .iscan-main::before,
+    .iscan-main::after {
+        animation: none;
+    }
+
+    .iscan-rowdetail,
+    .iscan-help__popover {
+        animation: none;
+    }
+
+    .iscan-btn,
+    .iscan-disclosure__chevron {
+        transition: none;
+    }
+
+    .iscan-toast,
+    .iscan-dialog {
+        animation: none;
+    }
+
+    /* The spinner still needs to convey "busy", so it slows rather than
+       stopping outright. */
+    .iscan-spinner__ring {
+        animation-duration: 2.4s;
+    }
+
+    .iscan-table tbody tr {
+        transition: none;
+        animation: none;
+    }
+
+    .iscan-status--info::before {
+        animation: none;
+        opacity: 1;
+    }
+
+    .iscan-theme-toggle__knob {
+        transition: none;
+    }
+}
+
+/* ----------------------------------------------------------- fallbacks ----
+   The material's own checklist requires both of these. Each reverts to the
+   solid token surfaces -- translucency without blur is just washed-out text. */
+
+/* 1. Browser cannot blur. .iscan-tile needs no entry here any more -- it's a
+   solid card unconditionally now, not glass (see the metric-tile rules
+   above). Only the nav rail's glass chrome and its specular sweep still need
+   a flat fallback. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .iscan-nav {
+        background-color: var(--snx-color-nav-surface);
+    }
+
+    .iscan-nav::before {
+        background: none;
+    }
+}
+
+/* 2. User asked the OS for reduced transparency. Honour it: no blur, no
+      alpha, no wash. Layout is unchanged. */
+@media (prefers-reduced-transparency: reduce) {
+    .iscan-shell {
+        background-image: none;
+        animation: none;
+    }
+
+    .iscan-nav {
+        background-color: var(--snx-color-nav-surface);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    .iscan-nav::before {
+        background: none;
+    }
+}
+
+/* --------------------------------------------------------- responsive ----- */
+@media (max-width: 768px) {
+    .iscan-shell {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .iscan-nav {
+        position: static;
+    }
+
+    .iscan-nav__list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    /* Narrower column minimum so two tiles still share a row on a phone. */
+    .iscan-tiles {
+        grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    }
+}

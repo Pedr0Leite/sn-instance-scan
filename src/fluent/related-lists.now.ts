@@ -1,7 +1,7 @@
 import { Record } from '@servicenow/sdk/core'
 
-// Explicit related list: x_335329_iscan_result records where run = this
-// record, shown on the x_335329_iscan_run form. Related lists for a
+// Explicit related list: x_nold_iscan_result records where run = this
+// record, shown on the x_nold_iscan_run form. Related lists for a
 // reference field normally auto-render at the bottom of any OOB form —
 // but this app's run form already has a custom sys_ui_section (see
 // generated/other/sys-ui-element/sys_ui_section_...now.ts), and a custom
@@ -13,14 +13,14 @@ import { Record } from '@servicenow/sdk/core'
 // Format verified against real ServiceNow update-set XML exports of
 // hand-configured related lists (not guessed): the parent
 // sys_ui_related_list.name is the table the list appears ON
-// (x_335329_iscan_run); the child sys_ui_related_list_entry.related_list
+// (x_nold_iscan_run); the child sys_ui_related_list_entry.related_list
 // is "<child_table>.<field_on_child_referencing_parent>"
-// (x_335329_iscan_result.run).
+// (x_nold_iscan_result.run).
 export const iscanResultRelatedList = Record({
     $id: Now.ID['iscan_result_related_list'],
     table: 'sys_ui_related_list',
     data: {
-        name: 'x_335329_iscan_run',
+        name: 'x_nold_iscan_run',
     },
 })
 
@@ -29,19 +29,19 @@ export const iscanResultRelatedListEntry = Record({
     table: 'sys_ui_related_list_entry',
     data: {
         list_id: iscanResultRelatedList,
-        related_list: 'x_335329_iscan_result.run',
+        related_list: 'x_nold_iscan_result.run',
         position: 0,
     },
 })
 
-// Same explicit-related-list treatment for x_335329_iscan_module
+// Same explicit-related-list treatment for x_nold_iscan_module
 // (Installed Modules mode child rows) — without this they'd be written
 // correctly but invisible on the Run form, same failure class as above.
 export const iscanModuleRelatedList = Record({
     $id: Now.ID['iscan_module_related_list'],
     table: 'sys_ui_related_list',
     data: {
-        name: 'x_335329_iscan_run',
+        name: 'x_nold_iscan_run',
     },
 })
 
@@ -50,18 +50,18 @@ export const iscanModuleRelatedListEntry = Record({
     table: 'sys_ui_related_list_entry',
     data: {
         list_id: iscanModuleRelatedList,
-        related_list: 'x_335329_iscan_module.run',
+        related_list: 'x_nold_iscan_module.run',
         position: 1,
     },
 })
 
-// Same explicit-related-list treatment for x_335329_iscan_ai_agent
+// Same explicit-related-list treatment for x_nold_iscan_ai_agent
 // (AI Agent Discovery mode child rows) — same failure class as above.
 export const iscanAiAgentRelatedList = Record({
     $id: Now.ID['iscan_ai_agent_related_list'],
     table: 'sys_ui_related_list',
     data: {
-        name: 'x_335329_iscan_run',
+        name: 'x_nold_iscan_run',
     },
 })
 
@@ -70,7 +70,7 @@ export const iscanAiAgentRelatedListEntry = Record({
     table: 'sys_ui_related_list_entry',
     data: {
         list_id: iscanAiAgentRelatedList,
-        related_list: 'x_335329_iscan_ai_agent.run',
+        related_list: 'x_nold_iscan_ai_agent.run',
         position: 2,
     },
 })

@@ -11,7 +11,7 @@ do, not a full changelog.
   user's behalf unless it's cheap (<2-3k tokens) and flagged first — the
   user runs these. (See memory `feedback-no-build-deploy-commit`.)
 - No new ATF test entries. (Memory `feedback-no-atf-tests`.)
-- Real scope prefix is `x_335329_iscan`, NOT `x_snis_iscan` (the vault
+- Real scope prefix is `x_nold_iscan`, NOT `x_snis_iscan` (the vault
   spec docs use the old name — don't reintroduce it).
 - Authoritative status = this repo (`CLAUDE.md`,
   `docs/superpowers/INSTANCE_ASSESSMENT_STATUS.md`), not the Obsidian vault.
@@ -34,7 +34,7 @@ across several sessions, all `npm run build`-clean:
 - Itemized report + global-scope customization detection (both write
   paths: per-table `findGlobalCustomizations`, per-app
   `findAppCustomizationsOnGlobalTables`), new
-  `x_335329_iscan_global_customization` table, missing crossref ACLs fix.
+  `x_nold_iscan_global_customization` table, missing crossref ACLs fix.
 - Run report "Scan Findings Log" section; `related-lists.now.ts` (Result
   related list on the Run form); Download Report's `isUi16Compatible`/
   `isUi11Compatible` set to `false` (accepted risk — see section 3).
@@ -100,7 +100,7 @@ browser-verified since well before this consolidation)
    GlideAjax + client-side flow with `isUi16Compatible: false` — confirm
    whether it's actually broken there too; if so it needs the same
    server-side conversion.
-7. **Related list** — confirm `x_335329_iscan_result` actually appears as
+7. **Related list** — confirm `x_nold_iscan_result` actually appears as
    a related list on the Run form after deploy (new, unverified).
 8. **Recommendations section** — confirm it renders sensibly on a real
    scanned app's Result report PDF (new, unverified).

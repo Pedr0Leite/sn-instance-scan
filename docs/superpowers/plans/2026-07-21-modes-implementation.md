@@ -4,29 +4,29 @@
 
 **Goal:** Extend sn-instance-scan's 3 scan modes to 4 — relabel Full/Custom/Manual, add a new "Manual — Single Table" mode — per the approved design at `docs/superpowers/specs/2026-07-21-modes-design.md`.
 
-**Architecture:** Schema additions on `x_335329_iscan_run` (a 4th `scan_mode` choice, two new reference fields), an unscoped `profileTable()` used by all 4 modes, a new orchestrator resolution path for the single-table mode (reusing the existing per-app pipeline when the picked table's owning scope has a `sys_app` record, falling back to a log-only table profile when it doesn't), and a UI Action + UI Policy update to wire the new fields into the form.
+**Architecture:** Schema additions on `x_nold_iscan_run` (a 4th `scan_mode` choice, two new reference fields), an unscoped `profileTable()` used by all 4 modes, a new orchestrator resolution path for the single-table mode (reusing the existing per-app pipeline when the picked table's owning scope has a `sys_app` record, falling back to a log-only table profile when it doesn't), and a UI Action + UI Policy update to wire the new fields into the form.
 
 **Tech Stack:** ServiceNow SDK (`@servicenow/sdk` 4.8.1) + ServiceNow Fluent (`.now.ts`), plain server-side JS script include bodies, `now-sdk build` for compile validation.
 
 ## Global Constraints
 
-- Read-only app: no script may write to a scanned table, only to `x_335329_iscan_*` tables (`CLAUDE.md`).
+- Read-only app: no script may write to a scanned table, only to `x_nold_iscan_*` tables (`CLAUDE.md`).
 - No elevated privilege: every table/dictionary query runs under the caller's own access; `canAccessMetadata()` is a deterministic `canRead()` gate checked BEFORE querying, never a try/catch fallback (`CLAUDE.md`).
 - `GlideAggregate` for row counts, never `GlideRecord.getRowCount()`.
 - No hardcoded sys_ids; instance-specific config goes through `gs.getProperty()`.
 - This app has no local unit-test runner — `tests/atf_tests.json` (ATF-style descriptions, run on a real instance) is this project's only test artifact, and `npm run build` (now-sdk's Fluent→instance-artifact compiler) is the only automated local check. Each task's "run the test" step means `npm run build` unless stated otherwise; ATF entries are added/updated as plain-text descriptions, not executed locally.
 - `manual_app_list` (legacy multi-app string field) is kept, not removed — see `docs/future-schema-ideas.md`.
-- `x_335329_iscan_result.app` stays a mandatory `sys_app` reference — not being relaxed in this sub-spec.
+- `x_nold_iscan_result.app` stays a mandatory `sys_app` reference — not being relaxed in this sub-spec.
 
 ---
 
 ### Task 1: Schema — `scan_mode` choice, `target_app`, `target_table`
 
 **Files:**
-- Modify: `src/fluent/tables.now.ts:16-90` (the `x_335329_iscan_run` Table definition)
+- Modify: `src/fluent/tables.now.ts:16-90` (the `x_nold_iscan_run` Table definition)
 
 **Interfaces:**
-- Produces: `x_335329_iscan_run.scan_mode` choice `single_table` (label "Manual — Single Table"); `x_335329_iscan_run.target_app` (`ReferenceColumn` → `sys_app`); `x_335329_iscan_run.target_table` (`ReferenceColumn` → `sys_db_object`). Later tasks (3, 5) read these by these exact field names via `current.getValue('target_app')` / `current.getValue('target_table')`.
+- Produces: `x_nold_iscan_run.scan_mode` choice `single_table` (label "Manual — Single Table"); `x_nold_iscan_run.target_app` (`ReferenceColumn` → `sys_app`); `x_nold_iscan_run.target_table` (`ReferenceColumn` → `sys_db_object`). Later tasks (3, 5) read these by these exact field names via `current.getValue('target_app')` / `current.getValue('target_table')`.
 
 - [ ] **Step 1: Edit the `scan_mode` choice list and add the two reference columns**
 
@@ -102,7 +102,7 @@ git commit -m "Add single_table scan mode and target_app/target_table fields"
 - Create: `src/fluent/ui-policies.now.ts`
 
 **Interfaces:**
-- Consumes: `x_335329_iscan_run.scan_mode`, `.target_app`, `.target_table` (Task 1).
+- Consumes: `x_nold_iscan_run.scan_mode`, `.target_app`, `.target_table` (Task 1).
 - Produces: nothing consumed by later tasks — this is presentation-only, additive.
 
 - [ ] **Step 1: Write the two UI Policies**
@@ -114,7 +114,7 @@ import { UiPolicy, default_view } from '@servicenow/sdk/core'
 
 export const manualAppVisibilityPolicy = UiPolicy({
     $id: Now.ID['manual_app_visibility_policy'],
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     shortDescription: 'Show Target App only for Manual — App scan mode',
     active: true,
     onLoad: true,
@@ -131,7 +131,7 @@ export const manualAppVisibilityPolicy = UiPolicy({
 
 export const singleTableVisibilityPolicy = UiPolicy({
     $id: Now.ID['single_table_visibility_policy'],
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     shortDescription: 'Show Target Table only for Manual — Single Table scan mode',
     active: true,
     onLoad: true,
@@ -398,7 +398,7 @@ with:
      * guaranteed to appear in getOwnedTables() since it's owned by that
      * scope). If the scope has no sys_app record (true for `global` and
      * most OOB scopes — e.g. picking `incident` or `sys_user`), there is
-     * no sys_app to tally against x_335329_iscan_result.app (mandatory,
+     * no sys_app to tally against x_nold_iscan_result.app (mandatory,
      * not being relaxed), so this returns a table-only descriptor instead
      * — see _singleTableFallback / _executeRun / _scanOneTable.
      * @param {String} targetTableSysId - sys_id of a sys_db_object record
@@ -451,7 +451,7 @@ Replace:
             // see change — the classic symptom is status stuck on
             // 'pending' with an empty activities log.
             throw new Error(
-                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+                'Cannot write to the scan run record — the calling user lacks write access to x_nold_iscan_run (check the x_nold_iscan.scanner role and its write ACL).'
             )
         }
 
@@ -503,7 +503,7 @@ with:
             // see change — the classic symptom is status stuck on
             // 'pending' with an empty activities log.
             throw new Error(
-                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+                'Cannot write to the scan run record — the calling user lacks write access to x_nold_iscan_run (check the x_nold_iscan.scanner role and its write ACL).'
             )
         }
 
@@ -538,8 +538,8 @@ with:
     },
 
     /**
-     * Single Table mode, no-owning-app case: no x_335329_iscan_result/
-     * x_335329_iscan_table row gets written (result.app is a mandatory
+     * Single Table mode, no-owning-app case: no x_nold_iscan_result/
+     * x_nold_iscan_table row gets written (result.app is a mandatory
      * sys_app reference and there's no sys_app to point it at) — the
      * table's profile goes into the run's activities/comments log only.
      * @param {GlideRecord} run
@@ -550,7 +550,7 @@ with:
         run.setValue('status', 'running')
         if (!run.update()) {
             throw new Error(
-                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+                'Cannot write to the scan run record — the calling user lacks write access to x_nold_iscan_run (check the x_nold_iscan.scanner role and its write ACL).'
             )
         }
 
@@ -639,10 +639,10 @@ Replace:
 ```javascript
     runScanForRecord: function (runSysId, scanMode, manualAppList) {
         gs.info('IscanScanOrchestrator.runScanForRecord: run=' + runSysId + ', scan_mode=' + scanMode)
-        var run = new GlideRecord('x_335329_iscan_run')
+        var run = new GlideRecord('x_nold_iscan_run')
         if (!run.get(runSysId)) {
             gs.error('IscanScanOrchestrator.runScanForRecord: no run record found for sys_id: ' + runSysId)
-            throw new Error('No x_335329_iscan_run record found for sys_id: ' + runSysId)
+            throw new Error('No x_nold_iscan_run record found for sys_id: ' + runSysId)
         }
 
         run.setValue('scan_mode', scanMode)
@@ -663,10 +663,10 @@ with:
 ```javascript
     runScanForRecord: function (runSysId, scanMode, manualAppList, targetTableSysId) {
         gs.info('IscanScanOrchestrator.runScanForRecord: run=' + runSysId + ', scan_mode=' + scanMode)
-        var run = new GlideRecord('x_335329_iscan_run')
+        var run = new GlideRecord('x_nold_iscan_run')
         if (!run.get(runSysId)) {
             gs.error('IscanScanOrchestrator.runScanForRecord: no run record found for sys_id: ' + runSysId)
-            throw new Error('No x_335329_iscan_run record found for sys_id: ' + runSysId)
+            throw new Error('No x_nold_iscan_run record found for sys_id: ' + runSysId)
         }
 
         run.setValue('scan_mode', scanMode)
@@ -797,7 +797,7 @@ Replace the whole file body (keep the header comment) from the `scanMode`/`manua
     if (!current.update()) {
         gs.error('RunScanUiAction: failed to save submitted scan_mode/target_app/target_table/manual_app_list')
         gs.addErrorMessage(
-            'Could not save the scan request — check write access to x_335329_iscan_run.'
+            'Could not save the scan request — check write access to x_nold_iscan_run.'
         )
         current.setAbortAction(true)
         return
@@ -859,35 +859,35 @@ Add these 3 objects to the JSON array in `tests/atf_tests.json` (insert before t
   {
     "name": "Manual — App: target_app takes precedence over manual_app_list",
     "story": "Modes sub-spec: Manual — App precedence",
-    "precondition": "Run as a user with the x_335329_iscan.scanner role; two distinct custom apps exist (appA, appB)",
+    "precondition": "Run as a user with the x_nold_iscan.scanner role; two distinct custom apps exist (appA, appB)",
     "steps": [
-      "Server-side script step: create an x_335329_iscan_run record with scan_mode='manual', target_app=appA.sys_id, manual_app_list=appB.sys_id",
+      "Server-side script step: create an x_nold_iscan_run record with scan_mode='manual', target_app=appA.sys_id, manual_app_list=appB.sys_id",
       "Server-side script step: call IscanScanOrchestrator.runScanForRecord(run.sys_id, 'manual', [appB.sys_id], '') — note manualAppList here simulates what RunScanUiAction.server.js would have already resolved: since target_app is set, it passes [appA.sys_id], not [appB.sys_id]",
-      "Query x_335329_iscan_result where run = created run"
+      "Query x_nold_iscan_result where run = created run"
     ],
     "expected": "Result set includes appA only, not appB — confirming the UI Action's precedence logic (tested at the orchestrator boundary by passing the already-resolved [appA.sys_id])"
   },
   {
     "name": "Manual — Single Table: table owned by a custom app runs the full app tally",
     "story": "Modes sub-spec: Single Table mode, owning-app case",
-    "precondition": "Run as a user with the x_335329_iscan.scanner role and read access to sys_db_object/sys_dictionary; a custom app owns at least one table",
+    "precondition": "Run as a user with the x_nold_iscan.scanner role and read access to sys_db_object/sys_dictionary; a custom app owns at least one table",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('single_table', [], targetTableSysId) where targetTableSysId is the sys_id of a sys_db_object record owned by a custom app",
-      "Query x_335329_iscan_result where run = created run",
-      "Query x_335329_iscan_table where result = that result record"
+      "Query x_nold_iscan_result where run = created run",
+      "Query x_nold_iscan_table where result = that result record"
     ],
-    "expected": "Exactly one x_335329_iscan_result row exists, for the table's owning app; x_335329_iscan_table includes a row for the picked table with row_count, field_count, and reference_field_list populated (field_count reflects ALL fields on the table, not just app-added ones — see IscanTableScanner.profileTable)"
+    "expected": "Exactly one x_nold_iscan_result row exists, for the table's owning app; x_nold_iscan_table includes a row for the picked table with row_count, field_count, and reference_field_list populated (field_count reflects ALL fields on the table, not just app-added ones — see IscanTableScanner.profileTable)"
   },
   {
     "name": "Manual — Single Table: OOB table with no owning sys_app falls back to table-only",
     "story": "Modes sub-spec: Single Table mode, no-owning-app case",
-    "precondition": "Run as a user with the x_335329_iscan.scanner role and read access to sys_db_object/sys_dictionary; targetTableSysId is the sys_db_object record for 'incident' (or another table whose sys_scope has no corresponding sys_app record)",
+    "precondition": "Run as a user with the x_nold_iscan.scanner role and read access to sys_db_object/sys_dictionary; targetTableSysId is the sys_db_object record for 'incident' (or another table whose sys_scope has no corresponding sys_app record)",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('single_table', [], targetTableSysId)",
-      "Query x_335329_iscan_result where run = created run",
+      "Query x_nold_iscan_result where run = created run",
       "Open the run record and inspect the activities field"
     ],
-    "expected": "Zero x_335329_iscan_result rows are created for this run; run.status = 'complete'; run.activities contains a line naming the table with its row_count/field_count/reference field list, and a preceding line noting the table has no owning application"
+    "expected": "Zero x_nold_iscan_result rows are created for this run; run.status = 'complete'; run.activities contains a line naming the table with its row_count/field_count/reference field list, and a preceding line noting the table has no owning application"
   }
 ```
 

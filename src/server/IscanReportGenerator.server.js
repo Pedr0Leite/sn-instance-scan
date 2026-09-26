@@ -11,11 +11,11 @@
  * NARE's exported assessment PDFs.
  *
  * Two report scopes, same as NARE's Summary vs. individual assessment:
- *   - Run report    (x_335329_iscan_run)    -> every app scanned in that run
- *   - Result report (x_335329_iscan_result) -> one scanned app, full detail
+ *   - Run report    (x_nold_iscan_run)    -> every app scanned in that run
+ *   - Result report (x_nold_iscan_result) -> one scanned app, full detail
  */
 var IscanReportGenerator = Class.create();
-// Scoped app (x_335329_iscan) referencing the global-scope
+// Scoped app (x_nold_iscan) referencing the global-scope
 // AbstractAjaxProcessor — the "global." qualifier is required at runtime
 // (see IscanScanOrchestrator.server.js for the full explanation); the
 // disable comment silences now-sdk's lint, which otherwise mistakes this
@@ -68,7 +68,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 
 	/**
 	 * GlideAjax entry point for the "Download Report" UI Action on
-	 * x_335329_iscan_run. sysparm_run_id = sys_id of the run record.
+	 * x_nold_iscan_run. sysparm_run_id = sys_id of the run record.
 	 * @returns {String} sys_id of the attached PDF (sys_attachment), or '' on failure
 	 */
 	generateRunReportAjax: function() {
@@ -78,7 +78,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 
 	/**
 	 * GlideAjax entry point for the "Download Report" UI Action on
-	 * x_335329_iscan_result. sysparm_result_id = sys_id of the result record.
+	 * x_nold_iscan_result. sysparm_result_id = sys_id of the result record.
 	 * @returns {String} sys_id of the attached PDF (sys_attachment), or '' on failure
 	 */
 	generateResultReportAjax: function() {
@@ -93,7 +93,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 	 */
 	generateRunReport: function(runSysId) {
 		gs.info('IscanReportGenerator.generateRunReport: run=' + runSysId);
-		var run = new GlideRecord('x_335329_iscan_run');
+		var run = new GlideRecord('x_nold_iscan_run');
 		if (!run.get(runSysId)) {
 			gs.error('IscanReportGenerator.generateRunReport: no run record found for sys_id: ' + runSysId);
 			return '';
@@ -101,7 +101,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 
 		var html = this._buildRunReportHtml(run);
 		var pdfName = 'sn-instance-scan run ' + run.getValue('sys_id') + '.pdf';
-		var result = this._convertToPdf(html, 'x_335329_iscan_run', runSysId, pdfName);
+		var result = this._convertToPdf(html, 'x_nold_iscan_run', runSysId, pdfName);
 		gs.info('IscanReportGenerator.generateRunReport: status=' + result.status);
 		return result.status === 'success' ? result.attachment_id : '';
 	},
@@ -113,7 +113,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 	 */
 	generateResultReport: function(resultSysId) {
 		gs.info('IscanReportGenerator.generateResultReport: result=' + resultSysId);
-		var result = new GlideRecord('x_335329_iscan_result');
+		var result = new GlideRecord('x_nold_iscan_result');
 		if (!result.get(resultSysId)) {
 			gs.error('IscanReportGenerator.generateResultReport: no result record found for sys_id: ' + resultSysId);
 			return '';
@@ -123,7 +123,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		var appName = new GlideRecord('sys_app');
 		appName.get(result.getValue('app'));
 		var pdfName = 'sn-instance-scan ' + (appName.getValue('name') || result.getValue('app')) + '.pdf';
-		var pdfResult = this._convertToPdf(html, 'x_335329_iscan_result', resultSysId, pdfName);
+		var pdfResult = this._convertToPdf(html, 'x_nold_iscan_result', resultSysId, pdfName);
 		gs.info('IscanReportGenerator.generateResultReport: status=' + pdfResult.status);
 		return pdfResult.status === 'success' ? pdfResult.attachment_id : '';
 	},
@@ -152,7 +152,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 	 * numeric thresholds (see CLAUDE.md/design doc for why: there's no
 	 * real basis for picking a count cutoff, so every flag here is a
 	 * plain yes/no check).
-	 * @param {GlideRecord} result - an x_335329_iscan_result record
+	 * @param {GlideRecord} result - an x_nold_iscan_result record
 	 * @returns {Array} [{type: 'warning'|'info', text: String}]
 	 */
 	_computeStatusFlags: function(result) {
@@ -162,7 +162,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			flags.push({ type: 'warning', text: 'Scanned via Application Files fallback (limited data)' });
 		}
 
-		var overrideAgg = new GlideAggregate('x_335329_iscan_table');
+		var overrideAgg = new GlideAggregate('x_nold_iscan_table');
 		overrideAgg.addQuery('result', result.getUniqueValue());
 		overrideAgg.addAggregate('SUM', 'dictionary_override_count');
 		overrideAgg.query();
@@ -174,7 +174,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			flags.push({ type: 'warning', text: overrideCount + ' dictionary override(s) detected' });
 		}
 
-		var crossref = new GlideRecord('x_335329_iscan_crossref');
+		var crossref = new GlideRecord('x_nold_iscan_crossref');
 		crossref.addQuery('table.result', result.getUniqueValue());
 		crossref.addNotNullQuery('referencing_app');
 		crossref.addQuery('referencing_app', '!=', result.getValue('app'));
@@ -201,7 +201,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 	 * "recommendations flagged wherever config diverges from OOB / best
 	 * practice" — previously the report only had status flags and counts,
 	 * no actionable guidance.
-	 * @param {GlideRecord} result - an x_335329_iscan_result record
+	 * @param {GlideRecord} result - an x_nold_iscan_result record
 	 * @returns {Array} [{text: String}]
 	 */
 	_computeRecommendations: function(result) {
@@ -214,7 +214,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			);
 		}
 
-		var tableAgg = new GlideAggregate('x_335329_iscan_table');
+		var tableAgg = new GlideAggregate('x_nold_iscan_table');
 		tableAgg.addQuery('result', result.getUniqueValue());
 		tableAgg.addAggregate('COUNT');
 		tableAgg.query();
@@ -230,7 +230,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			);
 		}
 
-		var overrideAgg = new GlideAggregate('x_335329_iscan_table');
+		var overrideAgg = new GlideAggregate('x_nold_iscan_table');
 		overrideAgg.addQuery('result', result.getUniqueValue());
 		overrideAgg.addAggregate('SUM', 'dictionary_override_count');
 		overrideAgg.query();
@@ -246,7 +246,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			);
 		}
 
-		var zeroRowAgg = new GlideAggregate('x_335329_iscan_table');
+		var zeroRowAgg = new GlideAggregate('x_nold_iscan_table');
 		zeroRowAgg.addQuery('result', result.getUniqueValue());
 		zeroRowAgg.addQuery('row_count', 0);
 		zeroRowAgg.addAggregate('COUNT');
@@ -262,7 +262,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			);
 		}
 
-		var customizationAgg = new GlideAggregate('x_335329_iscan_global_customization');
+		var customizationAgg = new GlideAggregate('x_nold_iscan_global_customization');
 		customizationAgg.addQuery('result', result.getUniqueValue());
 		customizationAgg.addAggregate('COUNT');
 		customizationAgg.query();
@@ -386,7 +386,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		parts.push('<p><b>Started:</b> ' + this._esc(run.getDisplayValue('started')) +
 			' &nbsp; <b>Completed:</b> ' + this._esc(run.getDisplayValue('completed')) +
 			' &nbsp; <b>Apps scanned:</b> ' + this._esc(run.getValue('app_count')) + '</p>');
-		parts.push('<p><a href="' + this._recordUrl('x_335329_iscan_run', run.getUniqueValue()) +
+		parts.push('<p><a href="' + this._recordUrl('x_nold_iscan_run', run.getUniqueValue()) +
 			'">Open this scan run</a></p>');
 
 		// The run's own progress log — the one thing this report was
@@ -408,13 +408,13 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			'<th>Business Rules</th><th>Script Includes</th><th>Flows</th>' +
 			'<th>ACLs</th><th>UI Actions</th><th>Integrations</th><th>Status</th></tr>');
 
-		var result = new GlideRecord('x_335329_iscan_result');
+		var result = new GlideRecord('x_nold_iscan_result');
 		result.addQuery('run', run.getUniqueValue());
 		result.query();
 
 		while (result.next()) {
 			parts.push('<tr>');
-			parts.push('<td><a href="' + this._recordUrl('x_335329_iscan_result', result.getUniqueValue()) +
+			parts.push('<td><a href="' + this._recordUrl('x_nold_iscan_result', result.getUniqueValue()) +
 				'">' + this._esc(result.getDisplayValue('app')) + '</a></td>');
 			parts.push('<td>' + this._esc(result.getValue('scan_mode_used')) + '</td>');
 			parts.push('<td>' + this._esc(result.getValue('table_count')) + '</td>');
@@ -433,7 +433,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		// (no app to attach a result to). Per-app findings (result set)
 		// are rendered on each app's own Result report instead, see
 		// _buildResultReportHtml.
-		var customization = new GlideRecord('x_335329_iscan_global_customization');
+		var customization = new GlideRecord('x_nold_iscan_global_customization');
 		customization.addQuery('run', run.getUniqueValue());
 		customization.addNullQuery('result');
 		customization.query();
@@ -460,12 +460,12 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 
 		// Modules mode (scan_mode='modules', instance-wide, no per-app
 		// result rows) — sys_plugins profile written directly against the
-		// run, same run-keyed precedent as x_335329_iscan_global_customization's
+		// run, same run-keyed precedent as x_nold_iscan_global_customization's
 		// no-owning-app rows above. Rendered whenever any
-		// x_335329_iscan_module rows exist for this run (defensive
+		// x_nold_iscan_module rows exist for this run (defensive
 		// hasNext() gate, mirrors every other section here, rather than
 		// branching on scan_mode directly).
-		var moduleRow = new GlideRecord('x_335329_iscan_module');
+		var moduleRow = new GlideRecord('x_nold_iscan_module');
 		moduleRow.addQuery('run', run.getUniqueValue());
 		moduleRow.query();
 		if (moduleRow.hasNext()) {
@@ -491,12 +491,12 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 
 		// AI Agent Discovery mode (scan_mode='ai_agents', instance-wide, no
 		// per-app result rows) — same run-keyed precedent as Installed
-		// Modules above. Rendered whenever any x_335329_iscan_ai_agent rows
+		// Modules above. Rendered whenever any x_nold_iscan_ai_agent rows
 		// exist for this run. Grouped by layer so native/confirmed findings
 		// aren't buried among heuristic ones; confidence gets its own icon
 		// column (✅ confirmed vs ❓ needs review) reusing the same
 		// icon-column pattern as the Status column elsewhere in this report.
-		var aiAgentRow = new GlideRecord('x_335329_iscan_ai_agent');
+		var aiAgentRow = new GlideRecord('x_nold_iscan_ai_agent');
 		aiAgentRow.addQuery('run', run.getUniqueValue());
 		aiAgentRow.orderBy('layer');
 		aiAgentRow.query();
@@ -526,7 +526,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		// rather than duplicating any of its content — this is the whole
 		// "documented in the Instance Scan Result record" ask, sourced
 		// from the exact same builder the standalone Result PDF uses.
-		var resultDetail = new GlideRecord('x_335329_iscan_result');
+		var resultDetail = new GlideRecord('x_nold_iscan_result');
 		resultDetail.addQuery('run', run.getUniqueValue());
 		resultDetail.query();
 		if (resultDetail.hasNext()) {
@@ -548,7 +548,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		parts.push(this._renderStatusDetail(this._computeStatusFlags(result)));
 		parts.push('<p><b>Scan date:</b> ' + this._esc(result.getDisplayValue('scan_date')) +
 			' &nbsp; <b>Scan mode used:</b> ' + this._esc(result.getValue('scan_mode_used')) + '</p>');
-		parts.push('<p><a href="' + this._recordUrl('x_335329_iscan_result', result.getUniqueValue()) +
+		parts.push('<p><a href="' + this._recordUrl('x_nold_iscan_result', result.getUniqueValue()) +
 			'">Open this result record</a> &nbsp; ' +
 			'<a href="' + this._recordUrl('sys_app', result.getValue('app')) + '">Open application record</a></p>');
 
@@ -605,7 +605,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		}
 
 		parts.push('<h2>Tables</h2>');
-		var tableRow = new GlideRecord('x_335329_iscan_table');
+		var tableRow = new GlideRecord('x_nold_iscan_table');
 		tableRow.addQuery('result', result.getUniqueValue());
 		tableRow.query();
 
@@ -619,7 +619,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 				'<th>Dictionary Overrides</th><th>Inbound References</th></tr>');
 			while (tableRow.next()) {
 				parts.push('<tr>');
-				parts.push('<td><a href="' + this._recordUrl('x_335329_iscan_table', tableRow.getUniqueValue()) +
+				parts.push('<td><a href="' + this._recordUrl('x_nold_iscan_table', tableRow.getUniqueValue()) +
 					'">' + this._esc(tableRow.getValue('table_name')) + '</a></td>');
 				parts.push('<td>' + this._esc(tableRow.getValue('extends_table')) + '</td>');
 				parts.push('<td>' + this._esc(tableRow.getValue('well_known_base')) + '</td>');
@@ -638,7 +638,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 		// scan mode (see IscanTableScanner.findAppCustomizationsOnGlobalTables()),
 		// so this section can appear on any Result report, not just
 		// Single Table / Full-fallback runs.
-		var appCustomization = new GlideRecord('x_335329_iscan_global_customization');
+		var appCustomization = new GlideRecord('x_nold_iscan_global_customization');
 		appCustomization.addQuery('result', result.getUniqueValue());
 		appCustomization.query();
 		if (appCustomization.hasNext()) {
@@ -660,7 +660,7 @@ IscanReportGenerator.prototype = Object.extendsObject(global.AbstractAjaxProcess
 			parts.push('</table>');
 		}
 
-		var crossrefRow = new GlideRecord('x_335329_iscan_crossref');
+		var crossrefRow = new GlideRecord('x_nold_iscan_crossref');
 		crossrefRow.addQuery('table.result', result.getUniqueValue());
 		crossrefRow.query();
 		if (crossrefRow.hasNext()) {

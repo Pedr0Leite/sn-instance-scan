@@ -18,7 +18,7 @@ import { scannerRole } from './roles.now'
  * replayRequestItem — see node_modules/@servicenow/sdk/docs/guides/atf-guide.md),
  * so every JSON step that reads "Server-side script step: call
  * IscanScanOrchestrator.runScan(...)" is mapped here to the real UI path:
- * create/open an x_335329_iscan_run record with the right field values,
+ * create/open an x_nold_iscan_run record with the right field values,
  * then atf.form.clickUIAction the Run Scan button — exactly what a user
  * does, and exactly what actually invokes the orchestrator.
  *
@@ -49,7 +49,7 @@ import { scannerRole } from './roles.now'
  *   - ACL-denial / restricted-user tests (atfAclDeniedAppFallsBackCleanly,
  *     atfModulesSysPluginsDenialSurfacesError, atfScannerRoleCanWriteComments):
  *     atf.server.createUser only assigns ROLES, it can't author new ACL
- *     rules. These tests create a user holding only x_335329_iscan.scanner
+ *     rules. These tests create a user holding only x_nold_iscan.scanner
  *     (never security_admin/admin) and rely on the target instance's own
  *     ACL configuration to actually deny sys_db_object/sys_dictionary/
  *     sys_plugins read for a role-minimal user, per each JSON test's
@@ -70,17 +70,17 @@ Test({
     const internalApp = atf.server.recordQuery({
         $id: Now.ID['t1_query_internal_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t1_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t1_set_scan_mode'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'custom_only' },
         formUI: 'standard_ui',
     })
@@ -92,18 +92,18 @@ Test({
 
     atf.form.openExistingRecord({
         $id: Now.ID['t1_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t1_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t1_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t1_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t1_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -112,7 +112,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t1_validate_run_complete'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'status=complete',
         assert: 'record_validated',
@@ -120,12 +120,12 @@ Test({
 
     const internalResult = atf.server.recordQuery({
         $id: Now.ID['t1_query_internal_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${internalApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t1_validate_internal_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: internalResult.first_record,
         fieldValues: `app=${internalApp.first_record}`,
         assert: 'record_validated',
@@ -133,7 +133,7 @@ Test({
 
     atf.server.log({
         $id: Now.ID['t1_log_note'],
-        log: 'Manually confirm no x_335329_iscan_result row exists for a store-installed app on this run — see IscanAppSelector.getCustomApps() for the source/vendor filter under test.',
+        log: 'Manually confirm no x_nold_iscan_result row exists for a store-installed app on this run — see IscanAppSelector.getCustomApps() for the source/vendor filter under test.',
     })
 })
 
@@ -146,17 +146,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t2_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t2_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t2_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -168,18 +168,18 @@ Test({
 
     atf.form.openExistingRecord({
         $id: Now.ID['t2_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t2_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t2_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t2_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t2_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -188,12 +188,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t2_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t2_validate_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'scan_mode_used=full_access^table_countGREATER THAN 0',
         assert: 'record_validated',
@@ -201,12 +201,12 @@ Test({
 
     const tableProfile = atf.server.recordQuery({
         $id: Now.ID['t2_query_table_profile'],
-        table: 'x_335329_iscan_table',
+        table: 'x_nold_iscan_table',
         fieldValues: `result=${result.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t2_validate_table_profile'],
-        table: 'x_335329_iscan_table',
+        table: 'x_nold_iscan_table',
         recordId: tableProfile.first_record,
         fieldValues: 'row_countISNOTEMPTY^field_countGREATER THAN 0',
         assert: 'record_validated',
@@ -227,7 +227,7 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t4_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     // Role-minimal user: holds ONLY the scanner role, never admin/
@@ -247,12 +247,12 @@ Test({
 
     atf.form.openNewForm({
         $id: Now.ID['t4_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t4_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -264,18 +264,18 @@ Test({
 
     atf.form.openExistingRecord({
         $id: Now.ID['t4_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t4_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t4_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t4_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t4_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -284,7 +284,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t4_validate_run_status'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'status=complete',
         assert: 'record_validated',
@@ -292,12 +292,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t4_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t4_validate_fallback_mode'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'scan_mode_used=app_files_fallback',
         assert: 'record_validated',
@@ -305,12 +305,12 @@ Test({
 
     const tableRow = atf.server.recordQuery({
         $id: Now.ID['t4_query_table_rows'],
-        table: 'x_335329_iscan_table',
+        table: 'x_nold_iscan_table',
         fieldValues: `result=${result.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t4_validate_no_table_rows'],
-        table: 'x_335329_iscan_table',
+        table: 'x_nold_iscan_table',
         recordId: tableRow.first_record,
         fieldValues: `result=${result.first_record}`,
         assert: 'record_not_found',
@@ -326,17 +326,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t6_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t6_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t6_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -347,18 +347,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t6_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t6_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t6_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t6_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t6_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -367,12 +367,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t6_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t6_validate_summary_populated'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'summary_textISNOTEMPTY',
         assert: 'record_validated',
@@ -393,17 +393,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t7_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t7_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t7_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -414,18 +414,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t7_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t7_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t7_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t7_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t7_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -434,7 +434,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t7_validate_run_complete'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'status=complete',
         assert: 'record_validated',
@@ -442,12 +442,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t7_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t7_validate_structured_fields'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'table_countISNOTEMPTY^scan_mode_usedISNOTEMPTY',
         assert: 'record_validated',
@@ -455,7 +455,7 @@ Test({
 
     atf.server.log({
         $id: Now.ID['t7_log_note'],
-        log: 'This test requires x_335329_iscan.genai_enabled=false (or no GenAI Controller) on the target instance. With that precondition met, expect summary_text empty/null on the result above while all structured count fields still populate.',
+        log: 'This test requires x_nold_iscan.genai_enabled=false (or no GenAI Controller) on the target instance. With that precondition met, expect summary_text empty/null on the result above while all structured count fields still populate.',
     })
 })
 
@@ -467,19 +467,19 @@ Test({
 }, (atf) => {
     const result = atf.server.recordQuery({
         $id: Now.ID['t8_query_any_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: 'ORDERBYDESCsys_created_on',
     })
 
     atf.form.openExistingRecord({
         $id: Now.ID['t8_open_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         formUI: 'standard_ui',
     })
     atf.form.fieldStateValidation({
         $id: Now.ID['t8_validate_visible_fields'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         visible: ['app', 'scan_date', 'scan_mode_used', 'table_count', 'business_rule_count', 'script_include_count'],
         notVisible: [],
         readOnly: [],
@@ -491,7 +491,7 @@ Test({
 
     atf.server.log({
         $id: Now.ID['t8_log_note'],
-        log: 'ATF has no dedicated list-view assertion category; manually confirm the x_335329_iscan_result list view surfaces app/scan_date/scan_mode/table_count/automation_count columns, and that the form\'s related list of x_335329_iscan_table child records renders (see src/fluent/related-lists.now.ts).',
+        log: 'ATF has no dedicated list-view assertion category; manually confirm the x_nold_iscan_result list view surfaces app/scan_date/scan_mode/table_count/automation_count columns, and that the form\'s related list of x_nold_iscan_table child records renders (see src/fluent/related-lists.now.ts).',
     })
 })
 
@@ -503,24 +503,24 @@ Test({
 }, (atf) => {
     const before = atf.server.recordQuery({
         $id: Now.ID['t9_snapshot_before'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: 'ORDERBYDESCsys_created_on',
     })
 
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t9_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t9_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t9_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -531,18 +531,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t9_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t9_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t9_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t9_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t9_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -554,7 +554,7 @@ Test({
     // scanned app's row-level tables were mutated by the run above.
     atf.server.recordValidation({
         $id: Now.ID['t9_validate_run_complete'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'status=complete',
         assert: 'record_validated',
@@ -562,7 +562,7 @@ Test({
 
     atf.server.log({
         $id: Now.ID['t9_log_note'],
-        log: `Compare sys_created_on/sys_updated_on on the scanned app's own tables (x_335329_iscan_run, x_335329_iscan_result, x_335329_iscan_table) against the pre-scan snapshot record ${before.first_record} — expect the only new/changed rows to be under x_335329_iscan_*; the scan must never write to a table it merely profiles.`,
+        log: `Compare sys_created_on/sys_updated_on on the scanned app's own tables (x_nold_iscan_run, x_nold_iscan_result, x_nold_iscan_table) against the pre-scan snapshot record ${before.first_record} — expect the only new/changed rows to be under x_nold_iscan_*; the scan must never write to a table it merely profiles.`,
     })
 })
 
@@ -575,7 +575,7 @@ Test({
     const appA = atf.server.recordQuery({
         $id: Now.ID['t10_query_app_a'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
     const appB = atf.server.recordQuery({
         $id: Now.ID['t10_query_app_b'],
@@ -585,12 +585,12 @@ Test({
 
     atf.form.openNewForm({
         $id: Now.ID['t10_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t10_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: `${appA.first_record},${appB.first_record}` },
         formUI: 'standard_ui',
     })
@@ -601,18 +601,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t10_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t10_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t10_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t10_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t10_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -621,7 +621,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t10_validate_app_count'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'app_count=2',
         assert: 'record_validated',
@@ -629,12 +629,12 @@ Test({
 
     const resultA = atf.server.recordQuery({
         $id: Now.ID['t10_query_result_a'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${appA.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t10_validate_result_a'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: resultA.first_record,
         fieldValues: `app=${appA.first_record}`,
         assert: 'record_validated',
@@ -642,12 +642,12 @@ Test({
 
     const resultB = atf.server.recordQuery({
         $id: Now.ID['t10_query_result_b'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${appB.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t10_validate_result_b'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: resultB.first_record,
         fieldValues: `app=${appB.first_record}`,
         assert: 'record_validated',
@@ -663,17 +663,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t11_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t11_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t11_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -684,18 +684,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t11_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t11_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t11_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t11_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t11_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -705,11 +705,11 @@ Test({
     const t11_click_download_run_report_action = atf.server.recordQuery({
         $id: Now.ID['t11_query_download_run_report_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=download_run_report',
+        fieldValues: 'table=x_nold_iscan_run^action_name=download_run_report',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t11_click_download_run_report'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t11_click_download_run_report_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -718,7 +718,7 @@ Test({
     const runAttachment = atf.server.recordQuery({
         $id: Now.ID['t11_query_run_attachment'],
         table: 'sys_attachment',
-        fieldValues: `table_name=x_335329_iscan_run^table_sys_id=${run.record_id}`,
+        fieldValues: `table_name=x_nold_iscan_run^table_sys_id=${run.record_id}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t11_validate_run_attachment'],
@@ -730,23 +730,23 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t11_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t11_open_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         formUI: 'standard_ui',
     })
     const t11_click_download_result_report_action = atf.server.recordQuery({
         $id: Now.ID['t11_query_download_result_report_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_result^action_name=download_result_report',
+        fieldValues: 'table=x_nold_iscan_result^action_name=download_result_report',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t11_click_download_result_report'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         uiAction: t11_click_download_result_report_action.first_record,
         actionType: 'ui_action',
         assert: '',
@@ -755,7 +755,7 @@ Test({
     const resultAttachment = atf.server.recordQuery({
         $id: Now.ID['t11_query_result_attachment'],
         table: 'sys_attachment',
-        fieldValues: `table_name=x_335329_iscan_result^table_sys_id=${result.first_record}`,
+        fieldValues: `table_name=x_nold_iscan_result^table_sys_id=${result.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t11_validate_result_attachment'],
@@ -767,7 +767,7 @@ Test({
 
     atf.server.log({
         $id: Now.ID['t11_log_note'],
-        log: 'ATF cannot inspect PDF binary content — manually confirm the run report links to result.record_id and the result report links to each x_335329_iscan_table record, and that links open in a new tab.',
+        log: 'ATF cannot inspect PDF binary content — manually confirm the run report links to result.record_id and the result report links to each x_nold_iscan_table record, and that links open in a new tab.',
     })
 })
 
@@ -780,17 +780,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t12_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t12_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t12_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -801,18 +801,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t12_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t12_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t12_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t12_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t12_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -821,12 +821,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t12_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t12_validate_llm_context'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'llm_contextLIKE## 1. Application identity^llm_contextLIKE## 2. Data model^llm_contextLIKE## 3. Automation surface^llm_contextLIKE## 4. Integration points^llm_contextLIKE## 5. What to do with this^llm_contextLIKEScan mode: full_access',
         assert: 'record_validated',
@@ -847,17 +847,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t13_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t13_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t13_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -868,18 +868,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t13_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t13_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t13_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t13_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t13_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -888,14 +888,14 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t13_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     // IscanScanOrchestrator (the SI itself) is a known, always-present
     // script include owned by this app — a reliable name to look for.
     atf.server.recordValidation({
         $id: Now.ID['t13_validate_names_present'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'llm_contextLIKE## 3. Automation surface^llm_contextLIKEIscanScanOrchestrator',
         assert: 'record_validated',
@@ -916,7 +916,7 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t14_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.server.createUser({
@@ -931,12 +931,12 @@ Test({
 
     atf.form.openNewForm({
         $id: Now.ID['t14_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t14_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -947,18 +947,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t14_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t14_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t14_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t14_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t14_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -967,12 +967,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t14_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t14_validate_fallback_context'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'scan_mode_used=app_files_fallback^llm_contextLIKEScan mode: app_files_fallback^llm_contextNOT LIKETables owned by this application: 0',
         assert: 'record_validated',
@@ -993,17 +993,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t15_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t15_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t15_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -1014,18 +1014,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t15_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t15_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t15_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t15_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t15_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1034,12 +1034,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t15_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t15_validate_counts_populated'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'business_rule_countISNOTEMPTY^script_include_countISNOTEMPTY^flow_countISNOTEMPTY^acl_countISNOTEMPTY^ui_action_countISNOTEMPTY^integration_countISNOTEMPTY',
         assert: 'record_validated',
@@ -1060,17 +1060,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t16_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t16_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t16_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -1081,18 +1081,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t16_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t16_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t16_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t16_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t16_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1101,7 +1101,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t16_validate_run_complete'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'status=complete',
         assert: 'record_validated',
@@ -1109,12 +1109,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t16_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${targetApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t16_validate_context_populated'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: 'llm_contextISNOTEMPTY',
         assert: 'record_validated',
@@ -1122,7 +1122,7 @@ Test({
 
     atf.server.log({
         $id: Now.ID['t16_log_note'],
-        log: 'This test requires x_335329_iscan.genai_enabled=false (or no GenAI Controller) on the target instance. With that precondition met, expect summary_text empty/null on the result above while llm_context is still fully populated.',
+        log: 'This test requires x_nold_iscan.genai_enabled=false (or no GenAI Controller) on the target instance. With that precondition met, expect summary_text empty/null on the result above while llm_context is still fully populated.',
     })
 })
 
@@ -1134,24 +1134,24 @@ Test({
 }, (atf) => {
     const result = atf.server.recordQuery({
         $id: Now.ID['t17_query_result_with_context'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: 'llm_contextISNOTEMPTY^ORDERBYDESCsys_created_on',
     })
 
     atf.form.openExistingRecord({
         $id: Now.ID['t17_open_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         formUI: 'standard_ui',
     })
     const t17_click_copy_llm_context_action = atf.server.recordQuery({
         $id: Now.ID['t17_query_copy_llm_context_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_result^action_name=copy_llm_context',
+        fieldValues: 'table=x_nold_iscan_result^action_name=copy_llm_context',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t17_click_copy_llm_context'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         uiAction: t17_click_copy_llm_context_action.first_record,
         actionType: 'ui_action',
         assert: '',
@@ -1173,17 +1173,17 @@ Test({
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t18_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t18_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t18_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -1194,18 +1194,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t18_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t18_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t18_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t18_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t18_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1214,7 +1214,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t18_validate_scan_findings'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'scan_findingsISNOTEMPTY',
         assert: 'record_validated',
@@ -1222,7 +1222,7 @@ Test({
 
     atf.form.fieldStateValidation({
         $id: Now.ID['t18_validate_activity_visible'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         visible: ['scan_findings', 'comments'],
         notVisible: [],
         readOnly: [],
@@ -1241,13 +1241,13 @@ Test({
 Test({
     $id: Now.ID['atf_v2_scanner_role_can_write_comments'],
     name: 'v2: scanner role can write the comments journal field',
-    description: 'A non-admin user holding only x_335329_iscan.scanner can still write journal comments entries during a scan.',
+    description: 'A non-admin user holding only x_nold_iscan.scanner can still write journal comments entries during a scan.',
     failOnServerError: true,
 }, (atf) => {
     const targetApp = atf.server.recordQuery({
         $id: Now.ID['t19_query_target_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.server.createUser({
@@ -1262,12 +1262,12 @@ Test({
 
     atf.form.openNewForm({
         $id: Now.ID['t19_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t19_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: targetApp.first_record },
         formUI: 'standard_ui',
     })
@@ -1278,18 +1278,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t19_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t19_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t19_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t19_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t19_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1298,7 +1298,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t19_validate_scan_findings'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'scan_findingsISNOTEMPTY',
         assert: 'record_validated',
@@ -1306,7 +1306,7 @@ Test({
 
     atf.server.log({
         $id: Now.ID['t19_log_note'],
-        log: 'BUILD-TIME VERIFICATION: manually inspect the Activity stream on this run record — since x_335329_iscan_run does not extend task, if journal comments entries are silently missing here while scan_findings populated above, add an explicit field-level write ACL for comments and re-run this test.',
+        log: 'BUILD-TIME VERIFICATION: manually inspect the Activity stream on this run record — since x_nold_iscan_run does not extend task, if journal comments entries are silently missing here while scan_findings populated above, add an explicit field-level write ACL for comments and re-run this test.',
     })
 })
 
@@ -1319,7 +1319,7 @@ Test({
     const appA = atf.server.recordQuery({
         $id: Now.ID['t20_query_app_a'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
     const appB = atf.server.recordQuery({
         $id: Now.ID['t20_query_app_b'],
@@ -1332,12 +1332,12 @@ Test({
     // this to appA only (target_app wins whenever it's set).
     atf.form.openNewForm({
         $id: Now.ID['t20_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t20_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: appA.first_record, manual_app_list: appB.first_record },
         formUI: 'standard_ui',
     })
@@ -1348,18 +1348,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t20_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t20_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t20_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t20_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t20_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1368,7 +1368,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t20_validate_app_count'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'app_count=1',
         assert: 'record_validated',
@@ -1376,12 +1376,12 @@ Test({
 
     const resultA = atf.server.recordQuery({
         $id: Now.ID['t20_query_result_a'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${appA.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t20_validate_result_a_exists'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: resultA.first_record,
         fieldValues: `app=${appA.first_record}`,
         assert: 'record_validated',
@@ -1389,12 +1389,12 @@ Test({
 
     const resultB = atf.server.recordQuery({
         $id: Now.ID['t20_query_result_b'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${appB.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t20_validate_result_b_absent'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: resultB.first_record,
         fieldValues: `run=${run.record_id}^app=${appB.first_record}`,
         assert: 'record_not_found',
@@ -1410,7 +1410,7 @@ Test({
     const appA = atf.server.recordQuery({
         $id: Now.ID['t25_query_app_a'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
     const appB = atf.server.recordQuery({
         $id: Now.ID['t25_query_app_b'],
@@ -1420,12 +1420,12 @@ Test({
 
     atf.form.openNewForm({
         $id: Now.ID['t25_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t25_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'manual', target_app: `${appA.first_record},${appB.first_record}` },
         formUI: 'standard_ui',
     })
@@ -1436,18 +1436,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t25_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t25_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t25_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t25_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t25_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1456,7 +1456,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t25_validate_app_count'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'app_count=2',
         assert: 'record_validated',
@@ -1464,12 +1464,12 @@ Test({
 
     const resultA = atf.server.recordQuery({
         $id: Now.ID['t25_query_result_a'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${appA.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t25_validate_result_a'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: resultA.first_record,
         fieldValues: `app=${appA.first_record}`,
         assert: 'record_validated',
@@ -1477,12 +1477,12 @@ Test({
 
     const resultB = atf.server.recordQuery({
         $id: Now.ID['t25_query_result_b'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${appB.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t25_validate_result_b'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: resultB.first_record,
         fieldValues: `app=${appB.first_record}`,
         assert: 'record_validated',
@@ -1492,28 +1492,28 @@ Test({
 Test({
     $id: Now.ID['atf_single_table_owning_app_case'],
     name: 'Manual — Single Table: table owned by a custom app runs the full app tally',
-    description: 'Picking a table owned by this app (its own x_335329_iscan_run table) runs the full per-app tally against the owning app.',
+    description: 'Picking a table owned by this app (its own x_nold_iscan_run table) runs the full per-app tally against the owning app.',
     failOnServerError: true,
 }, (atf) => {
     const targetTable = atf.server.recordQuery({
         $id: Now.ID['t21_query_target_table'],
         table: 'sys_db_object',
-        fieldValues: 'name=x_335329_iscan_run',
+        fieldValues: 'name=x_nold_iscan_run',
     })
     const owningApp = atf.server.recordQuery({
         $id: Now.ID['t21_query_owning_app'],
         table: 'sys_app',
-        fieldValues: 'scope=x_335329_iscan',
+        fieldValues: 'scope=x_nold_iscan',
     })
 
     atf.form.openNewForm({
         $id: Now.ID['t21_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t21_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'single_table', target_table: targetTable.first_record },
         formUI: 'standard_ui',
     })
@@ -1524,18 +1524,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t21_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t21_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t21_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t21_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t21_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1544,12 +1544,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t21_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}^app=${owningApp.first_record}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t21_validate_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: `app=${owningApp.first_record}`,
         assert: 'record_validated',
@@ -1557,12 +1557,12 @@ Test({
 
     const tableProfile = atf.server.recordQuery({
         $id: Now.ID['t21_query_table_profile'],
-        table: 'x_335329_iscan_table',
-        fieldValues: `result=${result.first_record}^table_name=x_335329_iscan_run`,
+        table: 'x_nold_iscan_table',
+        fieldValues: `result=${result.first_record}^table_name=x_nold_iscan_run`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t21_validate_table_profile'],
-        table: 'x_335329_iscan_table',
+        table: 'x_nold_iscan_table',
         recordId: tableProfile.first_record,
         fieldValues: 'row_countISNOTEMPTY^field_countGREATER THAN 0^reference_field_listISNOTEMPTY',
         assert: 'record_validated',
@@ -1583,12 +1583,12 @@ Test({
 
     atf.form.openNewForm({
         $id: Now.ID['t22_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t22_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'single_table', target_table: targetTable.first_record },
         formUI: 'standard_ui',
     })
@@ -1599,18 +1599,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t22_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t22_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t22_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t22_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t22_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1619,7 +1619,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t22_validate_run_complete'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'status=complete^scan_findingsLIKEincident^scan_findingsLIKEno owning application',
         assert: 'record_validated',
@@ -1627,12 +1627,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t22_query_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t22_validate_no_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: `run=${run.record_id}`,
         assert: 'record_not_found',
@@ -1642,17 +1642,17 @@ Test({
 Test({
     $id: Now.ID['atf_modules_mode_profiles_instance_wide'],
     name: 'Modules mode: installed plugins profiled instance-wide',
-    description: 'Modules mode profiles sys_plugins instance-wide with one x_335329_iscan_module row per plugin and no result records.',
+    description: 'Modules mode profiles sys_plugins instance-wide with one x_nold_iscan_module row per plugin and no result records.',
     failOnServerError: true,
 }, (atf) => {
     atf.form.openNewForm({
         $id: Now.ID['t23_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t23_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'modules' },
         formUI: 'standard_ui',
     })
@@ -1663,18 +1663,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t23_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t23_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t23_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t23_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t23_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1683,7 +1683,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t23_validate_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'app_count=0^status=complete',
         assert: 'record_validated',
@@ -1691,12 +1691,12 @@ Test({
 
     const moduleRow = atf.server.recordQuery({
         $id: Now.ID['t23_query_module_row'],
-        table: 'x_335329_iscan_module',
+        table: 'x_nold_iscan_module',
         fieldValues: `run=${run.record_id}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t23_validate_module_row'],
-        table: 'x_335329_iscan_module',
+        table: 'x_nold_iscan_module',
         recordId: moduleRow.first_record,
         fieldValues: 'nameISNOTEMPTY^plugin_idISNOTEMPTY',
         assert: 'record_validated',
@@ -1704,12 +1704,12 @@ Test({
 
     const result = atf.server.recordQuery({
         $id: Now.ID['t23_query_result_absent'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         fieldValues: `run=${run.record_id}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t23_validate_no_result'],
-        table: 'x_335329_iscan_result',
+        table: 'x_nold_iscan_result',
         recordId: result.first_record,
         fieldValues: `run=${run.record_id}`,
         assert: 'record_not_found',
@@ -1717,7 +1717,7 @@ Test({
 
     atf.server.log({
         $id: Now.ID['t23_log_note'],
-        log: 'Manually compare the x_335329_iscan_module row count for this run against sys_plugins\' total row count on the instance, and spot-check active_flag/active_confirmed/status_mismatch on a few rows.',
+        log: 'Manually compare the x_nold_iscan_module row count for this run against sys_plugins\' total row count on the instance, and spot-check active_flag/active_confirmed/status_mismatch on a few rows.',
     })
 })
 
@@ -1727,7 +1727,7 @@ Test({
     description: 'A scanner-role-only user with no sys_plugins read access ends the run in error status with an explicit finding, never a silent zero-row complete.',
     failOnServerError: true,
 }, (atf) => {
-    // Role-minimal user: holds ONLY x_335329_iscan.scanner. Whether this
+    // Role-minimal user: holds ONLY x_nold_iscan.scanner. Whether this
     // user actually lacks sys_plugins read depends on the target
     // instance's own ACL configuration (createUser cannot author ACLs) —
     // verify against the real target instance per this test's precondition.
@@ -1743,12 +1743,12 @@ Test({
 
     atf.form.openNewForm({
         $id: Now.ID['t24_open_new_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         formUI: 'standard_ui',
     })
     atf.form.setFieldValue({
         $id: Now.ID['t24_set_fields'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         fieldValues: { scan_mode: 'modules' },
         formUI: 'standard_ui',
     })
@@ -1759,18 +1759,18 @@ Test({
     })
     atf.form.openExistingRecord({
         $id: Now.ID['t24_open_run'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         formUI: 'standard_ui',
     })
     const t24_click_run_scan_action = atf.server.recordQuery({
         $id: Now.ID['t24_query_run_scan_action'],
         table: 'sys_ui_action',
-        fieldValues: 'table=x_335329_iscan_run^action_name=run_scan',
+        fieldValues: 'table=x_nold_iscan_run^action_name=run_scan',
     })
     atf.form.clickUIAction({
         $id: Now.ID['t24_click_run_scan'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         uiAction: t24_click_run_scan_action.first_record,
         actionType: 'ui_action',
         assert: 'page_reloaded_or_redirected',
@@ -1779,7 +1779,7 @@ Test({
 
     atf.server.recordValidation({
         $id: Now.ID['t24_validate_error_status'],
-        table: 'x_335329_iscan_run',
+        table: 'x_nold_iscan_run',
         recordId: run.record_id,
         fieldValues: 'status=error^scan_findingsLIKEsys_plugins',
         assert: 'record_validated',
@@ -1787,12 +1787,12 @@ Test({
 
     const moduleRow = atf.server.recordQuery({
         $id: Now.ID['t24_query_module_row_absent'],
-        table: 'x_335329_iscan_module',
+        table: 'x_nold_iscan_module',
         fieldValues: `run=${run.record_id}`,
     })
     atf.server.recordValidation({
         $id: Now.ID['t24_validate_no_module_rows'],
-        table: 'x_335329_iscan_module',
+        table: 'x_nold_iscan_module',
         recordId: moduleRow.first_record,
         fieldValues: `run=${run.record_id}`,
         assert: 'record_not_found',

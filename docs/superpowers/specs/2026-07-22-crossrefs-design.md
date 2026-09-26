@@ -9,7 +9,7 @@ Counting, both already implemented.
 
 Today, `IscanTableScanner.profileTable()` (Counting sub-spec) already
 captures **outbound** references for free: `reference_field_list` on
-`x_335329_iscan_table` shows every `field->target_table` pair for fields on
+`x_nold_iscan_table` shows every `field->target_table` pair for fields on
 a table this app owns. What's missing is the reverse direction: for a table
 this app owns, which fields *elsewhere in the instance* — on tables owned by
 other apps, or by no app at all (global/OOB scopes) — have a reference
@@ -73,7 +73,7 @@ inside the method.
 
 ## Schema changes
 
-**`x_335329_iscan_table`** gains two columns, mirroring the existing
+**`x_nold_iscan_table`** gains two columns, mirroring the existing
 `dictionary_override_count`/`dictionary_override_list` pattern exactly:
 
 - `inbound_reference_count` (Integer, default 0)
@@ -84,19 +84,19 @@ These give an at-a-glance count/list on the table-profile form without
 requiring a child-table query, same rationale as the dictionary-override
 pair.
 
-**New table `x_335329_iscan_crossref`** — one row per inbound-referencing
+**New table `x_nold_iscan_crossref`** — one row per inbound-referencing
 field, full per-row detail (including the resolved app) for the Report
 sub-spec to query/group/filter later:
 
 | Column | Type | Notes |
 |---|---|---|
-| `table` | Reference → `x_335329_iscan_table` | mandatory |
+| `table` | Reference → `x_nold_iscan_table` | mandatory |
 | `referencing_table` | String (maxLength 80) | the table that holds the referencing field |
 | `referencing_field` | String (maxLength 80) | the field name |
 | `referencing_app` | Reference → `sys_app` | blank when the referencing table has no owning app |
 | `referencing_scope` | String | `sys_scope` sys_id of the referencing table, always set |
 
-Indexed on `table` (same pattern as `x_335329_iscan_table`'s index on
+Indexed on `table` (same pattern as `x_nold_iscan_table`'s index on
 `result`).
 
 ## Orchestrator wiring
@@ -108,17 +108,17 @@ array) and `inbound_reference_count` onto each table object — same pattern
 already used for `dictionary_overrides`/`dictionary_override_count`.
 
 `_writeTableProfiles(resultSysId, tables)` writes the two new
-`x_335329_iscan_table` columns (count + comma-joined `field(table)` list,
+`x_nold_iscan_table` columns (count + comma-joined `field(table)` list,
 built the same way `dictionary_override_list` is built today), then — after
 the table row's `insert()` returns its sys_id — loops
-`tables[i].inbound_references` and inserts one `x_335329_iscan_crossref`
+`tables[i].inbound_references` and inserts one `x_nold_iscan_crossref`
 row per entry, setting `table` to that sys_id.
 
 `_scanOneTable` (the Single Table mode, no-owning-app fallback path) also
 gets the inbound-reference count folded into its `run.activities` log
 line, consistent with how it already reports `dictionary_override_count` —
-no `x_335329_iscan_crossref` rows are written for this fallback path since
-(same as today) no `x_335329_iscan_table` row exists to reference.
+no `x_nold_iscan_crossref` rows are written for this fallback path since
+(same as today) no `x_nold_iscan_table` row exists to reference.
 
 ## Out of scope for this sub-spec
 

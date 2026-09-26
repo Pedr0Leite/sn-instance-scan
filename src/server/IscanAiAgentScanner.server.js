@@ -17,7 +17,7 @@
  * Layer 1 (native_platform) + Layer 2 (custom_shadow / outbound REST) are
  * mandatory — always run, cheap (small tables / one indexed-ish query).
  * Layer 3 (script keyword scan) is gated behind
- * x_335329_iscan.include_ai_agent_keyword_scan (default false) — a CONTAINS
+ * x_nold_iscan.include_ai_agent_keyword_scan (default false) — a CONTAINS
  * query on the `script` field across every row of 4 automation tables,
  * instance-wide, is real per-instance perf cost, same rationale as
  * Counting's include_extended_counts_on_full_scan. Layers 4 (flow_designer)
@@ -149,7 +149,7 @@ IscanAiAgentScanner.prototype = {
 	/**
 	 * Layer 3: script keyword scan across Business Rules, Script Includes,
 	 * Scheduled Jobs, and UI Actions — gated behind
-	 * x_335329_iscan.include_ai_agent_keyword_scan (default false). Real
+	 * x_nold_iscan.include_ai_agent_keyword_scan (default false). Real
 	 * perf cost: a CONTAINS query on the `script` field across every row
 	 * of 4 tables, instance-wide. Always needs_review — a keyword match in
 	 * a script body is a heuristic, never structural proof.

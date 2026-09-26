@@ -10,13 +10,13 @@ import {
     ListColumn,
 } from '@servicenow/sdk/core'
 
-// Named-scope tables must start with the scope prefix (x_335329_iscan_).
+// Named-scope tables must start with the scope prefix (x_nold_iscan_).
 // Since these are new tables this scope owns, columns need no additional
 // prefix — only columns added to a table this scope doesn't own would
 // need one (see the table-guide topic in `now-sdk explain`).
 
-export const x_335329_iscan_run = Table({
-    name: 'x_335329_iscan_run',
+export const x_nold_iscan_run = Table({
+    name: 'x_nold_iscan_run',
     label: 'Instance Scan Run',
     display: 'requested_by',
     schema: {
@@ -123,14 +123,14 @@ export const x_335329_iscan_run = Table({
     audit: true,
 })
 
-export const x_335329_iscan_result = Table({
-    name: 'x_335329_iscan_result',
+export const x_nold_iscan_result = Table({
+    name: 'x_nold_iscan_result',
     label: 'Instance Scan Result',
     display: 'app',
     schema: {
         run: ReferenceColumn({
             label: 'Run',
-            referenceTable: 'x_335329_iscan_run',
+            referenceTable: 'x_nold_iscan_run',
             mandatory: true,
         }),
         app: ReferenceColumn({
@@ -180,7 +180,7 @@ export const x_335329_iscan_result = Table({
         data_policy_count: IntegerColumn({ label: 'Data Policy Count', default: 0 }),
         inbound_email_action_count: IntegerColumn({ label: 'Inbound Email Action Count', default: 0 }),
         // Group B — dedicated per-app queries, gated off by default for
-        // full-instance scans (see x_335329_iscan.include_extended_counts_on_full_scan
+        // full-instance scans (see x_nold_iscan.include_extended_counts_on_full_scan
         // and IscanScanOrchestrator._scanOneApp). Zero when not run, not
         // "unknown" — a 0 for a mode/property combo that skips Group B
         // is expected, not a bug.
@@ -248,14 +248,14 @@ export const x_335329_iscan_result = Table({
     ],
 })
 
-export const x_335329_iscan_table = Table({
-    name: 'x_335329_iscan_table',
+export const x_nold_iscan_table = Table({
+    name: 'x_nold_iscan_table',
     label: 'Instance Scan Table Profile',
     display: 'table_name',
     schema: {
         result: ReferenceColumn({
             label: 'Result',
-            referenceTable: 'x_335329_iscan_result',
+            referenceTable: 'x_nold_iscan_result',
             mandatory: true,
         }),
         table_name: StringColumn({ label: 'Table Name', maxLength: 80 }),
@@ -307,7 +307,7 @@ export const x_335329_iscan_table = Table({
 // Base-system (global/OOB) table that a customer scope has customized —
 // custom fields and/or config artifacts (business rules, client scripts,
 // UI policies, ACLs) targeting a table this app doesn't own. Distinct
-// from x_335329_iscan_table, which profiles tables OWNED by a scanned
+// from x_nold_iscan_table, which profiles tables OWNED by a scanned
 // app. Two distinct write paths feed this table, so it gets rows in
 // EVERY scan mode, not just one:
 //   - Per-app (result set): IscanTableScanner.findAppCustomizationsOnGlobalTables()
@@ -318,23 +318,23 @@ export const x_335329_iscan_table = Table({
 //     runs for the table-only fallback path (full mode's tableOnlyTables,
 //     single_table's no-owning-app case) — what customizations (from ANY
 //     scope) exist on THIS specific OOB table being profiled directly?
-export const x_335329_iscan_global_customization = Table({
-    name: 'x_335329_iscan_global_customization',
+export const x_nold_iscan_global_customization = Table({
+    name: 'x_nold_iscan_global_customization',
     label: 'Instance Scan Global Customization',
     display: 'table_name',
     schema: {
         run: ReferenceColumn({
             label: 'Run',
-            referenceTable: 'x_335329_iscan_run',
+            referenceTable: 'x_nold_iscan_run',
             mandatory: true,
         }),
         // Blank for the per-table fallback path (no result record exists
         // there) — set for the per-app path so the Result report can
         // scope this app's own findings. Blank is expected, not a bug —
-        // same precedent as referencing_app on x_335329_iscan_crossref.
+        // same precedent as referencing_app on x_nold_iscan_crossref.
         result: ReferenceColumn({
             label: 'Result',
-            referenceTable: 'x_335329_iscan_result',
+            referenceTable: 'x_nold_iscan_result',
         }),
         table_name: StringColumn({ label: 'Table Name', maxLength: 80 }),
         custom_field_count: IntegerColumn({ label: 'Custom Field Count', default: 0 }),
@@ -360,15 +360,15 @@ export const x_335329_iscan_global_customization = Table({
 // One row per installed plugin/module (sys_plugins), written only by
 // 'modules' scan mode. Instance-wide — no owning app, so this is keyed
 // directly off `run` (no `result`), same precedent as
-// x_335329_iscan_global_customization's no-owning-app rows.
-export const x_335329_iscan_module = Table({
-    name: 'x_335329_iscan_module',
+// x_nold_iscan_global_customization's no-owning-app rows.
+export const x_nold_iscan_module = Table({
+    name: 'x_nold_iscan_module',
     label: 'Instance Scan Module',
     display: 'name',
     schema: {
         run: ReferenceColumn({
             label: 'Run',
-            referenceTable: 'x_335329_iscan_run',
+            referenceTable: 'x_nold_iscan_run',
             mandatory: true,
         }),
         name: StringColumn({ label: 'Name', maxLength: 200 }),
@@ -392,16 +392,16 @@ export const x_335329_iscan_module = Table({
 
 // One row per AI agent/tool/credential finding, written only by
 // 'ai_agents' scan mode. Instance-wide — no owning app, same run-keyed
-// (no `result`) precedent as x_335329_iscan_module above. See
+// (no `result`) precedent as x_nold_iscan_module above. See
 // IscanAiAgentScanner for the 5 detection layers this feeds from.
-export const x_335329_iscan_ai_agent = Table({
-    name: 'x_335329_iscan_ai_agent',
+export const x_nold_iscan_ai_agent = Table({
+    name: 'x_nold_iscan_ai_agent',
     label: 'Instance Scan AI Agent Finding',
     display: 'name',
     schema: {
         run: ReferenceColumn({
             label: 'Run',
-            referenceTable: 'x_335329_iscan_run',
+            referenceTable: 'x_nold_iscan_run',
             mandatory: true,
         }),
         layer: ChoiceColumn({
@@ -435,14 +435,14 @@ export const x_335329_iscan_ai_agent = Table({
     ],
 })
 
-export const x_335329_iscan_crossref = Table({
-    name: 'x_335329_iscan_crossref',
+export const x_nold_iscan_crossref = Table({
+    name: 'x_nold_iscan_crossref',
     label: 'Instance Scan Cross-Reference',
     display: 'referencing_table',
     schema: {
         table: ReferenceColumn({
             label: 'Table',
-            referenceTable: 'x_335329_iscan_table',
+            referenceTable: 'x_nold_iscan_table',
             mandatory: true,
         }),
         referencing_table: StringColumn({ label: 'Referencing Table', maxLength: 80 }),

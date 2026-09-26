@@ -2,7 +2,7 @@ import { Property } from '@servicenow/sdk/core'
 
 export const customScopePrefixProperty = Property({
     $id: Now.ID['sn_inst_scan_custom_scope_prefix_property'],
-    name: 'x_335329_iscan.custom_scope_prefix',
+    name: 'x_nold_iscan.custom_scope_prefix',
     type: 'string',
     value: 'x_',
     description: 'Prefix used to identify custom-scoped applications in the custom-only scan mode. Read via gs.getProperty(), never hardcoded.',
@@ -10,7 +10,7 @@ export const customScopePrefixProperty = Property({
 
 export const rowCountTimeoutProperty = Property({
     $id: Now.ID['sn_inst_scan_row_count_timeout_property'],
-    name: 'x_335329_iscan.row_count_timeout_ms',
+    name: 'x_nold_iscan.row_count_timeout_ms',
     type: 'integer',
     value: '5000',
     description: 'Safety threshold for GlideAggregate row-count queries on very large tables.',
@@ -18,7 +18,7 @@ export const rowCountTimeoutProperty = Property({
 
 export const genaiEnabledProperty = Property({
     $id: Now.ID['sn_inst_scan_genai_enabled_property'],
-    name: 'x_335329_iscan.genai_enabled',
+    name: 'x_nold_iscan.genai_enabled',
     type: 'boolean',
     value: 'true',
     description: 'Master switch for GenAI summary generation. Auto-disables gracefully if the Generative AI Controller API is absent on the instance, regardless of this value.',
@@ -26,7 +26,7 @@ export const genaiEnabledProperty = Property({
 
 export const genaiMaxInputCharsProperty = Property({
     $id: Now.ID['sn_inst_scan_genai_max_input_chars_property'],
-    name: 'x_335329_iscan.genai_max_input_chars',
+    name: 'x_nold_iscan.genai_max_input_chars',
     type: 'integer',
     value: '20000',
     description:
@@ -35,7 +35,7 @@ export const genaiMaxInputCharsProperty = Property({
 
 export const includeExtendedCountsOnFullScanProperty = Property({
     $id: Now.ID['sn_inst_scan_include_extended_counts_on_full_scan_property'],
-    name: 'x_335329_iscan.include_extended_counts_on_full_scan',
+    name: 'x_nold_iscan.include_extended_counts_on_full_scan',
     type: 'boolean',
     value: 'false',
     description:
@@ -44,7 +44,7 @@ export const includeExtendedCountsOnFullScanProperty = Property({
 
 export const includeAiAgentKeywordScanProperty = Property({
     $id: Now.ID['sn_inst_scan_include_ai_agent_keyword_scan_property'],
-    name: 'x_335329_iscan.include_ai_agent_keyword_scan',
+    name: 'x_nold_iscan.include_ai_agent_keyword_scan',
     type: 'boolean',
     value: 'false',
     description:

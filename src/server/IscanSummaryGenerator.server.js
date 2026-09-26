@@ -205,8 +205,8 @@ IscanSummaryGenerator.prototype = {
 	 * @returns {String|null}
 	 */
 	generate: function(runFacts) {
-		if (gs.getProperty('x_335329_iscan.genai_enabled', 'true') !== 'true') {
-			gs.info('IscanSummaryGenerator.generate: skipped, x_335329_iscan.genai_enabled is false');
+		if (gs.getProperty('x_nold_iscan.genai_enabled', 'true') !== 'true') {
+			gs.info('IscanSummaryGenerator.generate: skipped, x_nold_iscan.genai_enabled is false');
 			return null;
 		}
 		if (!this._isGenAIControllerAvailable()) {
@@ -219,7 +219,7 @@ IscanSummaryGenerator.prototype = {
 		// GenAI Controller's real input ceiling is instance- and
 		// model-dependent, so it's a property rather than a constant —
 		// verify the actual limit on the target instance and tune
-		// x_335329_iscan.genai_max_input_chars to match.
+		// x_nold_iscan.genai_max_input_chars to match.
 		//
 		// Only the GenAI *input* is truncated. The persisted llm_context
 		// field keeps the full-length text regardless, since that's what
@@ -255,7 +255,7 @@ IscanSummaryGenerator.prototype = {
 	 * @returns {String}
 	 */
 	_truncateForGenAI: function(prompt) {
-		var maxChars = parseInt(gs.getProperty('x_335329_iscan.genai_max_input_chars', '20000'), 10);
+		var maxChars = parseInt(gs.getProperty('x_nold_iscan.genai_max_input_chars', '20000'), 10);
 		if (isNaN(maxChars) || maxChars <= 0 || prompt.length <= maxChars) {
 			return prompt;
 		}

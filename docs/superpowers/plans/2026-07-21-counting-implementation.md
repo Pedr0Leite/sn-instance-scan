@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Read-only app: no script may write to a scanned table, only to `x_335329_iscan_*` tables.
+- Read-only app: no script may write to a scanned table, only to `x_nold_iscan_*` tables.
 - No elevated privilege; `canAccessMetadata()` is a deterministic gate checked BEFORE querying, never a try/catch fallback.
 - `GlideAggregate` for row counts, never `GlideRecord.getRowCount()`.
 - No hardcoded sys_ids; instance-specific config goes through `gs.getProperty()`.
@@ -24,15 +24,15 @@
 ### Task 1: Schema — 22 result counts, 2 table-profile columns, 1 property
 
 **Files:**
-- Modify: `src/fluent/tables.now.ts` (both `x_335329_iscan_result` and `x_335329_iscan_table` Table definitions)
+- Modify: `src/fluent/tables.now.ts` (both `x_nold_iscan_result` and `x_nold_iscan_table` Table definitions)
 - Modify: `src/fluent/properties.now.ts`
 
 **Interfaces:**
-- Produces: 22 new `IntegerColumn`s on `x_335329_iscan_result` (see exact list below); 2 new columns on `x_335329_iscan_table` (`dictionary_override_count`, `dictionary_override_list`); new property `x_335329_iscan.include_extended_counts_on_full_scan`. Later tasks (2-5) read/write these by these exact names.
+- Produces: 22 new `IntegerColumn`s on `x_nold_iscan_result` (see exact list below); 2 new columns on `x_nold_iscan_table` (`dictionary_override_count`, `dictionary_override_list`); new property `x_nold_iscan.include_extended_counts_on_full_scan`. Later tasks (2-5) read/write these by these exact names.
 
-- [ ] **Step 1: Add 22 `IntegerColumn`s to `x_335329_iscan_result`**
+- [ ] **Step 1: Add 22 `IntegerColumn`s to `x_nold_iscan_result`**
 
-In `src/fluent/tables.now.ts`, inside the `x_335329_iscan_result` Table's `schema` object, immediately after the existing `integration_count: IntegerColumn({...})` column, add:
+In `src/fluent/tables.now.ts`, inside the `x_nold_iscan_result` Table's `schema` object, immediately after the existing `integration_count: IntegerColumn({...})` column, add:
 
 ```typescript
         // Group A — folded into IscanAppFilesScanner's existing single
@@ -54,7 +54,7 @@ In `src/fluent/tables.now.ts`, inside the `x_335329_iscan_result` Table's `schem
         data_policy_count: IntegerColumn({ label: 'Data Policy Count', default: 0 }),
         inbound_email_action_count: IntegerColumn({ label: 'Inbound Email Action Count', default: 0 }),
         // Group B — dedicated per-app queries, gated off by default for
-        // full-instance scans (see x_335329_iscan.include_extended_counts_on_full_scan
+        // full-instance scans (see x_nold_iscan.include_extended_counts_on_full_scan
         // and IscanScanOrchestrator._scanOneApp). Zero when not run, not
         // "unknown" — a 0 for a mode/property combo that skips Group B
         // is expected, not a bug.
@@ -67,9 +67,9 @@ In `src/fluent/tables.now.ts`, inside the `x_335329_iscan_result` Table's `schem
         flow_action_count: IntegerColumn({ label: 'Flow Designer Action Count', default: 0 }),
 ```
 
-- [ ] **Step 2: Add 2 columns to `x_335329_iscan_table`**
+- [ ] **Step 2: Add 2 columns to `x_nold_iscan_table`**
 
-In the same file, inside the `x_335329_iscan_table` Table's `schema` object, immediately after the existing `reference_field_list: StringColumn({...})` column, add:
+In the same file, inside the `x_nold_iscan_table` Table's `schema` object, immediately after the existing `reference_field_list: StringColumn({...})` column, add:
 
 ```typescript
         // Dictionary override: a field on this table whose OWN sys_scope
@@ -90,7 +90,7 @@ In `src/fluent/properties.now.ts`, after the existing `genaiMaxInputCharsPropert
 ```typescript
 export const includeExtendedCountsOnFullScanProperty = Property({
     $id: Now.ID['sn_inst_scan_include_extended_counts_on_full_scan_property'],
-    name: 'x_335329_iscan.include_extended_counts_on_full_scan',
+    name: 'x_nold_iscan.include_extended_counts_on_full_scan',
     type: 'boolean',
     value: 'false',
     description:
@@ -625,7 +625,7 @@ git commit -m "Add dictionary override detection to IscanTableScanner.profileTab
 - Modify: `src/server/IscanScanOrchestrator.server.js`
 
 **Interfaces:**
-- Consumes: `IscanAppFilesScanner.scanApp(appScopeSysId, includeExtended)` (Task 3), `IscanTableScanner.profileTable(tableName)`'s new `dictionary_overrides`/`dictionary_override_count` keys (Task 4), `gs.getProperty('x_335329_iscan.include_extended_counts_on_full_scan', 'false')` (Task 1).
+- Consumes: `IscanAppFilesScanner.scanApp(appScopeSysId, includeExtended)` (Task 3), `IscanTableScanner.profileTable(tableName)`'s new `dictionary_overrides`/`dictionary_override_count` keys (Task 4), `gs.getProperty('x_nold_iscan.include_extended_counts_on_full_scan', 'false')` (Task 1).
 
 - [ ] **Step 1: Compute `includeExtended` and pass it to `scanApp`, extend `automationCounts`**
 
@@ -647,7 +647,7 @@ with:
 ```javascript
         var scanMode = run.getValue('scan_mode')
         var includeExtended =
-            scanMode !== 'full' || gs.getProperty('x_335329_iscan.include_extended_counts_on_full_scan', 'false') === 'true'
+            scanMode !== 'full' || gs.getProperty('x_nold_iscan.include_extended_counts_on_full_scan', 'false') === 'true'
         var files = this.appFilesScanner.scanApp(appSysId, includeExtended)
         var automationCounts = {
             business_rules: files.business_rules.length,
@@ -752,7 +752,7 @@ Replace:
 ```javascript
     _writeTableProfiles: function (resultSysId, tables) {
         for (var i = 0; i < tables.length; i++) {
-            var tableRow = new GlideRecord('x_335329_iscan_table')
+            var tableRow = new GlideRecord('x_nold_iscan_table')
             tableRow.initialize()
             tableRow.setValue('result', resultSysId)
             tableRow.setValue('table_name', tables[i].name)
@@ -779,7 +779,7 @@ with:
 ```javascript
     _writeTableProfiles: function (resultSysId, tables) {
         for (var i = 0; i < tables.length; i++) {
-            var tableRow = new GlideRecord('x_335329_iscan_table')
+            var tableRow = new GlideRecord('x_nold_iscan_table')
             tableRow.initialize()
             tableRow.setValue('result', resultSysId)
             tableRow.setValue('table_name', tables[i].name)

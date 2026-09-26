@@ -1,5 +1,5 @@
 /*
- * UI Action script: "Run Scan" (x_335329_iscan_run)
+ * UI Action script: "Run Scan" (x_nold_iscan_run)
  * Server-side (client.isClient: false) — runs in the same request as the
  * form submit, calling IscanScanOrchestrator directly. No GlideAjax, no
  * execute ACL, no client-callable script include involved: this removes
@@ -76,7 +76,7 @@
     // fields (`comments`) don't need mirroring here: the Activity stream
     // reads from sys_journal_field child records, not from a value held
     // on this in-memory GlideRecord.
-    var refreshed = new GlideRecord('x_335329_iscan_run')
+    var refreshed = new GlideRecord('x_nold_iscan_run')
     if (refreshed.get(current.getUniqueValue())) {
         current.setValue('status', refreshed.getValue('status'))
         current.setValue('scan_findings', refreshed.getValue('scan_findings'))

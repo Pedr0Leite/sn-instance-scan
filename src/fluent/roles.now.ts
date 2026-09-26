@@ -11,7 +11,7 @@ import { Role } from '@servicenow/sdk/core'
 // That directly contradicted the spec's "no elevated privilege" /
 // "never assume security_admin" constraints.
 export const scannerRole = Role({
-    name: 'x_335329_iscan.scanner',
+    name: 'x_nold_iscan.scanner',
     description: 'Can request instance scans and read scan results.',
     grantable: true,
 })

@@ -1,5 +1,5 @@
 /*
- * UI Action script: "Download Report" (x_335329_iscan_run)
+ * UI Action script: "Download Report" (x_nold_iscan_run)
  * Server-side (client.isClient: false) — runs in the same request as the
  * form submit, calling IscanReportGenerator directly. No GlideAjax, no
  * execute ACL, no client-callable round trip involved: this replaces the
@@ -18,7 +18,7 @@
  * generateRunReport() (unchanged, in IscanReportGenerator.server.js)
  * builds the report HTML, converts it via the platform's PDF Generation
  * Utilities plugin, and attaches the resulting PDF directly to the
- * x_335329_iscan_run record whose sys_id it's given — already the
+ * x_nold_iscan_run record whose sys_id it's given — already the
  * correct attachment target before this change; only the trigger
  * mechanism (GlideAjax vs. direct server call) is what's being fixed
  * here.

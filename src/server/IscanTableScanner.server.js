@@ -442,7 +442,7 @@ IscanTableScanner.prototype = {
 		var targetScope = this._getTableOwningScope(tableName);
 		var targetScopeLabel = targetScope ? this._scopeLabel(targetScope) : 'unknown scope';
 		gs.error('IscanTableScanner: cross-scope privilege denied reading table=' + tableName + ': ' + lastError);
-		return 'Cross-scope privilege required: x_335329_iscan -> ' + targetScopeLabel + '.' + tableName +
+		return 'Cross-scope privilege required: x_nold_iscan -> ' + targetScopeLabel + '.' + tableName +
 			' — request denied, an admin must approve a Restricted Caller Access record manually. (' + lastError + ')';
 	},
 

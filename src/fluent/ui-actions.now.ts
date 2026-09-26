@@ -3,7 +3,7 @@ import { scannerRole } from './roles.now'
 
 export const runScanUiAction = UiAction({
     $id: Now.ID['run_scan_ui_action'],
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     name: 'Run Scan',
     actionName: 'run_scan',
     active: true,
@@ -31,7 +31,7 @@ export const runScanUiAction = UiAction({
 
 export const downloadRunReportUiAction = UiAction({
     $id: Now.ID['download_run_report_ui_action'],
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     name: 'Download Report',
     actionName: 'download_run_report',
     active: true,
@@ -62,7 +62,7 @@ export const downloadRunReportUiAction = UiAction({
 
 export const copyLlmContextUiAction = UiAction({
     $id: Now.ID['copy_llm_context_ui_action'],
-    table: 'x_335329_iscan_result',
+    table: 'x_nold_iscan_result',
     name: 'Copy LLM Context',
     actionName: 'copy_llm_context',
     active: true,
@@ -88,7 +88,7 @@ export const copyLlmContextUiAction = UiAction({
 
 export const downloadResultReportUiAction = UiAction({
     $id: Now.ID['download_result_report_ui_action'],
-    table: 'x_335329_iscan_result',
+    table: 'x_nold_iscan_result',
     name: 'Download Report',
     actionName: 'download_result_report',
     active: true,

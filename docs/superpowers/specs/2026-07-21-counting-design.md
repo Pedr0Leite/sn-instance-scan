@@ -13,7 +13,7 @@ per-table "dictionary override" detection capability on
 
 ## 1. Schema
 
-**22 new `IntegerColumn`s on `x_335329_iscan_result`**, `snake_case_count`
+**22 new `IntegerColumn`s on `x_nold_iscan_result`**, `snake_case_count`
 naming, matching the existing `business_rule_count`/`script_include_count`
 pattern:
 
@@ -25,7 +25,7 @@ inbound_email_action) — 15 counts.
 Group B (catalog_variable, dashboard, pa_indicator, service_portal,
 service_portal_widget, choice, flow_action) — 7 counts.
 
-**2 new columns on `x_335329_iscan_table`** for dictionary overrides:
+**2 new columns on `x_nold_iscan_table`** for dictionary overrides:
 `dictionary_override_count` (Integer), `dictionary_override_list`
 (String, maxLength 4000, comma-joined `fieldname(scope)` pairs —
 mirrors the existing `reference_field_list` pattern).
@@ -139,8 +139,8 @@ verify against the real instance before implementation.
 gains a boolean parameter (default `true`). `IscanScanOrchestrator._scanOneApp`
 computes it from `run.getValue('scan_mode')`: `true` for
 `custom_only`/`manual`/`single_table`, `false` for `full` unless a new
-property overrides it — `x_335329_iscan.include_extended_counts_on_full_scan`
-(default `false`), following the existing `x_335329_iscan.*` property
+property overrides it — `x_nold_iscan.include_extended_counts_on_full_scan`
+(default `false`), following the existing `x_nold_iscan.*` property
 convention. Group A stays unconditional in all 4 modes (same query
 already running, no added cost).
 

@@ -5,7 +5,7 @@ Record({
     table: 'sys_ui_section',
     data: {
         header: false,
-        name: 'x_335329_iscan_run',
+        name: 'x_nold_iscan_run',
         sys_domain: 'global',
         sys_domain_path: '/',
         title: true,

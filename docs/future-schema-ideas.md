@@ -29,7 +29,7 @@ this specific table is profiled."
 **OOB / global-scope table case — considered relaxing the schema.**
 When a picked table's owning scope has no `sys_app` record (`global` and
 many platform scopes — e.g. `incident`, `sys_user`), the option was to
-make `x_335329_iscan_result.app` optional and generalize the scanners to
+make `x_nold_iscan_result.app` optional and generalize the scanners to
 tally by `sys_scope` directly instead of `sys_app`. Rejected as too
 invasive for this sub-spec: it touches the result table's mandatory
 reference and every scanner method's scope-lookup assumption, for a case
@@ -69,7 +69,7 @@ useful to a reader as a business-rule name list is).
 **Group B performance — considered always running all 7 dedicated
 queries in every scan mode, including `full`.** Decided: gate Group B
 off by default for `full` mode (on by default for `custom_only`/
-`manual`/`single_table`), with `x_335329_iscan.include_extended_counts_on_full_scan`
+`manual`/`single_table`), with `x_nold_iscan.include_extended_counts_on_full_scan`
 (default `false`) as an opt-in escape hatch. Rejected "always run"
 because `full` mode can touch hundreds of apps, and 7 extra queries per
 app — one of them against a potentially large table (`sys_choice`) — is
@@ -91,12 +91,12 @@ instance-wide anyway — better to have one method used everywhere than
 one scoped + one unscoped version doing almost the same query.
 
 **No-owning-app fallback (Single Table mode) — considered relaxing
-`x_335329_iscan_result.app` to optional so this case gets a real,
+`x_nold_iscan_result.app` to optional so this case gets a real,
 queryable result row.** Decided: skip writing a result/table-profile row
 entirely for this case; log the table's profile data (fields, row
 count, references) into `run.activities`/`run.comments` instead, visible
-on the run form but not queryable via `x_335329_iscan_result`/
-`x_335329_iscan_table`. Rejected relaxing the mandatory reference for
+on the run form but not queryable via `x_nold_iscan_result`/
+`x_nold_iscan_table`. Rejected relaxing the mandatory reference for
 the same reason the earlier "make result.app optional" option was
 rejected (see above) — it's a bigger schema change than this sub-spec
 should take on for a case (profiling a bare OOB table with no owning

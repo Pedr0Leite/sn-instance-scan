@@ -25,7 +25,7 @@ Redefine the app's scan-scope selection from 3 modes to 4:
   reference field (`target_table`); scan targets that table's owning
   app when resolvable, or just that table when it isn't.
 
-## 1. Schema changes (`x_335329_iscan_run`)
+## 1. Schema changes (`x_nold_iscan_run`)
 
 - `scan_mode` `ChoiceColumn` gains a 4th value: `single_table` (label
   "Manual — Single Table", sequence 3). `manual`'s label becomes "Manual
@@ -123,8 +123,8 @@ instead of the `_scanOneApp` loop:
   table, not `getOwnedTables` + loop).
 - Skips `_findIntegrations` — that's scope-keyed, meaningless for a bare
   table with no owning app.
-- **Writes no `x_335329_iscan_result`/`x_335329_iscan_table` row** —
-  `x_335329_iscan_result.app` stays a mandatory `sys_app` reference and
+- **Writes no `x_nold_iscan_result`/`x_nold_iscan_table` row** —
+  `x_nold_iscan_result.app` stays a mandatory `sys_app` reference and
   is not being relaxed (see `docs/future-schema-ideas.md`), so there's no
   valid destination for a queryable result row in this case. Instead,
   the table's profile (fields, row count, reference fields) is written
@@ -188,7 +188,7 @@ output, not the scanner internals.
 ## 4. ACL implications
 
 **No new ACLs needed.** `target_app` and `target_table` are fields on
-`x_335329_iscan_run`, already covered end-to-end by the existing
+`x_nold_iscan_run`, already covered end-to-end by the existing
 `runReadAcl`/`runWriteAcl`/`runCreateAcl`. Populating either picker
 requires OOB read access to `sys_app`/`sys_db_object`, which this app's
 existing design principle already covers ("No ACL in this app grants

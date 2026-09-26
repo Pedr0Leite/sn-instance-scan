@@ -9,7 +9,7 @@ import { scannerRole } from './roles.now'
 export const runReadAcl = Acl({
     $id: Now.ID['sn_inst_scan_run_read_acl'],
     type: 'record',
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     operation: 'read',
     roles: [scannerRole],
 })
@@ -17,7 +17,7 @@ export const runReadAcl = Acl({
 export const runCreateAcl = Acl({
     $id: Now.ID['sn_inst_scan_run_create_acl'],
     type: 'record',
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     operation: 'create',
     roles: [scannerRole],
 })
@@ -29,7 +29,7 @@ export const runCreateAcl = Acl({
 export const runWriteAcl = Acl({
     $id: Now.ID['sn_inst_scan_run_write_acl'],
     type: 'record',
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     operation: 'write',
     roles: [scannerRole],
 })
@@ -37,7 +37,7 @@ export const runWriteAcl = Acl({
 export const resultReadAcl = Acl({
     $id: Now.ID['sn_inst_scan_result_read_acl'],
     type: 'record',
-    table: 'x_335329_iscan_result',
+    table: 'x_nold_iscan_result',
     operation: 'read',
     roles: [scannerRole],
 })
@@ -45,7 +45,7 @@ export const resultReadAcl = Acl({
 export const tableReadAcl = Acl({
     $id: Now.ID['sn_inst_scan_table_read_acl'],
     type: 'record',
-    table: 'x_335329_iscan_table',
+    table: 'x_nold_iscan_table',
     operation: 'read',
     roles: [scannerRole],
 })
@@ -57,7 +57,7 @@ export const tableReadAcl = Acl({
 export const resultCreateAcl = Acl({
     $id: Now.ID['sn_inst_scan_result_create_acl'],
     type: 'record',
-    table: 'x_335329_iscan_result',
+    table: 'x_nold_iscan_result',
     operation: 'create',
     roles: [scannerRole],
 })
@@ -65,7 +65,7 @@ export const resultCreateAcl = Acl({
 export const tableCreateAcl = Acl({
     $id: Now.ID['sn_inst_scan_table_create_acl'],
     type: 'record',
-    table: 'x_335329_iscan_table',
+    table: 'x_nold_iscan_table',
     operation: 'create',
     roles: [scannerRole],
 })
@@ -76,7 +76,7 @@ export const tableCreateAcl = Acl({
 export const crossrefReadAcl = Acl({
     $id: Now.ID['sn_inst_scan_crossref_read_acl'],
     type: 'record',
-    table: 'x_335329_iscan_crossref',
+    table: 'x_nold_iscan_crossref',
     operation: 'read',
     roles: [scannerRole],
 })
@@ -84,7 +84,7 @@ export const crossrefReadAcl = Acl({
 export const crossrefCreateAcl = Acl({
     $id: Now.ID['sn_inst_scan_crossref_create_acl'],
     type: 'record',
-    table: 'x_335329_iscan_crossref',
+    table: 'x_nold_iscan_crossref',
     operation: 'create',
     roles: [scannerRole],
 })
@@ -95,7 +95,7 @@ export const crossrefCreateAcl = Acl({
 export const globalCustomizationReadAcl = Acl({
     $id: Now.ID['sn_inst_scan_global_custom_read_acl'],
     type: 'record',
-    table: 'x_335329_iscan_global_customization',
+    table: 'x_nold_iscan_global_customization',
     operation: 'read',
     roles: [scannerRole],
 })
@@ -103,7 +103,7 @@ export const globalCustomizationReadAcl = Acl({
 export const globalCustomizationCreateAcl = Acl({
     $id: Now.ID['sn_inst_scan_global_custom_create_acl'],
     type: 'record',
-    table: 'x_335329_iscan_global_customization',
+    table: 'x_nold_iscan_global_customization',
     operation: 'create',
     roles: [scannerRole],
 })
@@ -114,7 +114,7 @@ export const globalCustomizationCreateAcl = Acl({
 export const moduleReadAcl = Acl({
     $id: Now.ID['sn_inst_scan_module_read_acl'],
     type: 'record',
-    table: 'x_335329_iscan_module',
+    table: 'x_nold_iscan_module',
     operation: 'read',
     roles: [scannerRole],
 })
@@ -122,7 +122,7 @@ export const moduleReadAcl = Acl({
 export const moduleCreateAcl = Acl({
     $id: Now.ID['sn_inst_scan_module_create_acl'],
     type: 'record',
-    table: 'x_335329_iscan_module',
+    table: 'x_nold_iscan_module',
     operation: 'create',
     roles: [scannerRole],
 })
@@ -133,7 +133,7 @@ export const moduleCreateAcl = Acl({
 export const aiAgentReadAcl = Acl({
     $id: Now.ID['sn_inst_scan_ai_agent_read_acl'],
     type: 'record',
-    table: 'x_335329_iscan_ai_agent',
+    table: 'x_nold_iscan_ai_agent',
     operation: 'read',
     roles: [scannerRole],
 })
@@ -141,7 +141,7 @@ export const aiAgentReadAcl = Acl({
 export const aiAgentCreateAcl = Acl({
     $id: Now.ID['sn_inst_scan_ai_agent_create_acl'],
     type: 'record',
-    table: 'x_335329_iscan_ai_agent',
+    table: 'x_nold_iscan_ai_agent',
     operation: 'create',
     roles: [scannerRole],
 })
@@ -157,7 +157,22 @@ export const aiAgentCreateAcl = Acl({
 export const reportGeneratorExecuteAcl = Acl({
     $id: Now.ID['iscan_report_generator_execute_acl'],
     type: 'client_callable_script_include',
-    name: 'x_335329_iscan.IscanReportGenerator',
+    name: 'x_nold_iscan.IscanReportGenerator',
     operation: 'execute',
     roles: [scannerRole],
+})
+
+// REST endpoint ACL for the console's "Start a scan" buttons. The Scripted
+// REST resource references this via enforceAcl, which is the ONLY gate the
+// endpoint needs: it writes nothing of its own, and every table it reaches
+// through IscanScanOrchestrator is already covered by the record ACLs above,
+// evaluated as the calling user. securityAttribute keeps unauthenticated
+// callers out on top of the route's own authentication/authorization flags.
+export const runScanApiExecuteAcl = Acl({
+    $id: Now.ID['iscan_run_scan_api_execute_acl'],
+    type: 'rest_endpoint',
+    name: 'x_nold_iscan_run_scan_api',
+    operation: 'execute',
+    roles: [scannerRole],
+    securityAttribute: 'user_is_authenticated',
 })

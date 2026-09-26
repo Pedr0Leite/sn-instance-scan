@@ -49,11 +49,11 @@ run "only produces a terse log line instead of the full report" — traced
 the whole path (UI Action → orchestrator → report generator) and found
 no disconnect: it's working as designed, the confusion was about WHERE
 the output lives. The actual v3 assessment is:
-- ~30 per-artifact-type count fields on each `x_335329_iscan_result` row
+- ~30 per-artifact-type count fields on each `x_nold_iscan_result` row
   (client scripts, UI policies, roles, groups, choices, etc. — see
   `IscanScanOrchestrator._scanOneApp`'s `result.setValue()` calls).
-- Field + cross-reference data on `x_335329_iscan_table` /
-  `x_335329_iscan_crossref` / `x_335329_iscan_global_customization` child
+- Field + cross-reference data on `x_nold_iscan_table` /
+  `x_nold_iscan_crossref` / `x_nold_iscan_global_customization` child
   records (one row per table/reference/customization found).
 - The exportable status-flagged, itemized, narrative report — generated
   ON DEMAND, not automatically, via the "Download Report" UI Action on

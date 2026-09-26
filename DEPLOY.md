@@ -4,8 +4,8 @@ This app is built with the **ServiceNow SDK** (`@servicenow/sdk`) using
 **ServiceNow Fluent** — metadata is defined in TypeScript (`.now.ts`
 files under `src/fluent/`), not classic Update Set XML. `now-sdk init`
 already scaffolded `now.config.json` and `package.json` for this repo
-(app name `SN Instance Scan`, package `x_335329_iscan`, **custom scoped**
-app, scope `x_335329_iscan`).
+(app name `SN Instance Scan`, package `x_nold_iscan`, **custom scoped**
+app, scope `x_nold_iscan`).
 
 ## One-time setup
 
@@ -27,18 +27,18 @@ repo** — only use it if you're sure the repo is the source of truth.
 
 ## Scope note
 
-`now.config.json` sets `"scope": "x_335329_iscan"`. This is a **custom
+`now.config.json` sets `"scope": "x_nold_iscan"`. This is a **custom
 scoped** app, not global — the platform automatically namespaces
 everything this scope creates, so there's no cross-app collision risk.
 
 - Every table, role, and property name in `src/fluent/` still carries
-  the `x_335329_iscan` prefix explicitly, matching what the platform
-  generates (tables: `x_335329_iscan_run`, `x_335329_iscan_result`,
-  `x_335329_iscan_table`; role: `x_335329_iscan.scanner`; properties:
-  `x_335329_iscan.*`).
+  the `x_nold_iscan` prefix explicitly, matching what the platform
+  generates (tables: `x_nold_iscan_run`, `x_nold_iscan_result`,
+  `x_nold_iscan_table`; role: `x_nold_iscan.scanner`; properties:
+  `x_nold_iscan.*`).
 - Script include names (`IscanAppSelector`, `IscanTableScanner`, etc.)
   are not prefixed — they're plain classes — but each has an `apiName`
-  of `x_335329_iscan.<ClassName>`, and GlideAjax must use that
+  of `x_nold_iscan.<ClassName>`, and GlideAjax must use that
   scope-qualified apiName (see the GlideAjax checklist in `CLAUDE.md`).
   Keep class names distinctive if you add more.
 - `AbstractAjaxProcessor` lives in **global** scope, not this app's
@@ -84,7 +84,7 @@ everything this scope creates, so there's no cross-app collision risk.
 
 ## Open decision (flagged, not resolved)
 
-Who can run scans? This build uses a dedicated `x_335329_iscan.scanner`
+Who can run scans? This build uses a dedicated `x_nold_iscan.scanner`
 role rather than defaulting to admin, so the ACL-fallback path gets
 exercised in normal use. Confirm this before go-live (see
 `architecture.md` Story 1 in the docs vault for the original framing).

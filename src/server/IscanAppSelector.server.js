@@ -95,7 +95,7 @@ IscanAppSelector.prototype = {
 	 * @returns {Array} array of sys_app sys_ids
 	 */
 	getCustomApps: function() {
-		var prefix = gs.getProperty('x_335329_iscan.custom_scope_prefix', 'x_');
+		var prefix = gs.getProperty('x_nold_iscan.custom_scope_prefix', 'x_');
 		var ids = [];
 
 		var app = new GlideRecord('sys_app');

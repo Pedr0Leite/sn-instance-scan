@@ -2,7 +2,7 @@ import { UiPolicy, default_view } from '@servicenow/sdk/core'
 
 export const manualAppVisibilityPolicy = UiPolicy({
     $id: Now.ID['manual_app_visibility_policy'],
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     shortDescription: 'Show Target App only for Manual — App scan mode',
     active: true,
     onLoad: true,
@@ -19,7 +19,7 @@ export const manualAppVisibilityPolicy = UiPolicy({
 
 export const singleTableVisibilityPolicy = UiPolicy({
     $id: Now.ID['single_table_visibility_policy'],
-    table: 'x_335329_iscan_run',
+    table: 'x_nold_iscan_run',
     shortDescription: 'Show Target Table only for Manual — Single Table scan mode',
     active: true,
     onLoad: true,

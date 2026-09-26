@@ -26,7 +26,7 @@ it gets overwritten every compaction, so don't treat it as a durable
 record; if something in it matters long-term, promote it into
 `docs/OUTSTANDING_WORK.md` or this file instead.
 
-ServiceNow **custom scoped** application (scope `x_335329_iscan`,
+ServiceNow **custom scoped** application (scope `x_nold_iscan`,
 app name `SN Instance Scan`) that scans an instance
 application-by-application and produces a per-app architecture summary,
 optionally with a GenAI-written paragraph and a downloadable PDF report.
@@ -40,17 +40,17 @@ pushed to an instance yet. Follow `DEPLOY.md` to build and install.
 
 ## Custom scope — namespace prefix is platform-enforced
 
-`now.config.json` has `"scope": "x_335329_iscan"`. This is a **scoped**
+`now.config.json` has `"scope": "x_nold_iscan"`. This is a **scoped**
 app, not global — the platform automatically namespaces every table,
 role, and property this scope creates, so there's no collision risk with
 other apps the way there would be in global scope. This repo still names
-everything with the `x_335329_iscan` prefix explicitly (tables:
-`x_335329_iscan_run`, `x_335329_iscan_result`, `x_335329_iscan_table`;
-role: `x_335329_iscan.scanner`; properties: `x_335329_iscan.*`) to match
+everything with the `x_nold_iscan` prefix explicitly (tables:
+`x_nold_iscan_run`, `x_nold_iscan_result`, `x_nold_iscan_table`;
+role: `x_nold_iscan.scanner`; properties: `x_nold_iscan.*`) to match
 what the platform will actually generate — keep doing this for
 consistency if you add a new table/role/property. Script include class
 names (`IscanAppSelector`, etc.) don't carry the prefix, but their
-`apiName` is always `x_335329_iscan.<ClassName>`.
+`apiName` is always `x_nold_iscan.<ClassName>`.
 
 **"Run Scan" is a server-side UI Action, NOT GlideAjax.** It was
 originally built as a GlideAjax call into `IscanScanOrchestrator`, but
@@ -81,22 +81,22 @@ server-side UI Action, same as Run Scan — see below) — that path is
 unaffected and still needs all three of the following to line up, or the
 client gets an empty answer with no error anywhere:
 
-1. Client calls `new GlideAjax('x_335329_iscan.IscanReportGenerator')`
+1. Client calls `new GlideAjax('x_nold_iscan.IscanReportGenerator')`
    — the scope-qualified `apiName`, NOT the bare class name.
 2. The SI is `clientCallable: true`, left at the default
    `accessibleFrom: 'package_private'`. Do **not** set `accessibleFrom:
    'public'` — that was tried and reverted. The "Download Report" UI
-   Actions, their forms, and this SI are all in `x_335329_iscan`, so
+   Actions, their forms, and this SI are all in `x_nold_iscan`, so
    `package_private` ("callable from the application scope it's within")
    is correct and sufficient. `public` instead makes the platform run a
    `GlidePluginManager.isActive()` check against the caller's scope to
    admit cross-app callers, which fails with `Could not find sys_plugins
-   record for x_335329_iscan: no thrown error` for a custom
+   record for x_nold_iscan: no thrown error` for a custom
    in-development app never registered as a store plugin — and GlideAjax
    silently returns nothing. Only reach for `public` if a script include
    genuinely needs to be called from a *different* app's scope.
 3. The execute ACL's `name` is also the scope-qualified apiName
-   (`x_335329_iscan.IscanReportGenerator`), matching what the platform
+   (`x_nold_iscan.IscanReportGenerator`), matching what the platform
    checks for a scoped SI.
 
 Copy this pattern for any *new* GlideAjax entry point — but prefer a
@@ -109,10 +109,10 @@ asynchronous; it sidesteps this whole failure class.
 plain form action button (`form: { showButton: true }`), not a related
 link or list-view action — `showInsert: false, showUpdate: true` on both
 UI Actions, so it only renders on an *existing* record, never on an
-unsaved one. On `x_335329_iscan_run` it's `order: 200` (after Run Scan
-at `order: 100`); on `x_335329_iscan_result` it's `order: 100` (before
+unsaved one. On `x_nold_iscan_run` it's `order: 200` (after Run Scan
+at `order: 100`); on `x_nold_iscan_result` it's `order: 100` (before
 Copy LLM Context at `order: 200`) — both require the
-`x_335329_iscan.scanner` role, so it won't render at all without it.
+`x_nold_iscan.scanner` role, so it won't render at all without it.
 `IscanReportGenerator._convertToPdf()` calls the real platform **PDF
 Generation Utilities** plugin (`sn_pdfgeneratorutils.PDFGenerationAPI
 ().convertToPDFWithHeaderFooter(...)`), NOT a Jelly print view — this
@@ -183,7 +183,7 @@ separate vault, not in this repo:
 That vault predates the switch to now-sdk and uses a different scope
 name (`x_snis_iscan`) than this repo actually builds with. Both are
 scoped apps — treat the vault as authoritative for *why* something is
-built a certain way, but this repo's `x_335329_iscan_*` naming is the
+built a certain way, but this repo's `x_nold_iscan_*` naming is the
 current source of truth for *what things are actually called* — don't
 reintroduce the `x_snis_iscan` prefix based on the vault without
 checking with the user first.
@@ -220,7 +220,7 @@ wants a note created/appended there.
 
 - `now.config.json`, `package.json` — now-sdk app config (do not hand-edit
   scope/scopeId without the user's say-so — that's an instance-level identity)
-- `src/fluent/tables.now.ts` — `x_335329_iscan_run`, `x_335329_iscan_result`, `x_335329_iscan_table`
+- `src/fluent/tables.now.ts` — `x_nold_iscan_run`, `x_nold_iscan_result`, `x_nold_iscan_table`
 - `src/fluent/roles.now.ts`, `properties.now.ts` — the scanner role, the 3 system properties
 - `src/fluent/script-includes.now.ts` — registers the 6 script includes, each `Now.include`-ing its body from `src/server/`
 - `src/fluent/acls.now.ts` — record ACLs on the 3 tables + the execute ACL for the 1 client-callable script include (`IscanReportGenerator`)
@@ -246,7 +246,7 @@ wants a note created/appended there.
 ## Conventions to preserve when editing this code
 
 - **Read-only app.** No script here may write to a scanned table — only
-  to `x_335329_iscan_*` tables. This is a hard constraint from the spec,
+  to `x_nold_iscan_*` tables. This is a hard constraint from the spec,
   not a style preference.
 - **No elevated privilege.** Every query in `IscanTableScanner` runs
   under the caller's own access. `canAccessMetadata()` is a deterministic
@@ -258,11 +258,11 @@ wants a note created/appended there.
   the user explicitly asking for it.
 - **`llm_context` vs `summary_text`** (v2) — `buildPrompt()` produces a
   full 5-section architecture briefing persisted to
-  `x_335329_iscan_result.llm_context` on *every* scan; `summary_text` is
+  `x_nold_iscan_result.llm_context` on *every* scan; `summary_text` is
   the optional GenAI paragraph. Only `summary_text` depends on the GenAI
   Controller being available — never make `llm_context` conditional on
   it. `generate()` truncates its own input via
-  `x_335329_iscan.genai_max_input_chars`; the persisted `llm_context`
+  `x_nold_iscan.genai_max_input_chars`; the persisted `llm_context`
   always stays full-length. On the fallback path the data-model section
   is *omitted with an explanation*, never zero-filled — a reader seeing
   "0 tables" would wrongly conclude the app has none.
@@ -296,7 +296,7 @@ wants a note created/appended there.
   client. But prefer a server-side UI Action over GlideAjax when the
   caller is this app's own form — see the "Run Scan" note above.
 - **Scripts write as the calling user** — the scanner role needs write
-  on `x_335329_iscan_run` and create on result/table-profile tables
+  on `x_nold_iscan_run` and create on result/table-profile tables
   (see `acls.now.ts`). The orchestrator throws a descriptive error when
   `update()`/`insert()` come back null (ACL denial) instead of scanning
   silently into nothing; keep that pattern for new writes.
@@ -314,7 +314,7 @@ as they're decided — check there before re-proposing an option that was
 already considered and rejected.
 
 **Modes (sub-spec 1 — IMPLEMENTED):**
-- `x_335329_iscan_run.scan_mode` gains a 4th value: `single_table`
+- `x_nold_iscan_run.scan_mode` gains a 4th value: `single_table`
   (label "Manual — Single Table"), alongside `full`, `custom_only`, and
   `manual` (relabeled "Manual — App").
 - New `target_app` (`ReferenceColumn` to `sys_app`, no qualifier) becomes
@@ -331,7 +331,7 @@ already considered and rejected.
   appear in that app's table profile since it's owned by that scope. IF
   the scope has no `sys_app` record (true for `global` and many OOB
   scopes — e.g. picking `incident` or `sys_user`), there's nothing to
-  tally against `x_335329_iscan_result.app` (mandatory reference to
+  tally against `x_nold_iscan_result.app` (mandatory reference to
   `sys_app`), so it falls back to profiling just that one table.
 - `IscanTableScanner.profileTable()`'s field capture is being changed to
   drop its `sys_scope` filter — it will return the table's COMPLETE field
@@ -368,13 +368,13 @@ already considered and rejected.
   `global` and most OOB scopes), falls back to a new `_scanOneTable(run,
   tableName)` path: profiles just that one table
   (`profileTable(tableName)`, no `_findIntegrations`, no `sys_app`
-  lookup at all) and, since `x_335329_iscan_result.app` stays mandatory
-  and isn't being relaxed, writes NO `x_335329_iscan_result`/
-  `x_335329_iscan_table` row for this case — the profile data (fields,
+  lookup at all) and, since `x_nold_iscan_result.app` stays mandatory
+  and isn't being relaxed, writes NO `x_nold_iscan_result`/
+  `x_nold_iscan_table` row for this case — the profile data (fields,
   row count, references) is written into `run.scan_findings`/`comments`
   only, visible on the run form but not queryable via the result
   tables.
-- New UI Policy (this app's first) on `x_335329_iscan_run`: symmetric
+- New UI Policy (this app's first) on `x_nold_iscan_run`: symmetric
   visibility toggling — `target_app` shown only for `manual` mode,
   `target_table` shown only for `single_table` mode, both hidden for
   `full`/`custom_only`. This is cosmetic/UX only; it does NOT replace
@@ -392,13 +392,13 @@ already considered and rejected.
 
 **Counting (sub-spec 2 — IMPLEMENTED):** full
 design at `docs/superpowers/specs/2026-07-21-counting-design.md`. Adds
-22 new `IntegerColumn`s to `x_335329_iscan_result` (15 "Group A" types
+22 new `IntegerColumn`s to `x_nold_iscan_result` (15 "Group A" types
 folded into `IscanAppFilesScanner`'s existing single `sys_metadata`
 query via new `CLASS_BUCKETS` entries — free perf-wise; 7 "Group B"
 types needing their own dedicated per-app queries — real perf cost,
 gated off by default for `full` mode via a new
-`x_335329_iscan.include_extended_counts_on_full_scan` property), plus 2
-new columns on `x_335329_iscan_table` for a new "dictionary override"
+`x_nold_iscan.include_extended_counts_on_full_scan` property), plus 2
+new columns on `x_nold_iscan_table` for a new "dictionary override"
 capability on `IscanTableScanner` (a field whose `sys_scope` differs
 from its table's owning scope — i.e. another app extended a table it
 doesn't own). Roles/groups/system properties are explicitly excluded —
@@ -422,10 +422,10 @@ precedent as Counting. Same-app references (a table referencing another
 table owned by the same app) are included, not filtered — the Report
 sub-spec can slice inter-app vs. intra-app later without re-scanning.
 Persisted as `inbound_reference_count`/`inbound_reference_list` summary
-columns on `x_335329_iscan_table` (same shape as `dictionary_override_*`),
-plus a new child table `x_335329_iscan_crossref` (one row per referencing
+columns on `x_nold_iscan_table` (same shape as `dictionary_override_*`),
+plus a new child table `x_nold_iscan_crossref` (one row per referencing
 field, including the resolved `referencing_app`) for the Report sub-spec to
-query/group/filter. No rows are written to `x_335329_iscan_crossref` from
+query/group/filter. No rows are written to `x_nold_iscan_crossref` from
 Single Table mode's no-owning-app fallback path (`_scanOneTable`) — that
 path only logs the inbound reference count to `run.scan_findings`, consistent
 with how it already handles dictionary overrides.
@@ -435,16 +435,16 @@ Run/Result report HTML builders gained 3 presence/absence status flags —
 no numeric thresholds, since there's no real basis for picking a count
 cutoff. Warnings: `scan_mode_used === 'app_files_fallback'` (incomplete
 data), and summed `dictionary_override_count > 0` across the app's
-`x_335329_iscan_table` rows (a real governance signal — another app
+`x_nold_iscan_table` rows (a real governance signal — another app
 modified a table it doesn't own, or this app did). Informational (not a
-warning): count of distinct apps with `x_335329_iscan_crossref` rows
+warning): count of distinct apps with `x_nold_iscan_crossref` rows
 pointing at this app's tables (excluding this app itself) — having
 dependents isn't inherently bad. The Run report's per-app table gained a
 condensed icon-only Status column; the Result report gained a full Status
 line, an "Extended counts" section (Counting's ~22 non-Group-A/B-overlap
 counts, zero values skipped), 2 new Tables columns (Dictionary Overrides,
 Inbound References — both already stored, just not previously rendered),
-and a "Cross-references" section (one row per `x_335329_iscan_crossref`
+and a "Cross-references" section (one row per `x_nold_iscan_crossref`
 record tied to the app's tables, omitted entirely when there are none). No
 new script include, table, property, or UI Action — `_convertToPdf` and
 the GlideAjax entry points are unchanged.
@@ -456,7 +456,7 @@ built via a LIVE `IscanAppFilesScanner.scanApp()` re-query at report time
 — no new storage for item lists) covering every artifact type including 4
 new ones (Scripted REST resources, SLA definitions, UI pages, Service
 Portal pages). Both reports also gained a "Customizations on base-system
-tables" section reading the new `x_335329_iscan_global_customization`
+tables" section reading the new `x_nold_iscan_global_customization`
 table — populated for EVERY scan mode via two write paths: per-app
 (`IscanTableScanner.findAppCustomizationsOnGlobalTables`, called for
 every app scanned in every mode) and per-table (`findGlobalCustomizations`,
@@ -484,7 +484,7 @@ artifact types added throughout the counting/itemization pipeline:
 Events (`sysevent_register`) and Import Sets (`sys_import_set_source`) —
 both newly added and lowest-confidence of all the flagged table names,
 verify first. Also added an explicit related list
-(`src/fluent/related-lists.now.ts`): `x_335329_iscan_result` (via `run`)
+(`src/fluent/related-lists.now.ts`): `x_nold_iscan_result` (via `run`)
 on the Run form — related lists for a reference field normally
 auto-render, but this form's custom `sys_ui_section` was suspected of
 suppressing that default (same failure class as the earlier
@@ -512,7 +512,7 @@ that touch the request context this script never provides.
 `generateRunReport()` itself is UNCHANGED: it still builds the report via
 `_buildRunReportHtml()`, converts it via the platform's PDF Generation
 Utilities plugin, and attaches the resulting PDF to the
-`x_335329_iscan_run` record — that attachment target was already correct
+`x_nold_iscan_run` record — that attachment target was already correct
 before this change, only the trigger mechanism was broken/fragile. No
 `current.update()` in the new script (it never touches the run record's
 own fields, only writes an attachment), so there's no "Invalid update"
@@ -532,10 +532,10 @@ hard convention as `IscanTableScanner.canAccessMetadata()` — never a
 try/catch fallback), cross-checking each plugin's stored `active` flag
 against a live `new GlidePluginManager().isActive(pluginId)` call and
 flagging any disagreement as `status_mismatch`. Results land in a new
-child table `x_335329_iscan_module`, keyed directly off `run` (mandatory
+child table `x_nold_iscan_module`, keyed directly off `run` (mandatory
 `run` reference, no `result` — same shape as
-`x_335329_iscan_global_customization`'s no-owning-app rows, not
-`x_335329_iscan_table`'s `result`-keyed shape), since there is no owning
+`x_nold_iscan_global_customization`'s no-owning-app rows, not
+`x_nold_iscan_table`'s `result`-keyed shape), since there is no owning
 app to tally against. `IscanScanOrchestrator._executeModulesRun()` mirrors
 `_executeSingleTableRun()`'s update()-guard/try-catch/status shape;
 `_resolveAppList()` gained a `case 'modules': return { modulesOnly: true
@@ -545,7 +545,7 @@ modes, **there is no ACL-denial fallback for modules mode** — a
 explicit `scan_findings` line, not a silent zero-row `'complete'`. The
 optional GenAI summary reuses `IscanSummaryGenerator.generate()`
 unchanged (same degrade-gracefully-if-unavailable contract every other
-mode relies on) — no new field on `x_335329_iscan_run` for it; the
+mode relies on) — no new field on `x_nold_iscan_run` for it; the
 returned paragraph, if any, is appended via the existing
 `_appendScanFinding()` dual-write helper instead. Known accepted
 tradeoff: `buildPrompt()`'s 5 sections are hardcoded to an app-scan shape,
@@ -553,9 +553,9 @@ so the GenAI *input* prompt reads a bit app-shaped for what's actually a
 plugin scan (e.g. a "Data model" section saying "owns no tables") — this
 only affects prompt quality, not pipeline correctness, and no user ever
 sees the raw input, only the returned summary. `src/fluent/related-lists.now.ts`
-got an explicit related-list pair for `x_335329_iscan_module` (via
+got an explicit related-list pair for `x_nold_iscan_module` (via
 `run`) on the Run form — same requirement as the existing
-`x_335329_iscan_result` one, since this app's custom `sys_ui_section`
+`x_nold_iscan_result` one, since this app's custom `sys_ui_section`
 form layout has already been found to suppress default related-list
 rendering. `IscanReportGenerator._buildRunReportHtml()` gained an
 "Installed Modules" table section, gated on rows existing for the run

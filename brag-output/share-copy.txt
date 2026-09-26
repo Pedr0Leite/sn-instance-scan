@@ -1,0 +1,24 @@
+--- SHORT (X / Discord) ---
+Most ServiceNow instances are inherited, not built. SN Instance Scan counts every table,
+script, integration and quiet customization in one pass — and writes nothing back.
+
+--- LINKEDIN / CLIENT-FACING ---
+You cannot govern what you have never counted.
+
+Most ServiceNow instances are inherited, not built — years of apps, plugins and
+undocumented customizations nobody wrote down. SN Instance Scan walks the instance
+application-by-application and produces the inventory: tables, business rules, script
+includes, flows, integrations, ACLs, catalog items, cross-scope dependencies and
+customizations on base-system tables.
+
+One real scan: 5 apps, 84 tables profiled, 1,350 installed modules, 59 inbound
+cross-references, 44 base-table customizations.
+
+Six scan modes, one click, no configuration. Results land as queryable records plus a
+downloadable PDF assessment report.
+
+It is read-only by design — every query runs under the caller's own access, and the app
+writes only to its own tables. Nothing in your instance is modified to produce the report.
+
+--- ONE-LINER ---
+SN Instance Scan — know what you actually run.

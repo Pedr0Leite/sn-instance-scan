@@ -2,21 +2,21 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add inbound-reference (dependent) discovery to `IscanTableScanner`, persisted as summary columns on `x_335329_iscan_table` plus a new `x_335329_iscan_crossref` child table with one row per referencing field, per the approved design at `docs/superpowers/specs/2026-07-22-crossrefs-design.md`.
+**Goal:** Add inbound-reference (dependent) discovery to `IscanTableScanner`, persisted as summary columns on `x_nold_iscan_table` plus a new `x_nold_iscan_crossref` child table with one row per referencing field, per the approved design at `docs/superpowers/specs/2026-07-22-crossrefs-design.md`.
 
-**Architecture:** `IscanTableScanner` gains `findInboundReferences(tableName)`, which queries `sys_dictionary` for any field anywhere in the instance whose `reference` points at `tableName`, then resolves each distinct referencing table's owning app (or blank, if none). `IscanScanOrchestrator` wires this into the existing per-app table-profile loop: the count/list summary is written onto each `x_335329_iscan_table` row, and one `x_335329_iscan_crossref` child row is inserted per referencing field.
+**Architecture:** `IscanTableScanner` gains `findInboundReferences(tableName)`, which queries `sys_dictionary` for any field anywhere in the instance whose `reference` points at `tableName`, then resolves each distinct referencing table's owning app (or blank, if none). `IscanScanOrchestrator` wires this into the existing per-app table-profile loop: the count/list summary is written onto each `x_nold_iscan_table` row, and one `x_nold_iscan_crossref` child row is inserted per referencing field.
 
 **Tech Stack:** ServiceNow SDK (`@servicenow/sdk` 4.8.1) + ServiceNow Fluent (`.now.ts`), plain server-side JS script include bodies, `now-sdk build` for compile validation.
 
 ## Global Constraints
 
-- Read-only app: no script may write to a scanned table, only to `x_335329_iscan_*` tables.
+- Read-only app: no script may write to a scanned table, only to `x_nold_iscan_*` tables.
 - No elevated privilege; every query runs under the caller's own access.
 - `GlideAggregate` for row/aggregate counts, never `GlideRecord.getRowCount()` — not needed in this plan (no new row counts), but do not introduce one if a step is tempted to.
 - The inbound-reference search runs unconditionally in every scan mode, including `full` — no new system property, no gating. Do not add one.
 - Same-app inbound references (the referencing table happens to be owned by the same app as the table being profiled) are included, not filtered out at write time.
 - No local unit-test runner; `npm run build` is the only automated local check. **Do NOT add ATF test entries for this sub-spec** — `tests/atf_tests.json` is not touched by this plan.
-- `x_335329_iscan_crossref.table` is mandatory (Reference → `x_335329_iscan_table`) — rows are only ever written from `_writeTableProfiles`, immediately after the parent `x_335329_iscan_table` row's `insert()` returns its sys_id. No `x_335329_iscan_crossref` rows are written from the Single Table mode's no-owning-app fallback path (`_scanOneTable`), since no `x_335329_iscan_table` row exists there to reference — that path only logs the inbound-reference count to `run.activities`.
+- `x_nold_iscan_crossref.table` is mandatory (Reference → `x_nold_iscan_table`) — rows are only ever written from `_writeTableProfiles`, immediately after the parent `x_nold_iscan_table` row's `insert()` returns its sys_id. No `x_nold_iscan_crossref` rows are written from the Single Table mode's no-owning-app fallback path (`_scanOneTable`), since no `x_nold_iscan_table` row exists there to reference — that path only logs the inbound-reference count to `run.activities`.
 
 ---
 
@@ -26,11 +26,11 @@
 - Modify: `src/fluent/tables.now.ts`
 
 **Interfaces:**
-- Produces: 2 new columns on `x_335329_iscan_table` (`inbound_reference_count`, `inbound_reference_list`); new table `x_335329_iscan_crossref` with columns `table`, `referencing_table`, `referencing_field`, `referencing_app`, `referencing_scope`. Task 3 writes these by these exact names.
+- Produces: 2 new columns on `x_nold_iscan_table` (`inbound_reference_count`, `inbound_reference_list`); new table `x_nold_iscan_crossref` with columns `table`, `referencing_table`, `referencing_field`, `referencing_app`, `referencing_scope`. Task 3 writes these by these exact names.
 
-- [ ] **Step 1: Add 2 columns to `x_335329_iscan_table`**
+- [ ] **Step 1: Add 2 columns to `x_nold_iscan_table`**
 
-In `src/fluent/tables.now.ts`, inside the `x_335329_iscan_table` Table's `schema` object, immediately after the existing `dictionary_override_list: StringColumn({...})` column (the last column in that schema), add:
+In `src/fluent/tables.now.ts`, inside the `x_nold_iscan_table` Table's `schema` object, immediately after the existing `dictionary_override_list: StringColumn({...})` column (the last column in that schema), add:
 
 ```typescript
         // Inbound reference: a field on ANY table elsewhere in the
@@ -44,19 +44,19 @@ In `src/fluent/tables.now.ts`, inside the `x_335329_iscan_table` Table's `schema
         }),
 ```
 
-- [ ] **Step 2: Add the new `x_335329_iscan_crossref` table**
+- [ ] **Step 2: Add the new `x_nold_iscan_crossref` table**
 
-In the same file, after the closing `})` of the `x_335329_iscan_table` `Table({...})` call (i.e. as a new top-level export at the end of the file), add:
+In the same file, after the closing `})` of the `x_nold_iscan_table` `Table({...})` call (i.e. as a new top-level export at the end of the file), add:
 
 ```typescript
-export const x_335329_iscan_crossref = Table({
-    name: 'x_335329_iscan_crossref',
+export const x_nold_iscan_crossref = Table({
+    name: 'x_nold_iscan_crossref',
     label: 'Instance Scan Cross-Reference',
     display: 'referencing_table',
     schema: {
         table: ReferenceColumn({
             label: 'Table',
-            referenceTable: 'x_335329_iscan_table',
+            referenceTable: 'x_nold_iscan_table',
             mandatory: true,
         }),
         referencing_table: StringColumn({ label: 'Referencing Table', maxLength: 80 }),
@@ -90,7 +90,7 @@ Expected: `[now-sdk] Build completed successfully`
 
 ```bash
 git add src/fluent/tables.now.ts
-git commit -m "Add Cross-refs schema: table-profile inbound columns + x_335329_iscan_crossref"
+git commit -m "Add Cross-refs schema: table-profile inbound columns + x_nold_iscan_crossref"
 ```
 
 ---
@@ -229,14 +229,14 @@ with:
     },
 ```
 
-- [ ] **Step 2: Write the 2 new columns and insert `x_335329_iscan_crossref` rows in `_writeTableProfiles`**
+- [ ] **Step 2: Write the 2 new columns and insert `x_nold_iscan_crossref` rows in `_writeTableProfiles`**
 
 Replace:
 
 ```javascript
     _writeTableProfiles: function (resultSysId, tables) {
         for (var i = 0; i < tables.length; i++) {
-            var tableRow = new GlideRecord('x_335329_iscan_table')
+            var tableRow = new GlideRecord('x_nold_iscan_table')
             tableRow.initialize()
             tableRow.setValue('result', resultSysId)
             tableRow.setValue('table_name', tables[i].name)
@@ -270,7 +270,7 @@ with:
 ```javascript
     _writeTableProfiles: function (resultSysId, tables) {
         for (var i = 0; i < tables.length; i++) {
-            var tableRow = new GlideRecord('x_335329_iscan_table')
+            var tableRow = new GlideRecord('x_nold_iscan_table')
             tableRow.initialize()
             tableRow.setValue('result', resultSysId)
             tableRow.setValue('table_name', tables[i].name)
@@ -307,17 +307,17 @@ with:
     },
 
     /**
-     * One x_335329_iscan_crossref row per inbound-referencing field found
-     * for a single x_335329_iscan_table row. Same-app references ARE
+     * One x_nold_iscan_crossref row per inbound-referencing field found
+     * for a single x_nold_iscan_table row. Same-app references ARE
      * included (referencing_app will equal the app currently being
      * scanned in that case) — filtering intra-app vs. cross-app is a
      * Report sub-spec concern, not a write-time one.
-     * @param {String} tableRowId - sys_id of the just-inserted x_335329_iscan_table row
+     * @param {String} tableRowId - sys_id of the just-inserted x_nold_iscan_table row
      * @param {Array} inboundReferences - [{referencing_table, referencing_field, referencing_app, referencing_scope}]
      */
     _writeCrossrefRows: function (tableRowId, inboundReferences) {
         for (var i = 0; i < inboundReferences.length; i++) {
-            var crossrefRow = new GlideRecord('x_335329_iscan_crossref')
+            var crossrefRow = new GlideRecord('x_nold_iscan_crossref')
             crossrefRow.initialize()
             crossrefRow.setValue('table', tableRowId)
             crossrefRow.setValue('referencing_table', inboundReferences[i].referencing_table)
@@ -443,10 +443,10 @@ precedent as Counting. Same-app references (a table referencing another
 table owned by the same app) are included, not filtered — the Report
 sub-spec can slice inter-app vs. intra-app later without re-scanning.
 Persisted as `inbound_reference_count`/`inbound_reference_list` summary
-columns on `x_335329_iscan_table` (same shape as `dictionary_override_*`),
-plus a new child table `x_335329_iscan_crossref` (one row per referencing
+columns on `x_nold_iscan_table` (same shape as `dictionary_override_*`),
+plus a new child table `x_nold_iscan_crossref` (one row per referencing
 field, including the resolved `referencing_app`) for the Report sub-spec to
-query/group/filter. No rows are written to `x_335329_iscan_crossref` from
+query/group/filter. No rows are written to `x_nold_iscan_crossref` from
 Single Table mode's no-owning-app fallback path (`_scanOneTable`) — that
 path only logs the inbound reference count to `run.activities`, consistent
 with how it already handles dictionary overrides.
@@ -465,7 +465,7 @@ whole-instance and ungated (no new property), unlike Counting's Group B —
 see CLAUDE.md's Cross-refs section for why that was judged safe.
 ```
 
-Also update the "Sub-spec 4: Report — NOT STARTED" section's hint paragraph to mention the new `x_335329_iscan_crossref` table is now available as a building block, alongside the existing mention of `IscanReportGenerator`.
+Also update the "Sub-spec 4: Report — NOT STARTED" section's hint paragraph to mention the new `x_nold_iscan_crossref` table is now available as a building block, alongside the existing mention of `IscanReportGenerator`.
 
 - [ ] **Step 3: Commit**
 

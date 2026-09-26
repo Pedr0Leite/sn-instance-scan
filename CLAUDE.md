@@ -26,7 +26,7 @@ it gets overwritten every compaction, so don't treat it as a durable
 record; if something in it matters long-term, promote it into
 `docs/OUTSTANDING_WORK.md` or this file instead.
 
-ServiceNow **custom scoped** application (scope `x_335329_iscan`,
+ServiceNow **custom scoped** application (scope `x_nold_iscan`,
 app name `SN Instance Scan`) that scans an instance
 application-by-application and produces a per-app architecture summary,
 optionally with a GenAI-written paragraph and a downloadable PDF report.
@@ -40,17 +40,17 @@ pushed to an instance yet. Follow `DEPLOY.md` to build and install.
 
 ## Custom scope — namespace prefix is platform-enforced
 
-`now.config.json` has `"scope": "x_335329_iscan"`. This is a **scoped**
+`now.config.json` has `"scope": "x_nold_iscan"`. This is a **scoped**
 app, not global — the platform automatically namespaces every table,
 role, and property this scope creates, so there's no collision risk with
 other apps the way there would be in global scope. This repo still names
-everything with the `x_335329_iscan` prefix explicitly (tables:
-`x_335329_iscan_run`, `x_335329_iscan_result`, `x_335329_iscan_table`;
-role: `x_335329_iscan.scanner`; properties: `x_335329_iscan.*`) to match
+everything with the `x_nold_iscan` prefix explicitly (tables:
+`x_nold_iscan_run`, `x_nold_iscan_result`, `x_nold_iscan_table`;
+role: `x_nold_iscan.scanner`; properties: `x_nold_iscan.*`) to match
 what the platform will actually generate — keep doing this for
 consistency if you add a new table/role/property. Script include class
 names (`IscanAppSelector`, etc.) don't carry the prefix, but their
-`apiName` is always `x_335329_iscan.<ClassName>`.
+`apiName` is always `x_nold_iscan.<ClassName>`.
 
 **"Run Scan" is a server-side UI Action, NOT GlideAjax.** It was
 originally built as a GlideAjax call into `IscanScanOrchestrator`, but
@@ -81,22 +81,22 @@ server-side UI Action, same as Run Scan — see below) — that path is
 unaffected and still needs all three of the following to line up, or the
 client gets an empty answer with no error anywhere:
 
-1. Client calls `new GlideAjax('x_335329_iscan.IscanReportGenerator')`
+1. Client calls `new GlideAjax('x_nold_iscan.IscanReportGenerator')`
    — the scope-qualified `apiName`, NOT the bare class name.
 2. The SI is `clientCallable: true`, left at the default
    `accessibleFrom: 'package_private'`. Do **not** set `accessibleFrom:
    'public'` — that was tried and reverted. The "Download Report" UI
-   Actions, their forms, and this SI are all in `x_335329_iscan`, so
+   Actions, their forms, and this SI are all in `x_nold_iscan`, so
    `package_private` ("callable from the application scope it's within")
    is correct and sufficient. `public` instead makes the platform run a
    `GlidePluginManager.isActive()` check against the caller's scope to
    admit cross-app callers, which fails with `Could not find sys_plugins
-   record for x_335329_iscan: no thrown error` for a custom
+   record for x_nold_iscan: no thrown error` for a custom
    in-development app never registered as a store plugin — and GlideAjax
    silently returns nothing. Only reach for `public` if a script include
    genuinely needs to be called from a *different* app's scope.
 3. The execute ACL's `name` is also the scope-qualified apiName
-   (`x_335329_iscan.IscanReportGenerator`), matching what the platform
+   (`x_nold_iscan.IscanReportGenerator`), matching what the platform
    checks for a scoped SI.
 
 Copy this pattern for any *new* GlideAjax entry point — but prefer a
@@ -109,10 +109,10 @@ asynchronous; it sidesteps this whole failure class.
 plain form action button (`form: { showButton: true }`), not a related
 link or list-view action — `showInsert: false, showUpdate: true` on both
 UI Actions, so it only renders on an *existing* record, never on an
-unsaved one. On `x_335329_iscan_run` it's `order: 200` (after Run Scan
-at `order: 100`); on `x_335329_iscan_result` it's `order: 100` (before
+unsaved one. On `x_nold_iscan_run` it's `order: 200` (after Run Scan
+at `order: 100`); on `x_nold_iscan_result` it's `order: 100` (before
 Copy LLM Context at `order: 200`) — both require the
-`x_335329_iscan.scanner` role, so it won't render at all without it.
+`x_nold_iscan.scanner` role, so it won't render at all without it.
 `IscanReportGenerator._convertToPdf()` calls the real platform **PDF
 Generation Utilities** plugin (`sn_pdfgeneratorutils.PDFGenerationAPI
 ().convertToPDFWithHeaderFooter(...)`), NOT a Jelly print view — this
@@ -183,7 +183,7 @@ separate vault, not in this repo:
 That vault predates the switch to now-sdk and uses a different scope
 name (`x_snis_iscan`) than this repo actually builds with. Both are
 scoped apps — treat the vault as authoritative for *why* something is
-built a certain way, but this repo's `x_335329_iscan_*` naming is the
+built a certain way, but this repo's `x_nold_iscan_*` naming is the
 current source of truth for *what things are actually called* — don't
 reintroduce the `x_snis_iscan` prefix based on the vault without
 checking with the user first.
@@ -220,7 +220,7 @@ wants a note created/appended there.
 
 - `now.config.json`, `package.json` — now-sdk app config (do not hand-edit
   scope/scopeId without the user's say-so — that's an instance-level identity)
-- `src/fluent/tables.now.ts` — `x_335329_iscan_run`, `x_335329_iscan_result`, `x_335329_iscan_table`
+- `src/fluent/tables.now.ts` — `x_nold_iscan_run`, `x_nold_iscan_result`, `x_nold_iscan_table`
 - `src/fluent/roles.now.ts`, `properties.now.ts` — the scanner role, the 3 system properties
 - `src/fluent/script-includes.now.ts` — registers the 6 script includes, each `Now.include`-ing its body from `src/server/`
 - `src/fluent/acls.now.ts` — record ACLs on the 3 tables + the execute ACL for the 1 client-callable script include (`IscanReportGenerator`)
@@ -246,7 +246,7 @@ wants a note created/appended there.
 ## Conventions to preserve when editing this code
 
 - **Read-only app.** No script here may write to a scanned table — only
-  to `x_335329_iscan_*` tables. This is a hard constraint from the spec,
+  to `x_nold_iscan_*` tables. This is a hard constraint from the spec,
   not a style preference.
 - **No elevated privilege.** Every query in `IscanTableScanner` runs
   under the caller's own access. `canAccessMetadata()` is a deterministic
@@ -258,11 +258,11 @@ wants a note created/appended there.
   the user explicitly asking for it.
 - **`llm_context` vs `summary_text`** (v2) — `buildPrompt()` produces a
   full 5-section architecture briefing persisted to
-  `x_335329_iscan_result.llm_context` on *every* scan; `summary_text` is
+  `x_nold_iscan_result.llm_context` on *every* scan; `summary_text` is
   the optional GenAI paragraph. Only `summary_text` depends on the GenAI
   Controller being available — never make `llm_context` conditional on
   it. `generate()` truncates its own input via
-  `x_335329_iscan.genai_max_input_chars`; the persisted `llm_context`
+  `x_nold_iscan.genai_max_input_chars`; the persisted `llm_context`
   always stays full-length. On the fallback path the data-model section
   is *omitted with an explanation*, never zero-filled — a reader seeing
   "0 tables" would wrongly conclude the app has none.
@@ -296,7 +296,7 @@ wants a note created/appended there.
   client. But prefer a server-side UI Action over GlideAjax when the
   caller is this app's own form — see the "Run Scan" note above.
 - **Scripts write as the calling user** — the scanner role needs write
-  on `x_335329_iscan_run` and create on result/table-profile tables
+  on `x_nold_iscan_run` and create on result/table-profile tables
   (see `acls.now.ts`). The orchestrator throws a descriptive error when
   `update()`/`insert()` come back null (ACL denial) instead of scanning
   silently into nothing; keep that pattern for new writes.
@@ -314,7 +314,7 @@ as they're decided — check there before re-proposing an option that was
 already considered and rejected.
 
 **Modes (sub-spec 1 — IMPLEMENTED):**
-- `x_335329_iscan_run.scan_mode` gains a 4th value: `single_table`
+- `x_nold_iscan_run.scan_mode` gains a 4th value: `single_table`
   (label "Manual — Single Table"), alongside `full`, `custom_only`, and
   `manual` (relabeled "Manual — App").
 - New `target_app` (`ReferenceColumn` to `sys_app`, no qualifier) becomes
@@ -331,7 +331,7 @@ already considered and rejected.
   appear in that app's table profile since it's owned by that scope. IF
   the scope has no `sys_app` record (true for `global` and many OOB
   scopes — e.g. picking `incident` or `sys_user`), there's nothing to
-  tally against `x_335329_iscan_result.app` (mandatory reference to
+  tally against `x_nold_iscan_result.app` (mandatory reference to
   `sys_app`), so it falls back to profiling just that one table.
 - `IscanTableScanner.profileTable()`'s field capture is being changed to
   drop its `sys_scope` filter — it will return the table's COMPLETE field
@@ -368,13 +368,13 @@ already considered and rejected.
   `global` and most OOB scopes), falls back to a new `_scanOneTable(run,
   tableName)` path: profiles just that one table
   (`profileTable(tableName)`, no `_findIntegrations`, no `sys_app`
-  lookup at all) and, since `x_335329_iscan_result.app` stays mandatory
-  and isn't being relaxed, writes NO `x_335329_iscan_result`/
-  `x_335329_iscan_table` row for this case — the profile data (fields,
+  lookup at all) and, since `x_nold_iscan_result.app` stays mandatory
+  and isn't being relaxed, writes NO `x_nold_iscan_result`/
+  `x_nold_iscan_table` row for this case — the profile data (fields,
   row count, references) is written into `run.scan_findings`/`comments`
   only, visible on the run form but not queryable via the result
   tables.
-- New UI Policy (this app's first) on `x_335329_iscan_run`: symmetric
+- New UI Policy (this app's first) on `x_nold_iscan_run`: symmetric
   visibility toggling — `target_app` shown only for `manual` mode,
   `target_table` shown only for `single_table` mode, both hidden for
   `full`/`custom_only`. This is cosmetic/UX only; it does NOT replace
@@ -392,13 +392,13 @@ already considered and rejected.
 
 **Counting (sub-spec 2 — IMPLEMENTED):** full
 design at `docs/superpowers/specs/2026-07-21-counting-design.md`. Adds
-22 new `IntegerColumn`s to `x_335329_iscan_result` (15 "Group A" types
+22 new `IntegerColumn`s to `x_nold_iscan_result` (15 "Group A" types
 folded into `IscanAppFilesScanner`'s existing single `sys_metadata`
 query via new `CLASS_BUCKETS` entries — free perf-wise; 7 "Group B"
 types needing their own dedicated per-app queries — real perf cost,
 gated off by default for `full` mode via a new
-`x_335329_iscan.include_extended_counts_on_full_scan` property), plus 2
-new columns on `x_335329_iscan_table` for a new "dictionary override"
+`x_nold_iscan.include_extended_counts_on_full_scan` property), plus 2
+new columns on `x_nold_iscan_table` for a new "dictionary override"
 capability on `IscanTableScanner` (a field whose `sys_scope` differs
 from its table's owning scope — i.e. another app extended a table it
 doesn't own). Roles/groups/system properties are explicitly excluded —
@@ -422,10 +422,10 @@ precedent as Counting. Same-app references (a table referencing another
 table owned by the same app) are included, not filtered — the Report
 sub-spec can slice inter-app vs. intra-app later without re-scanning.
 Persisted as `inbound_reference_count`/`inbound_reference_list` summary
-columns on `x_335329_iscan_table` (same shape as `dictionary_override_*`),
-plus a new child table `x_335329_iscan_crossref` (one row per referencing
+columns on `x_nold_iscan_table` (same shape as `dictionary_override_*`),
+plus a new child table `x_nold_iscan_crossref` (one row per referencing
 field, including the resolved `referencing_app`) for the Report sub-spec to
-query/group/filter. No rows are written to `x_335329_iscan_crossref` from
+query/group/filter. No rows are written to `x_nold_iscan_crossref` from
 Single Table mode's no-owning-app fallback path (`_scanOneTable`) — that
 path only logs the inbound reference count to `run.scan_findings`, consistent
 with how it already handles dictionary overrides.
@@ -435,16 +435,16 @@ Run/Result report HTML builders gained 3 presence/absence status flags —
 no numeric thresholds, since there's no real basis for picking a count
 cutoff. Warnings: `scan_mode_used === 'app_files_fallback'` (incomplete
 data), and summed `dictionary_override_count > 0` across the app's
-`x_335329_iscan_table` rows (a real governance signal — another app
+`x_nold_iscan_table` rows (a real governance signal — another app
 modified a table it doesn't own, or this app did). Informational (not a
-warning): count of distinct apps with `x_335329_iscan_crossref` rows
+warning): count of distinct apps with `x_nold_iscan_crossref` rows
 pointing at this app's tables (excluding this app itself) — having
 dependents isn't inherently bad. The Run report's per-app table gained a
 condensed icon-only Status column; the Result report gained a full Status
 line, an "Extended counts" section (Counting's ~22 non-Group-A/B-overlap
 counts, zero values skipped), 2 new Tables columns (Dictionary Overrides,
 Inbound References — both already stored, just not previously rendered),
-and a "Cross-references" section (one row per `x_335329_iscan_crossref`
+and a "Cross-references" section (one row per `x_nold_iscan_crossref`
 record tied to the app's tables, omitted entirely when there are none). No
 new script include, table, property, or UI Action — `_convertToPdf` and
 the GlideAjax entry points are unchanged.
@@ -456,7 +456,7 @@ built via a LIVE `IscanAppFilesScanner.scanApp()` re-query at report time
 — no new storage for item lists) covering every artifact type including 4
 new ones (Scripted REST resources, SLA definitions, UI pages, Service
 Portal pages). Both reports also gained a "Customizations on base-system
-tables" section reading the new `x_335329_iscan_global_customization`
+tables" section reading the new `x_nold_iscan_global_customization`
 table — populated for EVERY scan mode via two write paths: per-app
 (`IscanTableScanner.findAppCustomizationsOnGlobalTables`, called for
 every app scanned in every mode) and per-table (`findGlobalCustomizations`,
@@ -484,7 +484,7 @@ artifact types added throughout the counting/itemization pipeline:
 Events (`sysevent_register`) and Import Sets (`sys_import_set_source`) —
 both newly added and lowest-confidence of all the flagged table names,
 verify first. Also added an explicit related list
-(`src/fluent/related-lists.now.ts`): `x_335329_iscan_result` (via `run`)
+(`src/fluent/related-lists.now.ts`): `x_nold_iscan_result` (via `run`)
 on the Run form — related lists for a reference field normally
 auto-render, but this form's custom `sys_ui_section` was suspected of
 suppressing that default (same failure class as the earlier
@@ -512,7 +512,7 @@ that touch the request context this script never provides.
 `generateRunReport()` itself is UNCHANGED: it still builds the report via
 `_buildRunReportHtml()`, converts it via the platform's PDF Generation
 Utilities plugin, and attaches the resulting PDF to the
-`x_335329_iscan_run` record — that attachment target was already correct
+`x_nold_iscan_run` record — that attachment target was already correct
 before this change, only the trigger mechanism was broken/fragile. No
 `current.update()` in the new script (it never touches the run record's
 own fields, only writes an attachment), so there's no "Invalid update"
@@ -532,10 +532,10 @@ hard convention as `IscanTableScanner.canAccessMetadata()` — never a
 try/catch fallback), cross-checking each plugin's stored `active` flag
 against a live `new GlidePluginManager().isActive(pluginId)` call and
 flagging any disagreement as `status_mismatch`. Results land in a new
-child table `x_335329_iscan_module`, keyed directly off `run` (mandatory
+child table `x_nold_iscan_module`, keyed directly off `run` (mandatory
 `run` reference, no `result` — same shape as
-`x_335329_iscan_global_customization`'s no-owning-app rows, not
-`x_335329_iscan_table`'s `result`-keyed shape), since there is no owning
+`x_nold_iscan_global_customization`'s no-owning-app rows, not
+`x_nold_iscan_table`'s `result`-keyed shape), since there is no owning
 app to tally against. `IscanScanOrchestrator._executeModulesRun()` mirrors
 `_executeSingleTableRun()`'s update()-guard/try-catch/status shape;
 `_resolveAppList()` gained a `case 'modules': return { modulesOnly: true
@@ -545,7 +545,7 @@ modes, **there is no ACL-denial fallback for modules mode** — a
 explicit `scan_findings` line, not a silent zero-row `'complete'`. The
 optional GenAI summary reuses `IscanSummaryGenerator.generate()`
 unchanged (same degrade-gracefully-if-unavailable contract every other
-mode relies on) — no new field on `x_335329_iscan_run` for it; the
+mode relies on) — no new field on `x_nold_iscan_run` for it; the
 returned paragraph, if any, is appended via the existing
 `_appendScanFinding()` dual-write helper instead. Known accepted
 tradeoff: `buildPrompt()`'s 5 sections are hardcoded to an app-scan shape,
@@ -553,9 +553,9 @@ so the GenAI *input* prompt reads a bit app-shaped for what's actually a
 plugin scan (e.g. a "Data model" section saying "owns no tables") — this
 only affects prompt quality, not pipeline correctness, and no user ever
 sees the raw input, only the returned summary. `src/fluent/related-lists.now.ts`
-got an explicit related-list pair for `x_335329_iscan_module` (via
+got an explicit related-list pair for `x_nold_iscan_module` (via
 `run`) on the Run form — same requirement as the existing
-`x_335329_iscan_result` one, since this app's custom `sys_ui_section`
+`x_nold_iscan_result` one, since this app's custom `sys_ui_section`
 form layout has already been found to suppress default related-list
 rendering. `IscanReportGenerator._buildRunReportHtml()` gained an
 "Installed Modules" table section, gated on rows existing for the run
@@ -587,7 +587,7 @@ a finding, + "AI Agent Discovery" scan mode.** Two independent changes.
 *Cross-scope-privilege denial detection* — the user originally asked for
 auto-remediation (this app creating/approving the missing
 `sys_restricted_caller_access` record on denial); rejected after
-investigation, since it would mean writing outside `x_335329_iscan_*`
+investigation, since it would mean writing outside `x_nold_iscan_*`
 (breaks the read-only rule) and self-granting elevated cross-scope access
 on denial (breaks the "no elevated privilege" rule) — see KB2291532 and
 `application-development/set-RCA-level.md`: a denial creates a
@@ -621,13 +621,13 @@ finding in this app.
 *AI Agent Discovery scan mode (`ai_agents`)* — ported the DETECTION
 STRATEGY/LAYERING from AgentCensus (github.com/BrianMcD47/AgentCensus, an
 external Python project — not its code), built natively following the
-`modules` mode template (`IscanModuleScanner`/`x_335329_iscan_module`,
+`modules` mode template (`IscanModuleScanner`/`x_nold_iscan_module`,
 see "Later addition #4" above) exactly: instance-wide, no app/table
 scoping, own child table keyed directly to `run` (no `result`), explicit
 related-list entry (this app's custom `sys_ui_section` form layout
 suppresses default related-list rendering — same requirement as every
 other child table), nav module entry (order 375, between Modules at 350
-and the Browse separator at 400). New table `x_335329_iscan_ai_agent`:
+and the Browse separator at 400). New table `x_nold_iscan_ai_agent`:
 `run` (mandatory reference), `layer` (choice: `native_platform` /
 `custom_shadow` / `flow_designer` / `credential`), `name`, `detail`,
 `source_table`, `confidence` (choice: `confirmed` / `needs_review`). New
@@ -651,7 +651,7 @@ generativelanguage.googleapis.com, cohere.ai, mistral.ai, huggingface.co)
 bare provider names. Layer 3 (script keyword scan across
 `sys_script`/`sys_script_include`/`sysauto_script`/`sys_ui_action` script
 bodies) is the only layer gated behind a property,
-`x_335329_iscan.include_ai_agent_keyword_scan` (default `false`) — same
+`x_nold_iscan.include_ai_agent_keyword_scan` (default `false`) — same
 precedent as Counting's `include_extended_counts_on_full_scan`: a
 `CONTAINS` query on a script-body field across every row of 4 tables,
 instance-wide, is real per-instance perf cost, unlike every other layer's
@@ -679,7 +679,7 @@ diff smaller — `modules` mode's GenAI reuse was an explicit spec ask for
 that mode specifically, not a required precedent for every future
 instance-wide mode). `IscanReportGenerator._buildRunReportHtml()` gained
 an "AI Agent Discovery" section, gated on `hasNext()` for
-`x_335329_iscan_ai_agent`, grouped by layer, with a confidence icon column
+`x_nold_iscan_ai_agent`, grouped by layer, with a confidence icon column
 (✅ confirmed vs ❓ needs review) — same insertion point and
 `hasNext()`-gated pattern as the Installed Modules section immediately
 above it.
@@ -690,3 +690,499 @@ If the user invokes `/caveman`, switch to ultra-concise mode for the
 rest of the session per that skill's instructions (short sentences, no
 filler, results before narration). It's a communication-style toggle,
 not a change to the engineering conventions above.
+
+**Later addition #6 (2026-08-28): Instance Scan Console UI Page — this app's
+first UI Page.** Endpoint `x_nold_iscan_console.do` (`src/fluent/ui-pages/console.now.ts`,
+`direct: true`, `html` imported from the build output of `src/client/index.html`
+— NOT `Now.include`, which is what every other script body in this repo uses;
+UI Pages are the one exception, per the SDK's own ui-page guide). React 18.2.0
++ `@servicenow/react-components`, NOT Jelly — new deps `react`/`react-dom`
+`18.2.0`, `@servicenow/react-components` `^0.1.0` (caret required by the guide),
+devDep `@types/react` `18.3.12`. No webpack/vite/babel config exists or should
+ever be added: `now-sdk build` bundles `src/client/**` into
+`sys_ux_lib_asset` records automatically.
+
+*Routing* — SPA over `URLSearchParams`, four views: `?view=dashboard` (default,
+metric tiles + recent runs), `?view=runs`, `?view=results`, and
+`?view=detail&id=<sys_id>&table=<table>`. The `table` param is an extension over
+the guide's plain `?view=detail&id=` because two different tables
+(`x_nold_iscan_run`, `x_nold_iscan_result`) feed the same detail view.
+`src/client/utils/nav.ts` holds the whole router (~35 lines): `getViewFromUrl`,
+`buildPath`, and `setPageTitle`, which does the mandatory Polaris iframe check
+(`window.self !== window.top` → `CustomEvent.fireTop('magellanNavigator.permalink.set')`,
+else `document.title`). Browser back/forward works via a `popstate` listener in
+`app.tsx`. Never hash routing, never `window.location.reload()`.
+
+*Read-only by design, like the rest of the app.* The detail view is
+`RecordProvider isReadOnly={true}` + `FormColumnLayout` with NO `FormActionBar`,
+so the page opens no write path at all — not even into `x_nold_iscan_*`.
+Consequently there is no dirty-state tracking and no unsaved-changes `Modal`:
+the guide mandates those only for views that create or edit. Every write stays
+where it already was — the platform form's UI Actions (Run Scan, Download
+Report), reachable from the detail view's "Open in platform form" `TextLink`,
+and `onNewActionClicked` (which `NowRecordListConnected` requires unless
+`hideHeader`) navigates to `/x_nold_iscan_run.do?sys_id=-1` rather than
+building a create view. If you ever add an editable view here, dirty state via
+`useRecord().form.isDirty` becomes mandatory.
+
+*Components* (docs under `node_modules/@servicenow/react-components/docs/` —
+read them before using any of these; prop names are NOT standard React, e.g.
+text is a `label` prop, events are `onXxxSet`/`onClicked` with data in
+`event.detail.payload`): `NowRecordListConnected` (all three record lists — never
+a manual `fetch` + `.map()` + `<table>`; it has no `query` prop, filtering/sorting
+is done by passing an encoded query as the React `key`), `RecordProvider` +
+`FormColumnLayout` (there is no `RecordField` component), `Card`, `Button`,
+`Heading`, `Alert`, `Loader`, `TextLink`. Only the dashboard's roll-up numbers
+need direct API calls — `src/client/services/MetricsService.ts` hits
+`/api/now/stats/<table>?sysparm_count=true` (plus one `sysparm_group_by=status`
+call for the runs-by-status tiles) with `X-UserToken: window.g_ck` and
+`sysparm_display_value=all`. `src/client/utils/fields.ts` carries the
+`display()`/`value()` helpers for that response shape.
+
+*Dark-mode contrast is architectural, not cosmetic.* `src/client/app.css`
+contains ZERO hardcoded colors — the whole reason dark mode breaks is hardcoded
+hex. Every color is a Horizon design token wrapped in `rgb()`/`rgba()` with a
+chained `var()` fallback, because each token carries both a light and a dark
+value and the theme system swaps them. A `--snx-*` alias layer on `:root` maps
+component-specific (never generic) aliases onto those tokens. The three
+inversion gotchas the theming guide calls out are all handled: surfaces use
+`--now-container-card--background-color` (NOT `--now-container--color`); the side
+nav uses `content-tree` tokens (NOT `navigation-sidebar`); status pill text uses
+`--now-indicator_label--{variant}--color` (note the `_label` subcategory), not
+the base indicator color. Severity naming is always `positive`/`critical`/
+`warning`/`info` — never "success"/"error". Interactive elements are all platform
+`Button` components, so their base/hover/active/focus-visible/disabled states and
+focus rings come from Horizon rather than hand-rolled CSS. Spacing uses the tight
+end of the scale (`--now-static-space--sm`/`--md` inside, `--lg`/`--xl` between
+sections) for a dense dashboard rhythm; layout is relative-unit only, responsive
+at 768px, and wide platform lists scroll inside `.iscan-panel`'s own
+`overflow-x: auto` rather than the page body. Motion is a 320ms opacity/transform
+fade on tiles, disabled under `prefers-reduced-motion`. The ui-ux-pro-max skill's
+suggested glassmorphism/Google-Fonts-CDN/GSAP/hardcoded-`#0F172A` direction was
+deliberately NOT implemented — CDNs and external script sources are forbidden in
+UI Pages and hardcoded colors are exactly the dark-mode bug being avoided; only
+its density/hierarchy/accessibility guidance was applied.
+
+*Navigator entry* — `consoleModule` in `src/fluent/navigation.now.ts`,
+`link_type: 'DIRECT'` with `query: 'x_nold_iscan_console.do'` (a UI Page module
+uses DIRECT + `query`, not LIST/`name`), `order: 50` so it sits above every "New
+<mode> Scan" module: the console is now the app's front door.
+
+*Blank-page bug, fixed 2026-08-28 — do not reintroduce.* The first build of this
+page rendered completely blank with `Uncaught SyntaxError: expected expression,
+got '>'` at `x_nold_iscan_console.do:89`. Cause: `src/client/index.html`
+followed the SDK ui-page guide's template literally, including the
+`//` + CDATA-open / `//` + CDATA-close comment pair wrapped around the inline
+Array.from polyfill. Those guards are correct for a hand-written Jelly page, but
+now-sdk **already wraps the entire `html` field in its own CDATA section** at
+build time. A CDATA close sequence cannot legally appear inside CDATA, so the
+build split ours across two sections; the browser unwrapped that back into a
+stray `>` alone on a line, which is a hard parse error. The inline script died,
+React never bootstrapped, and the `formFetcherBehavior.js` "can't access property
+actionHandlers" error was downstream fallout, not a separate bug. Fix was to
+delete both guard comments — the SDK's outer CDATA already keeps the `&&` and `<`
+operators in that polyfill literal (verified in the generated
+`dist/app/update/sys_ui_page_*.xml`: exactly 1 CDATA section, 0 split-escapes).
+When touching `index.html`, re-check that generated XML rather than trusting the
+guide's template. Two console errors seen alongside this were unrelated platform
+noise and are expected: Firefox's `InstallTrigger is deprecated`, and
+`Requested sysProp : com.snc.pdf.generation.accessibility does not exist`.
+
+*14 `sys_choice` duplicate-definition warnings, fixed 2026-08-30.* Every build
+printed `Record "sys_choice.<id>" is defined 2 times ... 1. generated/keys.ts
+(delete) 2. tables.now.ts`. `src/fluent/generated/keys.ts` held 14 stale
+`deleted: true` tombstones whose `key` (name/element/value) matched choices that
+are still LIVE in `tables.now.ts` — `x_nold_iscan_run.scan_mode` (full,
+custom_only, manual, single_table), `.status` (pending/running/complete/error),
+`x_nold_iscan_result.scan_mode_used` (full_access, app_files_fallback), and
+`x_nold_iscan_table.well_known_base` (task, cmdb_ci, other, none). So the
+project simultaneously said "delete this record" and "create this record"; the
+warning's own "the last entry from each conflict will take precedence" means an
+unlucky ordering could have deleted live choices off the instance — a real
+hazard, not cosmetic noise. Fix was deleting those 14 tombstone entries from
+`keys.ts`. Confirmed afterwards that the build does NOT regenerate them (0
+`sys_choice` tombstones remain) and that the 14 `deleted: true` entries still in
+the file are unrelated and legitimate (`sys_ui_element` ×9 from form-layout
+churn, plus `sys_security_acl`, `sys_security_acl_role`,
+`sys_user_role_contains`, `sys_documentation`, `sys_dictionary`) — the matching
+count of 14 is coincidence. If these warnings ever return, check whether a
+tombstone's `key` still matches a live definition before deleting it; a
+tombstone for a genuinely removed choice is correct and must stay.
+
+*Glass restyle (2026-08-30).* Reworked `app.css` to a frosted-glass surface
+treatment on user request, WITHOUT breaking the token-only rule — still zero
+hardcoded colors. The glass surfaces reuse the exact same Horizon tokens as the
+solid ones, just with an alpha channel (`rgba(var(--token), a)`), so dark mode
+keeps inverting on its own. Alpha is deliberately high (0.62–0.78, versus the
+0.1–0.2 typical of decorative glassmorphism) because text sits directly on
+these panels and must clear WCAG AA 4.5:1 in both themes — **do not lower it**.
+`.iscan-shell` gained two very low-alpha radial token washes; without something
+tinted behind them the blur is invisible on a flat background. Metric tiles are
+platform `<now-card>` web components whose surface lives in a shadow root this
+stylesheet cannot reach, so they are glassed via the only two levers that cross
+that boundary: `backdrop-filter`/`box-shadow` apply to the host element, and
+custom properties inherit through the shadow boundary, so
+`--now-container-card--background-color-alpha` is lowered on the host rather
+than any color being hardcoded — if a platform version ignores that alpha token
+the card just stays opaque on a blurred host (muted, not broken). Status pills
+stay fully opaque on purpose: they encode meaning and the
+`indicator`/`indicator_label` pair is contrast-checked as a SOLID pair, so
+translucency would put their contrast at the mercy of whatever sits behind them.
+Two fallbacks both revert to the original solid surfaces: `@supports not
+(backdrop-filter)` (unblurred translucency is just washed-out text) and
+`@media (prefers-reduced-transparency: reduce)`. Hover lift is transform +
+box-shadow only, disabled under `prefers-reduced-motion`.
+
+*Scan-result detail "record not found", fixed 2026-08-30.* Clicking a row in
+the Scan results list opened a detail view that reported record not found.
+Cause: `NowRecordListConnected`'s ROW_CLICKED event fires on **"the first link
+in a row"**, so when the first column is a reference field the link points at
+the REFERENCED record, and the payload's top-level `sys_id`/`table` can describe
+that record rather than the row's own. The results list's first column is `app`,
+a reference to `sys_app` — so the console navigated to a `sys_app` sys_id while
+asking for it in `x_nold_iscan_result`. The runs list was unaffected because
+its first column (`scan_mode`) is a choice, not a link. Note the component's own
+doc contradicts itself here: the prose says to use `payload.sys_id`/
+`payload.table`, while the `RowClickedPayload` interface in the same file also
+carries `record_id`/`recordTable` **and** a `row.sys_id.value`. The row object is
+the row's own record, so the fix is a single shared helper,
+`rowRecordId(payload)` in `src/client/utils/fields.ts`, preferring
+`row.sys_id.value` and falling back to `record_id` then `sys_id`. All three list
+click handlers (2 in `app.tsx`, 1 in `Dashboard.tsx`) route through it — keep it
+that way, per-caller extraction is how this got in. `RecordDetail` also now
+renders an explicit "No record selected" `Alert` when it receives an empty
+sysId, instead of handing `RecordProvider` a blank id and showing a bare
+platform error with no way back.
+
+*Liquid Glass pass (2026-08-30), replacing the all-over glass above.* The
+ui-ux-pro-max DB's `liquid-glass` entry is explicit that the material is for
+"navigation and controls", applied **sparingly**, with "content on a separate
+layer" — and its accessibility profile is `risk:conditional` requiring
+`contrast-text-4.5`. Glassing every surface (the previous pass) put dense
+platform-list text at the mercy of whatever sat behind it. So the architecture
+is now split: **chrome is glass, content is clear.** `.iscan-nav` is the single
+signature surface — adaptive translucent fill, `blur(20px) saturate(1.7)`, a
+lensing edge built from paired inset box-shadows (bright top, shaded bottom),
+and a specular sweep via `::before` — while `.iscan-panel` went back to the
+SOLID surface token, because that is what holds the record lists and forms.
+Metric tiles keep a restrained glass. Specular/lens highlights derive from
+`--now-color_background--primary`, so they read as a bright highlight in light
+mode and a soft lift in dark mode rather than a fixed white that would glare on
+a dark theme — deliberate, do not swap it for a literal white. Chrome uses a
+doubled radius (`--snx-radius-chrome`) for the squircle feel; content keeps the
+platform container radius. The file is now ordered tokens → chrome → content →
+status → motion → fallbacks, with chrome and content styled by SEPARATE
+selectors instead of one shared rule plus overrides — the previous version had
+`.iscan-panel` in a grouped glass rule and then re-declared its background
+later, exactly the specificity trap the frontend-design skill warns about.
+Added along the way: an explicit `:focus-visible` outline (a subtle ring washes
+out on a translucent pane), and `font-variant-numeric: tabular-nums` on tile
+values so the metric row does not jitter as counts change.
+
+*Console v2 (2026-08-30): one-click scan launcher, per-result dashboard, flex
+tiles.* Four changes to the console, plus this app's first Scripted REST API.
+
+*Scan launcher — new Scripted REST endpoint.* `POST /api/x_nold_iscan/iscan_run_scan/run`
+(`src/fluent/rest-apis.now.ts`, unversioned, `serviceId: 'iscan_run_scan'`,
+`path: '/run'`), script body in `src/server/IscanRunScanApi.server.js` via
+`Now.include(...)` like every other server script here. A UI Page cannot press
+the server-side "Run Scan" UI Action, so the console needed its own trigger, and
+the two obvious alternatives were both rejected on the same grounds this repo
+already documents: a **business rule** on `x_nold_iscan_run` insert would
+DOUBLE-SCAN (the UI Action already scans on form submit, so every form-created
+run would scan twice), and **GlideAjax** is banned in UI Pages by the SDK guide
+and is the exact silent-empty-answer failure class this app removed. A scripted
+REST resource fails LOUDLY — real HTTP status, real body — which is the property
+that makes it safe. The script owns NO scan logic: it validates `scan_mode`
+against the six real `scan_mode` ChoiceColumn values (rejecting anything else
+with HTTP 400), normalizes optional `app_ids` (array or comma-separated string,
+mirroring `RunScanUiAction.server.js`'s `target_app` split) and `target_table`,
+then calls the existing public `IscanScanOrchestrator.runScan(scanMode, appIds,
+targetTableSysId)` — the same entry point the ATF/programmatic path uses. No new
+orchestrator method, no duplicated orchestrator logic, no `src/server/*` scanner
+edits. It runs as the CALLING USER (no `gs.setUser`, no impersonation), so the
+orchestrator's own `update()`-guard ACL-denial errors still surface, and it
+writes nothing itself. Returns `{sys_id, status, scan_mode}` with HTTP 201.
+**Role gate:** a single new `rest_endpoint` / `execute` ACL in `acls.now.ts`
+(`runScanApiExecuteAcl`, name `x_nold_iscan_run_scan_api`, roles
+`[scannerRole]`, `securityAttribute: 'user_is_authenticated'`), referenced from
+BOTH the API and the route via `enforceAcl`. **No other ACL was needed** — every
+table the endpoint reaches through the orchestrator is already covered by the
+existing record ACLs, evaluated as the calling user. **Known, accepted, not to
+be "fixed" with async machinery:** the call is SYNCHRONOUS, so a `full`-mode scan
+of a large instance runs inside the request and could approach the transaction
+timeout. That is not a new risk — the UI Action is equally synchronous inside
+the form-submit request.
+
+Console side: `src/client/services/ScanService.ts` (`startScan`, POSTs with
+`X-UserToken: window.g_ck`, reads `{result}` / bare-body / `{error:{message}}`
+response shapes) and `src/client/components/ScanLauncher.tsx` on the Scan Runs
+tab. **Four modes are one-click** (`full`, `custom_only`, `modules`,
+`ai_agents`) — button disabled and relabelled "— scanning…" while in flight,
+success routes to that run's detail view through the console's own
+`navigate()`, failure renders a `critical` `Alert` (never a silent no-op).
+**`manual` and `single_table` deep-link instead**, to
+`/x_nold_iscan_run.do?sys_id=-1&sysparm_query=scan_mode=<mode>` (the same
+`link_type: 'NEW'` + `query` shape this app's navigator modules already use):
+they cannot run without an app/table, and the pickers for those — a `sys_app`
+slushbucket, a `sys_db_object` reference — already exist on the platform form.
+Their button copy says "— pick target on form" so the split is unambiguous.
+
+*Scan results tab — the list was CORRECT as written; do not "fix" it again.*
+All six columns (`app,run,scan_mode_used,table_count,business_rule_count,acl_count`)
+verified against `tables.now.ts`, and the read ACLs mirror the runs table
+exactly. The real explanation for an empty tab is data, not code: **Installed
+Modules and AI Agent Discovery runs write NO `x_nold_iscan_result` rows** (their
+findings hang off the run via `x_nold_iscan_module` / `x_nold_iscan_ai_agent`),
+and neither does Manual — Single Table on a table with no owning `sys_app`. A
+`.iscan-hint` line above the list now says so. The one thing that WAS wrong: the
+`key="ORDERBYDESCsys_created_on"` on every list. `NowRecordListConnected` has no
+query/order prop at all — its wrapper forwards only `table`/`listTitle`/`limit`/
+`view`/`columns`/`hide*` to the custom element (verified in
+`node_modules/@servicenow/react-components/dist/NowRecordListConnected.js`) — so
+that string was an ordinary React key doing nothing, and this file's earlier
+claim that filtering/sorting is done "by passing an encoded query as the React
+key" is WRONG. It has been removed. Ordering comes from the table's list layout
+(`sys_ui_list`, auto-generated at build into `dist/app/update/`), not from a prop.
+
+*Dashboard — pick one scan result.* The instance-wide "Scan state" tile row is
+unchanged. Below it, `ResultDashboard.tsx` + `ResultSummary.tsx` +
+`src/client/services/ResultsService.ts` (same conventions as `MetricsService`:
+`X-UserToken`, `sysparm_display_value=all`, `display()`/`value()` from
+`utils/fields.ts`). The picker is a platform `Select` with `search="contains"`,
+not an embedded record list — one value out of a flat list, one row tall, and a
+second list would compete with the recent-runs list directly below it. Selection
+is routed as **`?view=dashboard&result=<sys_id>`**: `nav.ts`'s `ViewState` gained
+`resultId`, `buildPath` a 4th `resultId` param, so the choice is linkable and
+back/forward moves between results. The chosen result's 41 count fields render as
+the same equal-size tiles, **zero values skipped** (same rule as the PDF report),
+sorted descending. Tile labels are DERIVED from the field name
+(`business_rule_count` → "Business rule") rather than a 41-entry label map, which
+could only ever drift from the schema. `summary_text` and `llm_context` are text
+blocks, not tiles: the summary inline (with an explicit note when empty — it is
+optional and degrades to nothing without the GenAI Controller), `llm_context`
+behind a `Collapse` toggle with `white-space: pre-wrap` + a max height, so it
+wraps and scrolls inside itself and never scrolls the page body. Read-only
+throughout — the dashboard displays, it never writes.
+
+*Tiles are now flexbox, all the same size.* `.iscan-tiles` went from
+`display: grid` to `display: flex; flex-wrap: wrap; align-items: stretch`.
+Equal WIDTH comes from an identical `flex: 1 1 12rem` on every `> li` — same
+basis, same grow — so a tile is never sized by its own content and the last row
+lines up with the ones above; equal HEIGHT from `align-items: stretch` plus the
+card (`flex: 1 1 auto`) and `.iscan-tile` (`block-size: 100%`) filling the item.
+`min-inline-size: 0` on the item is what actually lets a long label wrap instead
+of stretching the box — flex items default to `min-width: auto` and would
+otherwise refuse to shrink below their content. Status pills get
+`margin-block-start: auto` so they align across a row. The 768px breakpoint drops
+the basis to `9rem` (basis only, never the grow factor) so two tiles still share
+a phone row. `.iscan-panel` became a `flex` column with a `gap`, so a panel can
+stack heading/hint/action-row/list on one rhythm without per-child margins. New
+classes `.iscan-hint`, `.iscan-text`, `.iscan-text--pre`, `.iscan-actions` — all
+token-only, zero hardcoded colors, chrome and content still on separate
+selectors, and the three guards (`@supports not (backdrop-filter)`,
+`prefers-reduced-transparency`, `prefers-reduced-motion`) untouched and still
+covering everything.
+
+*One more dedup:* the three near-identical `NowRecordListConnected` blocks (runs
+tab, results tab, dashboard recent-runs) collapsed into
+`src/client/components/ListPanel.tsx`. That keeps `rowRecordId()` as the single
+click-payload extraction point — per-caller extraction is what produced the
+"record not found" bug, and three copies of the JSX is how it drifted.
+
+*Console v3 (2026-08-30): own preview modal, grouped result tiles, in-flight scan
+feedback.* The platform's own row "i" preview on `NowRecordListConnected` is **not
+ours to resize, and no amount of CSS will change that** — the React wrapper
+documents zero size-related props and forwards nothing extra to the underlying
+element, and that element ships as an EXTERNAL uxasset
+(`import '@servicenow/now-record-list-connected' assert { external: 'uxasset' }`
+in `dist/NowRecordListConnected.js`), so there is no local source in the package
+in which to find a `::part()` or custom-property size hook. `::part()` only
+reaches a shadow root whose host exposes parts deliberately; a guessed part name
+fails **silently**, which is why this needed evidence rather than an attempt.
+So the console renders its OWN preview instead: `ListPanel` gained a `preview`
+prop (set only on the Scan results tab), and a row click there opens
+`src/client/components/RecordPreviewModal.tsx` — a platform `Modal` with
+`size="custom"` + `customSize={{width:'min(1100px,92vw)', height:'min(850px,88vh)'}}`
+(both are plain CSS value strings; the component clamps width to 100vw and
+height to 90vh), `contentFullWidth`, and the same read-only
+`RecordProvider` + `FormColumnLayout` pair the full-page detail view uses. Its
+footer's "Open full record" routes through the SAME `onOpen`/`rowRecordId()` path
+as a non-preview list, so there is still exactly one click-payload extraction
+point. Escape/dismiss come from `Modal`'s own `onOpenedSet`. Do not reintroduce a
+second extraction site here — that is the bug this file already documents twice.
+
+*Result tiles are grouped, not a flat sorted list.* `src/client/utils/countCategories.ts`
+maps the result table's `*_count` fields into 8 categories (Data model,
+Automation, Flow & process, Integration, Catalog & portal, Security & access,
+Reporting & analytics, Testing & configuration) with an `'Other'` catch-all. It
+is **membership only, never a label map** — labels stay derived from the field
+name (`business_rule_count` → "Business rule"), and a field this list forgets
+about still renders under "Other" rather than disappearing. All 39 entries were
+cross-checked against `tables.now.ts` (zero invented names); the 6 remaining
+`*_count` fields in the schema live on OTHER tables (`app_count` on the run,
+`field_count`/`row_count`/`dictionary_override_count`/`inbound_reference_count`
+on `x_nold_iscan_table`, `custom_artifact_count` on
+`x_nold_iscan_global_customization`), so result-table coverage is complete.
+Zero-valued counts are still skipped, same rule as the PDF report.
+
+*Scan in-flight feedback.* `ScanLauncher` now renders an `info` `Alert` ("do not
+navigate away"), a `Loader`, and a visually-hidden `role="status"`/`aria-live`
+span while the synchronous REST call is outstanding — the buttons alone only
+changed their own label, which a screen reader never announces because focus
+does not move. `Loader`'s `size` accepts only `'md' | 'lg'` (`'sm'` is a build-time
+type error, TS2322 — it was, and was fixed). Two new token-only classes:
+`.iscan-visually-hidden` (clip-path, NOT `display:none` — a hidden element is not
+announced at all) and `.iscan-preview-body` (scrolls the form inside the modal).
+`app.css` still has zero hardcoded colors and all three guards intact.
+**Verified at build time:** `npm run build` clean, 0 warnings, 0 `sys_choice`
+duplicate-definition conflicts, generated `sys_ui_page_*.xml` has exactly 1 CDATA
+section and 0 split-escapes. **NOT verified — no instance was available:** the
+modal's real rendered size, `FormColumnLayout` behaviour inside a `Modal`, dark-mode
+contrast of the glass rail, and forced-colors rendering.
+
+*Console v3, part 2 (2026-08-30): app frame, wayfinding, grouped dashboard,
+empty state.* The rest of the overhaul the first pass never reached.
+`.iscan-header` became glass chrome using the SAME token/lensing/specular pattern
+as `.iscan-nav`, on its OWN selector — chrome and content remain styled by
+separate selectors, and `.iscan-panel` is still the SOLID surface token, since it
+holds the record lists and forms. All three fallback guards
+(`@supports not (backdrop-filter)`, `prefers-reduced-transparency`,
+`prefers-reduced-motion`) were extended to cover `.iscan-header` and its
+`::before` alongside `.iscan-nav` — if you add another glass surface, add it to
+all three or it will render as unblurred translucency (washed-out text), which is
+worse than no effect at all.
+
+Wayfinding now comes from the frame, not only the nav's active item: a
+`Breadcrumbs` trail plus a per-view subtitle driven by a `VIEW_META` map in
+`app.tsx`. `SideNav` gained real `<ul>/<li>` semantics and `aria-current="page"`;
+because the list is now its own element, the mobile flex-row collapse moved from
+`.iscan-nav` onto `.iscan-nav__list` — keep it there. `RecordDetail` gained a
+breadcrumb trail and a heading, and its Back button now names its destination
+("Back to Scan Runs"/"Scan Results") because `app.tsx`'s `onBack` routes to the
+record's OWN list tab rather than always returning to the dashboard.
+
+The dashboard's 10 metric tiles are split into two headed groups ("Run activity",
+"Coverage & findings"), the same grouping pattern `ResultSummary` uses for the
+per-result counts. The Scan Results tab's plain grey hint paragraph became a real
+empty-state block (`.iscan-empty-note`) pairing an `Illustration` with the
+explanation — that tab being empty is usually CORRECT (modules/ai_agents runs, and
+single-table runs on a table with no owning app, write no result rows), so it must
+read as an explanation rather than as a fault.
+
+Two components used here for the first time, both docs-checked: `Breadcrumbs` and
+`Illustration` (`illustration` is REQUIRED, `size`/`alt` optional).
+**Verified at build time:** build clean, 0 errors/0 warnings; `app.css` hex count
+0; `sys_choice` entries in `generated/keys.ts` still 22 with 0 `deleted: true`
+tombstones; every `iscan-*` class used in TSX defined in `app.css`; generated
+`sys_ui_page_*.xml` has exactly 1 CDATA section and 0 split-escapes.
+**NOT verified — no instance, no dev server:** actual browser rendering, real
+dark-mode contrast, focus-ring visibility on the new glass header, and whether
+`Breadcrumbs`/`Illustration` render as expected inside the UI Page iframe.
+
+*Console v4 (2026-08-30): custom-rendered lists and tiles — the platform
+components were the reason it looked like a platform form.* Root cause of two
+failed visual passes: EVERY `@servicenow/react-components` component is an
+external uxasset web component with its own shadow root (`external: 'uxasset'`
+imports in `dist/*.js`). `app.css` cannot reach inside any of them. Since
+`NowRecordListConnected` and the `Card` tiles were the dominant visual mass of
+every screen, styling only the shell/nav/gaps left ~90% of the pixels rendering
+as stock platform chrome. **The lesson generalises: on this page, anything whose
+appearance actually matters has to be our own markup.**
+
+`NowRecordListConnected` is GONE, replaced by `src/client/components/RecordTable.tsx`
++ `src/client/services/TableService.ts` — a real `<table>` fed by direct
+`/api/now/table/<table>` calls. Unlike the component, the Table API DOES support
+querying and ordering (`sysparm_query=ORDERBY(DESC)<field>`, `sysparm_fields`,
+`sysparm_limit`/`sysparm_offset`), so this is strictly more capable, not a
+downgrade — the earlier note that the component had no query/order prop is why
+this was possible. Accessibility is hand-built and must stay: `<caption>` (visually
+hidden), `scope="col"`, `aria-sort` toggling on sortable headers, a real `<button>`
+per row as the open control. Paging uses `X-Total-Count` when present and degrades
+to range-only display when absent (**unverified on the target instance**).
+`ListPanel.tsx` is deleted, and with it `rowRecordId()` — no caller remained.
+**Accepted trade-off:** custom lists lose platform personalization, the column
+chooser and the native list context menu; mitigated by our own sort/paging plus an
+"Open in platform list" link on every table. Revisit only if someone actually wants
+list personalization here — this is a read-only review console.
+
+`Card`-based metric tiles became a plain `.iscan-tile` div, which finally makes
+them stylable (the old `--now-container-card--background-color-alpha` trick
+existed only because the card's surface was behind a shadow boundary — that hack
+is gone with it).
+
+reactbits.dev supplied the visual direction; **nothing was pasted**, because most
+of its components import gsap/framer-motion/three/ogl and no npm dependency can be
+added to this page. Ported dependency-free, token-only: tile tilt + cursor-follow
+glow (`MetricTile` sets `--iscan-tilt-x/y`/`--iscan-glow-x/y` via
+`ref.current.style.setProperty` on mousemove — **deliberately not React state, so a
+mousemove never triggers a re-render**), staggered tile entrance, a slow aurora
+drift on the nav rail's specular sweep, and count-up numbers
+(`utils/useCountUp.ts`, which checks `matchMedia('(prefers-reduced-motion: reduce)')`
+and jumps straight to the final value). All three guards were updated to the new
+DOM: `.iscan-tile` replaces the old `.iscan-tiles now-card` target in the
+`@supports not (backdrop-filter)` and `prefers-reduced-transparency` blocks, and
+`prefers-reduced-motion` now also covers the tilt, glow, aurora and row
+transitions. If you add another effect, add it to that block too.
+
+Still platform components, deliberately: `RecordProvider`/`FormColumnLayout`
+(record detail, and inside the preview modal — reimplementing a whole platform form
+is not worth it), `Modal`, and the small chrome controls (`Button`, `Alert`,
+`Heading`, `Select`, `Collapse`, `TextLink`, `Breadcrumbs`, `Loader`,
+`Illustration`).
+**Verified at build time:** build clean, 0 errors/0 warnings; hex count 0; no new
+npm dependency; no forbidden import; the only non-GET fetch in `src/client/` is
+still `ScanService`'s existing POST; `sys_choice` entries still 22 with 0
+tombstones; generated `sys_ui_page_*.xml` has 1 CDATA section, 0 split-escapes.
+**NOT verified — no instance, no dev server:** rendered appearance, real contrast
+measurement, and whether `X-Total-Count` is present on the target instance's Table
+API responses.
+
+*Console v5 (2026-09-24): the page was vertically centred, and there is now a way to SEE the UI.*
+
+**A local render harness exists — use it before changing any CSS here.** Every
+prior visual pass on this page was done blind, which is why obvious layout faults
+survived four rounds. The harness renders the REAL built bundle offline: serve
+`dist/static` over `python3 -m http.server`, point the page's script tag at the
+built `main.jsdbx`, and stub `window.g_ck` + `window.fetch` so the Table/stats
+APIs return realistic rows. Screenshot it headless with the Chrome under
+`~/.cache/puppeteer/` (playwright-core + `executablePath`; `file://` does NOT work
+— ES modules are CORS-blocked on that scheme, it must be http). Full recipe in the
+session scratchpad's `HARNESS.md`. Its limits: light theme by default, no Polaris
+iframe, and Google Fonts blocked offline so Sora/Work Sans fall back to system
+faces (sizes and weights are still accurate).
+
+**Root cause of the "everything is pushed down / rail is a floating pill" bug.**
+`.iscan-shell` is a two-row grid (header, then nav+main) with `min-block-size:
+100%`. It had no `align-content`, which resolves to `stretch`, so the leftover
+viewport height was distributed BETWEEN the two rows — the header row ballooned,
+the whole page read as vertically centred with ~260px of dead space under the
+title, and the rail could never reach full height. Fixed with three declarations
+that must stay together: `grid-template-rows: auto minmax(0, 1fr)`,
+`align-content: start`, and `align-items: stretch` (the last is what makes the
+rail full-height rather than content-height). `.iscan-nav__footer` keeps
+`margin-block-start: auto` to pin the theme toggle to the bottom of that rail.
+
+**Tiles are `repeat(auto-fit, minmax(12rem, 1fr))`, and `auto-fill` is wrong here.**
+`auto-fill` keeps the empty trailing tracks it creates, so the 4-tile "Run
+activity" row filled only the first 4 of ~8 tracks and stopped dead mid-page while
+the 6-tile row stopped short too. `auto-fit` collapses the empties so every row is
+full-bleed. Accepted trade-off, deliberate: a 4-tile row and a 6-tile row no
+longer share column positions, but each row divides evenly across the full width,
+which reads as intentional where a half-empty row does not.
+
+Also this pass: `.iscan-dash-split` went `align-items: start` → `stretch` (the
+result-detail panel was shrinking to its own sparse content while its sibling card
+stayed tall, so the two looked unrelated); `ResultDashboard` gained a real
+empty state for the no-result-picked case; heading/group-label rhythm loosened;
+`.iscan-main > *:last-child { flex: 1 1 auto }` plus `overflow-y: auto` on
+`.iscan-table-scroll` so the last block fills the viewport and long tables scroll
+inside their card; and `.iscan-shell`'s radial wash gained `background-repeat:
+no-repeat` — it was tiling, and the fade-to-transparent hitting its own next tile
+is what drew the hard rectangular seam behind the tile rows.
+
+Confirmed from the docs corpus (sn-rag, `api-reference/server-api-reference/
+PolarisUIScopedAPI.md`): "A direct UI page doesn't include the common HTML page
+template and **must include all CSS and JavaScript that you want to use in the
+page**." This page is `direct: true`, which is why the inline-CSS `prebuild` step
+is the correct architecture and not a workaround.

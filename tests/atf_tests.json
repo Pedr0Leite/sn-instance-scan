@@ -5,7 +5,7 @@
     "precondition": "Instance has at least one custom-scoped store-installed app and one custom-scoped internally-developed app",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('custom_only', [])",
-      "Query x_335329_iscan_result where run = created run"
+      "Query x_nold_iscan_result where run = created run"
     ],
     "expected": "Result set includes the internal app, excludes the store-installed app"
   },
@@ -15,9 +15,9 @@
     "precondition": "Run as a user with read access to sys_db_object/sys_dictionary and a target custom app's tables",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('manual', [targetAppSysId])",
-      "Open the resulting x_335329_iscan_result record"
+      "Open the resulting x_nold_iscan_result record"
     ],
-    "expected": "scan_mode_used = 'full_access'; table_count > 0; related x_335329_iscan_table rows exist with row_count, field list, reference_field_list populated; tables extending task/cmdb_ci flagged well_known_base accordingly"
+    "expected": "scan_mode_used = 'full_access'; table_count > 0; related x_nold_iscan_table rows exist with row_count, field list, reference_field_list populated; tables extending task/cmdb_ci flagged well_known_base accordingly"
   },
   {
     "name": "Row count uses GlideAggregate, not getRowCount",
@@ -25,7 +25,7 @@
     "precondition": "Same as 'Full scan happy path'; target table has a known row count",
     "steps": [
       "Run scan",
-      "Compare x_335329_iscan_table.row_count to actual table count",
+      "Compare x_nold_iscan_table.row_count to actual table count",
       "Code inspection: confirm IscanTableScanner.profileTable/_countRows uses GlideAggregate COUNT"
     ],
     "expected": "row_count matches actual count; code confirmed to use GlideAggregate, not GlideRecord.getRowCount()",
@@ -39,9 +39,9 @@
       "Impersonate ATF test user",
       "Server-side script step: call IscanScanOrchestrator.runScan('manual', [targetAppSysId])",
       "Check for thrown errors / script log errors",
-      "Open resulting x_335329_iscan_result record"
+      "Open resulting x_nold_iscan_result record"
     ],
-    "expected": "No exception thrown; scan_mode_used = 'app_files_fallback'; automation counts populated from sys_metadata; x_335329_iscan_table has zero rows; result notes fallback mode"
+    "expected": "No exception thrown; scan_mode_used = 'app_files_fallback'; automation counts populated from sys_metadata; x_nold_iscan_table has zero rows; result notes fallback mode"
   },
   {
     "name": "canAccessMetadata gate is deterministic, not exception-based",
@@ -56,10 +56,10 @@
   {
     "name": "Summary generated via single GenAI call",
     "story": "Architecture summary generation",
-    "precondition": "Now Assist / Generative AI Controller active on instance, x_335329_iscan.genai_enabled = true",
+    "precondition": "Now Assist / Generative AI Controller active on instance, x_nold_iscan.genai_enabled = true",
     "steps": [
       "Run scan (full or fallback mode) against one app",
-      "Inspect x_335329_iscan_result.summary_text",
+      "Inspect x_nold_iscan_result.summary_text",
       "Code inspection: confirm generation is a single GenAI Controller call, not an AI Agent/ReAct execution"
     ],
     "expected": "summary_text populated, plausibly references app's tables/automation counts; no sn_aia_execution_plan records created by this app"
@@ -67,7 +67,7 @@
   {
     "name": "GenAI unavailable degrades gracefully",
     "story": "Architecture summary generation",
-    "precondition": "x_335329_iscan.genai_enabled = false (or GenAI Controller API absent)",
+    "precondition": "x_nold_iscan.genai_enabled = false (or GenAI Controller API absent)",
     "steps": [
       "Run scan"
     ],
@@ -78,10 +78,10 @@
     "story": "Results table, form, list view",
     "precondition": "At least one completed scan run",
     "steps": [
-      "Open x_335329_iscan_result list view",
+      "Open x_nold_iscan_result list view",
       "Open one record's form view"
     ],
-    "expected": "List shows app, scan date, scan mode, table count, automation count columns; form shows all result fields plus related list of x_335329_iscan_table child records"
+    "expected": "List shows app, scan date, scan mode, table count, automation count columns; form shows all result fields plus related list of x_nold_iscan_table child records"
   },
   {
     "name": "Scan performs no writes to scanned application data",
@@ -100,7 +100,7 @@
     "precondition": "Instance has 3+ eligible apps",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('manual', [app1SysId, app2SysId])",
-      "Check x_335329_iscan_run.app_count and resulting x_335329_iscan_result records"
+      "Check x_nold_iscan_run.app_count and resulting x_nold_iscan_result records"
     ],
     "expected": "Exactly 2 result records created, matching the selected apps, no others"
   },
@@ -109,10 +109,10 @@
     "story": "PDF report generation",
     "precondition": "At least one completed run with one or more results",
     "steps": [
-      "Open a x_335329_iscan_run record, click Download Report",
-      "Open a x_335329_iscan_result record, click Download Report"
+      "Open a x_nold_iscan_run record, click Download Report",
+      "Open a x_nold_iscan_result record, click Download Report"
     ],
-    "expected": "Each attaches and opens a PDF (sys_attachment) named for the run/app; the run report lists every scanned app with a link to its result record; the result report lists table profiles with links to each x_335329_iscan_table record; links open the target record in a new tab"
+    "expected": "Each attaches and opens a PDF (sys_attachment) named for the run/app; the run report lists every scanned app with a link to its result record; the result report lists table profiles with links to each x_nold_iscan_table record; links open the target record in a new tab"
   },
   {
     "name": "v2: llm_context generated with all 5 sections on full-access scan",
@@ -120,7 +120,7 @@
     "precondition": "Run as a user with read access to sys_db_object/sys_dictionary and a target custom app that owns at least one table",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('manual', [targetAppSysId])",
-      "Read x_335329_iscan_result.llm_context on the resulting record"
+      "Read x_nold_iscan_result.llm_context on the resulting record"
     ],
     "expected": "llm_context is non-empty and contains all five section headings in order: '## 1. Application identity', '## 2. Data model', '## 3. Automation surface', '## 4. Integration points', '## 5. What to do with this'. Section 1 states 'Scan mode: full_access'. Section 2 lists each owned table with its Extends and Well-known base lines and a per-field 'name (type)' list."
   },
@@ -130,7 +130,7 @@
     "precondition": "Target custom app has at least one business rule and one script include with known names",
     "steps": [
       "Run a scan against the target app",
-      "Read x_335329_iscan_result.llm_context, section '## 3. Automation surface'"
+      "Read x_nold_iscan_result.llm_context, section '## 3. Automation surface'"
     ],
     "expected": "The section lists each business rule and script include by NAME (one bullet per record), not just a count. The bracketed count in each bucket header equals the number of name bullets under it."
   },
@@ -141,7 +141,7 @@
     "steps": [
       "Impersonate the restricted ATF test user",
       "Run a scan against the target custom app",
-      "Read x_335329_iscan_result.llm_context"
+      "Read x_nold_iscan_result.llm_context"
     ],
     "expected": "scan_mode_used = 'app_files_fallback'. Section 1 states 'Scan mode: app_files_fallback'. Section 2 contains the 'Not available' explanation and explicitly warns the data model was NOT inspected. It must NOT contain a zero-filled table list (no 'Tables owned by this application: 0'), since a reader must not conclude the app has no tables."
   },
@@ -151,24 +151,24 @@
     "precondition": "Target custom app with known numbers of business rules, script includes, flows, ACLs, and UI actions",
     "steps": [
       "Run a scan against the target app",
-      "Compare x_335329_iscan_result.business_rule_count / script_include_count / flow_count / acl_count / ui_action_count / integration_count against the known values"
+      "Compare x_nold_iscan_result.business_rule_count / script_include_count / flow_count / acl_count / ui_action_count / integration_count against the known values"
     ],
     "expected": "All six count fields match the known values exactly, unchanged from v1 behaviour. Guards the orchestrator refactor that now derives counts from the same scanApp() buckets used for names, and integration_count from _findIntegrations().length instead of a GlideAggregate COUNT."
   },
   {
     "name": "v2: llm_context is written even when GenAI is unavailable",
     "story": "v2 LLM context export",
-    "precondition": "Set x_335329_iscan.genai_enabled = false (or run on an instance with no Generative AI Controller)",
+    "precondition": "Set x_nold_iscan.genai_enabled = false (or run on an instance with no Generative AI Controller)",
     "steps": [
       "Run a scan against any app",
-      "Inspect the resulting x_335329_iscan_result record"
+      "Inspect the resulting x_nold_iscan_result record"
     ],
     "expected": "llm_context is fully populated; summary_text is empty/null; no error is thrown and run status reaches 'complete'. llm_context must not depend on GenAI availability."
   },
   {
     "name": "v2: Copy LLM Context UI Action copies the field",
     "story": "v2 LLM context export",
-    "precondition": "A completed x_335329_iscan_result record with llm_context populated, opened in a UI16 form by a user with the x_335329_iscan.scanner role, over HTTPS",
+    "precondition": "A completed x_nold_iscan_result record with llm_context populated, opened in a UI16 form by a user with the x_nold_iscan.scanner role, over HTTPS",
     "steps": [
       "Open the result record",
       "Click the 'Copy LLM Context' button",
@@ -182,7 +182,7 @@
     "precondition": "None",
     "steps": [
       "Run a scan against at least one app",
-      "Open the x_335329_iscan_run record",
+      "Open the x_nold_iscan_run record",
       "Inspect the activities field and the Activity formatter on the form"
     ],
     "expected": "activities contains the full timestamped log, one line per milestone (unchanged v1 behaviour). comments contains one journal entry per milestone with the same messages, rendered in the native Activity formatter. Entry count in the Activity stream equals the line count in activities. Journal entries accumulate \u2014 later entries must not overwrite earlier ones."
@@ -190,77 +190,77 @@
   {
     "name": "v2: scanner role can write the comments journal field",
     "story": "v2 activity stream comments",
-    "precondition": "A non-admin user holding only x_335329_iscan.scanner",
+    "precondition": "A non-admin user holding only x_nold_iscan.scanner",
     "steps": [
       "Impersonate the scanner-role user",
       "Run a scan",
       "Inspect the resulting run record's comments field and the Activity stream"
     ],
-    "expected": "comments journal entries are written successfully under the table-level write ACL. BUILD-TIME VERIFICATION: x_335329_iscan_run does not extend task, so if entries are silently missing here while activities populates, add an explicit field-level write ACL for comments and re-run."
+    "expected": "comments journal entries are written successfully under the table-level write ACL. BUILD-TIME VERIFICATION: x_nold_iscan_run does not extend task, so if entries are silently missing here while activities populates, add an explicit field-level write ACL for comments and re-run."
   },
   {
     "name": "Manual — App: target_app takes precedence over manual_app_list",
     "story": "Modes sub-spec: Manual — App precedence",
-    "precondition": "Run as a user with the x_335329_iscan.scanner role; two distinct custom apps exist (appA, appB)",
+    "precondition": "Run as a user with the x_nold_iscan.scanner role; two distinct custom apps exist (appA, appB)",
     "steps": [
-      "Server-side script step: create an x_335329_iscan_run record with scan_mode='manual', target_app=appA.sys_id, manual_app_list=appB.sys_id",
+      "Server-side script step: create an x_nold_iscan_run record with scan_mode='manual', target_app=appA.sys_id, manual_app_list=appB.sys_id",
       "Server-side script step: call IscanScanOrchestrator.runScanForRecord(run.sys_id, 'manual', [appB.sys_id], '') — note manualAppList here simulates what RunScanUiAction.server.js would have already resolved: since target_app is set, it passes [appA.sys_id], not [appB.sys_id]",
-      "Query x_335329_iscan_result where run = created run"
+      "Query x_nold_iscan_result where run = created run"
     ],
     "expected": "Result set includes appA only, not appB — confirming the UI Action's precedence logic (tested at the orchestrator boundary by passing the already-resolved [appA.sys_id])"
   },
   {
     "name": "Manual — Single Table: table owned by a custom app runs the full app tally",
     "story": "Modes sub-spec: Single Table mode, owning-app case",
-    "precondition": "Run as a user with the x_335329_iscan.scanner role and read access to sys_db_object/sys_dictionary; a custom app owns at least one table",
+    "precondition": "Run as a user with the x_nold_iscan.scanner role and read access to sys_db_object/sys_dictionary; a custom app owns at least one table",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('single_table', [], targetTableSysId) where targetTableSysId is the sys_id of a sys_db_object record owned by a custom app",
-      "Query x_335329_iscan_result where run = created run",
-      "Query x_335329_iscan_table where result = that result record"
+      "Query x_nold_iscan_result where run = created run",
+      "Query x_nold_iscan_table where result = that result record"
     ],
-    "expected": "Exactly one x_335329_iscan_result row exists, for the table's owning app; x_335329_iscan_table includes a row for the picked table with row_count, field_count, and reference_field_list populated (field_count reflects ALL fields on the table, not just app-added ones — see IscanTableScanner.profileTable)"
+    "expected": "Exactly one x_nold_iscan_result row exists, for the table's owning app; x_nold_iscan_table includes a row for the picked table with row_count, field_count, and reference_field_list populated (field_count reflects ALL fields on the table, not just app-added ones — see IscanTableScanner.profileTable)"
   },
   {
     "name": "Manual — Single Table: OOB table with no owning sys_app falls back to table-only",
     "story": "Modes sub-spec: Single Table mode, no-owning-app case",
-    "precondition": "Run as a user with the x_335329_iscan.scanner role and read access to sys_db_object/sys_dictionary; targetTableSysId is the sys_db_object record for 'incident' (or another table whose sys_scope has no corresponding sys_app record)",
+    "precondition": "Run as a user with the x_nold_iscan.scanner role and read access to sys_db_object/sys_dictionary; targetTableSysId is the sys_db_object record for 'incident' (or another table whose sys_scope has no corresponding sys_app record)",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('single_table', [], targetTableSysId)",
-      "Query x_335329_iscan_result where run = created run",
+      "Query x_nold_iscan_result where run = created run",
       "Open the run record and inspect the activities field"
     ],
-    "expected": "Zero x_335329_iscan_result rows are created for this run; run.status = 'complete'; run.activities contains a line naming the table with its row_count/field_count/reference field list, and a preceding line noting the table has no owning application"
+    "expected": "Zero x_nold_iscan_result rows are created for this run; run.status = 'complete'; run.activities contains a line naming the table with its row_count/field_count/reference field list, and a preceding line noting the table has no owning application"
   },
   {
     "name": "Modules mode: installed plugins profiled instance-wide",
     "story": "Modes sub-spec: Installed Modules scan mode",
-    "precondition": "Run as a user with the x_335329_iscan.scanner role and read access to sys_plugins",
+    "precondition": "Run as a user with the x_nold_iscan.scanner role and read access to sys_plugins",
     "steps": [
       "Server-side script step: call IscanScanOrchestrator.runScan('modules', [])",
-      "Query x_335329_iscan_module where run = created run",
+      "Query x_nold_iscan_module where run = created run",
       "Compare row count to sys_plugins row count on the instance"
     ],
-    "expected": "run.app_count = 0; run.status = 'complete'; one x_335329_iscan_module row per sys_plugins record, with name/plugin_id populated, active_flag mirroring sys_plugins.active, active_confirmed mirroring GlidePluginManager().isActive(plugin_id), and status_mismatch = true only where the two disagree; zero x_335329_iscan_result rows are created for this run"
+    "expected": "run.app_count = 0; run.status = 'complete'; one x_nold_iscan_module row per sys_plugins record, with name/plugin_id populated, active_flag mirroring sys_plugins.active, active_confirmed mirroring GlidePluginManager().isActive(plugin_id), and status_mismatch = true only where the two disagree; zero x_nold_iscan_result rows are created for this run"
   },
   {
     "name": "Modules mode: sys_plugins read denial surfaces as an error, not a silent zero-row scan",
     "story": "Modes sub-spec: Installed Modules scan mode",
-    "precondition": "ATF test user holding x_335329_iscan.scanner but with no read access to sys_plugins",
+    "precondition": "ATF test user holding x_nold_iscan.scanner but with no read access to sys_plugins",
     "steps": [
       "Impersonate the restricted ATF test user",
       "Server-side script step: call IscanScanOrchestrator.runScan('modules', [])",
       "Inspect the resulting run record"
     ],
-    "expected": "run.status = 'error'; run.scan_findings/comments contains an explicit error line naming sys_plugins read access as the cause; zero x_335329_iscan_module rows are created for this run — no silent zero-row 'complete' status"
+    "expected": "run.status = 'error'; run.scan_findings/comments contains an explicit error line naming sys_plugins read access as the cause; zero x_nold_iscan_module rows are created for this run — no silent zero-row 'complete' status"
   },
   {
     "name": "Manual — App: target_app multi-select scans all selected apps",
     "story": "Manual scan mode — multi-select app picker",
-    "precondition": "Run as a user with the x_335329_iscan.scanner role; two distinct custom apps exist (appA, appB)",
+    "precondition": "Run as a user with the x_nold_iscan.scanner role; two distinct custom apps exist (appA, appB)",
     "steps": [
-      "Server-side script step: create an x_335329_iscan_run record with scan_mode='manual', target_app=appA.sys_id + ',' + appB.sys_id (comma-separated, simulating a 2-value slushbucket selection)",
+      "Server-side script step: create an x_nold_iscan_run record with scan_mode='manual', target_app=appA.sys_id + ',' + appB.sys_id (comma-separated, simulating a 2-value slushbucket selection)",
       "Server-side script step: call IscanScanOrchestrator.runScanForRecord(run.sys_id, 'manual', [appA.sys_id, appB.sys_id], '') — mirrors what RunScanUiAction.server.js resolves via targetAppId.split(',')",
-      "Query x_335329_iscan_result where run = created run"
+      "Query x_nold_iscan_result where run = created run"
     ],
     "expected": "Exactly 2 result records are created, one for appA and one for appB, confirming target_app now accepts and scans more than one selected app"
   }

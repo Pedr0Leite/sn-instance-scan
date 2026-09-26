@@ -6,7 +6,7 @@
  *
  * Top-level entry point. Creates the run record, resolves the app list,
  * loops apps through the full-access or fallback path, generates an
- * optional GenAI summary, and writes one x_335329_iscan_result row per app.
+ * optional GenAI summary, and writes one x_nold_iscan_result row per app.
  */
 var IscanScanOrchestrator = Class.create()
 IscanScanOrchestrator.prototype = {
@@ -22,7 +22,7 @@ IscanScanOrchestrator.prototype = {
     /**
      * Runs a scan against an already-existing run record (e.g. the one
      * open in the form when "Run Scan" was clicked), updating it in place.
-     * @param {String} runSysId - sys_id of an existing x_335329_iscan_run record
+     * @param {String} runSysId - sys_id of an existing x_nold_iscan_run record
      * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules' | 'ai_agents'
      * @param {Array} manualAppList - array of sys_app sys_ids, only used
      *   when scanMode === 'manual'
@@ -32,10 +32,10 @@ IscanScanOrchestrator.prototype = {
      */
     runScanForRecord: function (runSysId, scanMode, manualAppList, targetTableSysId) {
         gs.info('IscanScanOrchestrator.runScanForRecord: run=' + runSysId + ', scan_mode=' + scanMode)
-        var run = new GlideRecord('x_335329_iscan_run')
+        var run = new GlideRecord('x_nold_iscan_run')
         if (!run.get(runSysId)) {
             gs.error('IscanScanOrchestrator.runScanForRecord: no run record found for sys_id: ' + runSysId)
-            throw new Error('No x_335329_iscan_run record found for sys_id: ' + runSysId)
+            throw new Error('No x_nold_iscan_run record found for sys_id: ' + runSysId)
         }
 
         run.setValue('scan_mode', scanMode)
@@ -62,7 +62,7 @@ IscanScanOrchestrator.prototype = {
      *   when scanMode === 'manual'
      * @param {String} [targetTableSysId] - sys_id of a sys_db_object record,
      *   only used when scanMode === 'single_table'
-     * @returns {String} sys_id of the created x_335329_iscan_run record
+     * @returns {String} sys_id of the created x_nold_iscan_run record
      */
     runScan: function (scanMode, manualAppList, targetTableSysId) {
         gs.info('IscanScanOrchestrator.runScan: scan_mode=' + scanMode)
@@ -107,7 +107,7 @@ IscanScanOrchestrator.prototype = {
             // see change — the classic symptom is status stuck on
             // 'pending' with an empty scan_findings log.
             throw new Error(
-                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+                'Cannot write to the scan run record — the calling user lacks write access to x_nold_iscan_run (check the x_nold_iscan.scanner role and its write ACL).'
             )
         }
 
@@ -159,8 +159,8 @@ IscanScanOrchestrator.prototype = {
     },
 
     /**
-     * Single Table mode, no-owning-app case: no x_335329_iscan_result/
-     * x_335329_iscan_table row gets written (result.app is a mandatory
+     * Single Table mode, no-owning-app case: no x_nold_iscan_result/
+     * x_nold_iscan_table row gets written (result.app is a mandatory
      * sys_app reference and there's no sys_app to point it at) — the
      * table's profile goes into the run's scan_findings/comments log only.
      * @param {GlideRecord} run
@@ -171,7 +171,7 @@ IscanScanOrchestrator.prototype = {
         run.setValue('status', 'running')
         if (!run.update()) {
             throw new Error(
-                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+                'Cannot write to the scan run record — the calling user lacks write access to x_nold_iscan_run (check the x_nold_iscan.scanner role and its write ACL).'
             )
         }
 
@@ -270,7 +270,7 @@ IscanScanOrchestrator.prototype = {
     /**
      * Base-system table customization detection — only meaningful for
      * tables with no owning sys_app (findGlobalCustomizations() no-ops
-     * otherwise). Only writes an x_335329_iscan_global_customization row
+     * otherwise). Only writes an x_nold_iscan_global_customization row
      * when something was actually found, same omit-when-empty precedent
      * as crossref rows.
      * @param {GlideRecord} run
@@ -296,7 +296,7 @@ IscanScanOrchestrator.prototype = {
                 ' custom artifact(s) from customer scope(s).'
         )
 
-        var row = new GlideRecord('x_335329_iscan_global_customization')
+        var row = new GlideRecord('x_nold_iscan_global_customization')
         row.initialize()
         row.setValue('run', run.getUniqueValue())
         row.setValue('table_name', tableName)
@@ -315,9 +315,9 @@ IscanScanOrchestrator.prototype = {
 
     /**
      * Installed Modules mode: instance-wide, no app/table scoping. No
-     * x_335329_iscan_result row gets written (there's no owning app to
-     * point one at) — profile rows go straight onto x_335329_iscan_module,
-     * run-keyed, same precedent as x_335329_iscan_global_customization's
+     * x_nold_iscan_result row gets written (there's no owning app to
+     * point one at) — profile rows go straight onto x_nold_iscan_module,
+     * run-keyed, same precedent as x_nold_iscan_global_customization's
      * no-owning-app rows. Unlike every per-app mode there is NO ACL-denial
      * fallback path here — a canReadPlugins() denial ends the run in
      * 'error' status with a clear finding, not a silent zero-row 'complete'.
@@ -328,7 +328,7 @@ IscanScanOrchestrator.prototype = {
         run.setValue('status', 'running')
         if (!run.update()) {
             throw new Error(
-                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+                'Cannot write to the scan run record — the calling user lacks write access to x_nold_iscan_run (check the x_nold_iscan.scanner role and its write ACL).'
             )
         }
 
@@ -339,7 +339,7 @@ IscanScanOrchestrator.prototype = {
             var canAccess = this.moduleScanner.canReadPlugins()
             if (!canAccess) {
                 throw new Error(
-                    'Cannot read sys_plugins — the calling user lacks read access to installed plugin metadata (check the x_335329_iscan.scanner role).'
+                    'Cannot read sys_plugins — the calling user lacks read access to installed plugin metadata (check the x_nold_iscan.scanner role).'
                 )
             }
 
@@ -385,7 +385,7 @@ IscanScanOrchestrator.prototype = {
 
     _writeModuleRows: function (runSysId, modules) {
         for (var i = 0; i < modules.length; i++) {
-            var row = new GlideRecord('x_335329_iscan_module')
+            var row = new GlideRecord('x_nold_iscan_module')
             row.initialize()
             row.setValue('run', runSysId)
             row.setValue('name', modules[i].name)
@@ -441,9 +441,9 @@ IscanScanOrchestrator.prototype = {
 
     /**
      * AI Agent Discovery mode: instance-wide, no app/table scoping — same
-     * shape as _executeModulesRun. No x_335329_iscan_result row gets
+     * shape as _executeModulesRun. No x_nold_iscan_result row gets
      * written (there's no owning app to point one at) — findings land
-     * straight on x_335329_iscan_ai_agent, run-keyed. Unlike Modules mode,
+     * straight on x_nold_iscan_ai_agent, run-keyed. Unlike Modules mode,
      * a per-table access gap here is a per-layer finding, not a hard
      * run-level failure — each of IscanAiAgentScanner's 5 layers already
      * reports its own accessGaps rather than gating the whole scan on one
@@ -455,7 +455,7 @@ IscanScanOrchestrator.prototype = {
         run.setValue('status', 'running')
         if (!run.update()) {
             throw new Error(
-                'Cannot write to the scan run record — the calling user lacks write access to x_335329_iscan_run (check the x_335329_iscan.scanner role and its write ACL).'
+                'Cannot write to the scan run record — the calling user lacks write access to x_nold_iscan_run (check the x_nold_iscan.scanner role and its write ACL).'
             )
         }
 
@@ -468,7 +468,7 @@ IscanScanOrchestrator.prototype = {
             var allFindings = native.findings.concat(outbound.findings)
             var allAccessGaps = native.accessGaps.concat(outbound.accessGaps)
 
-            var includeKeywordScan = gs.getProperty('x_335329_iscan.include_ai_agent_keyword_scan', 'false') === 'true'
+            var includeKeywordScan = gs.getProperty('x_nold_iscan.include_ai_agent_keyword_scan', 'false') === 'true'
             if (includeKeywordScan) {
                 var scriptScan = this.aiAgentScanner.scanScriptKeywords()
                 allFindings = allFindings.concat(scriptScan.findings)
@@ -495,7 +495,7 @@ IscanScanOrchestrator.prototype = {
                     (allFindings.length - confirmedCount) + ' needs review.' +
                     (includeKeywordScan
                         ? ''
-                        : ' (Script keyword scan skipped — enable x_335329_iscan.include_ai_agent_keyword_scan to include it.)')
+                        : ' (Script keyword scan skipped — enable x_nold_iscan.include_ai_agent_keyword_scan to include it.)')
             )
             if (allAccessGaps.length) {
                 this._appendScanFinding(
@@ -519,7 +519,7 @@ IscanScanOrchestrator.prototype = {
 
     _writeAiAgentRows: function (runSysId, findings) {
         for (var i = 0; i < findings.length; i++) {
-            var row = new GlideRecord('x_335329_iscan_ai_agent')
+            var row = new GlideRecord('x_nold_iscan_ai_agent')
             row.initialize()
             row.setValue('run', runSysId)
             row.setValue('layer', findings[i].layer)
@@ -533,7 +533,7 @@ IscanScanOrchestrator.prototype = {
     },
 
     _createRun: function (scanMode, manualAppList) {
-        var run = new GlideRecord('x_335329_iscan_run')
+        var run = new GlideRecord('x_nold_iscan_run')
         run.initialize()
         run.setValue('scan_mode', scanMode)
         run.setValue('status', 'pending')
@@ -574,7 +574,7 @@ IscanScanOrchestrator.prototype = {
      * guaranteed to appear in getOwnedTables() since it's owned by that
      * scope). If the scope has no sys_app record (true for `global` and
      * most OOB scopes — e.g. picking `incident` or `sys_user`), there is
-     * no sys_app to tally against x_335329_iscan_result.app (mandatory,
+     * no sys_app to tally against x_nold_iscan_result.app (mandatory,
      * not being relaxed), so this returns a table-only descriptor instead
      * — see _singleTableFallback / _executeRun / _scanOneTable.
      * @param {String} targetTableSysId - sys_id of a sys_db_object record
@@ -654,14 +654,14 @@ IscanScanOrchestrator.prototype = {
      * design (table/business-rule/script-include/flow counts + a
      * customization line) — it was never meant to hold the full v3
      * assessment, and never has. That data is: per-artifact-type counts
-     * (~30 fields) on each x_335329_iscan_result record, field/cross-
-     * reference data on x_335329_iscan_table/_crossref/
+     * (~30 fields) on each x_nold_iscan_result record, field/cross-
+     * reference data on x_nold_iscan_table/_crossref/
      * _global_customization child records, and the exportable
      * status-flagged + itemized narrative report via the "Download
      * Report" UI Action (IscanReportGenerator). This closing line exists
      * so that's discoverable from the log itself, without prior
      * knowledge of the schema — see docs/superpowers/INSTANCE_ASSESSMENT_STATUS.md.
-     * @param {Number} resultRecordCount - how many x_335329_iscan_result
+     * @param {Number} resultRecordCount - how many x_nold_iscan_result
      *   rows this run produced (0 for the table-only fallback path, which
      *   writes no result record).
      * @returns {String}
@@ -679,7 +679,7 @@ IscanScanOrchestrator.prototype = {
         run.setValue('scan_findings', existing ? existing + '\n' + line : line)
         run.update()
 
-        var journalRun = new GlideRecord('x_335329_iscan_run')
+        var journalRun = new GlideRecord('x_nold_iscan_run')
         if (journalRun.get(run.getUniqueValue())) {
             journalRun.setValue('comments', message)
             journalRun.update()
@@ -708,7 +708,7 @@ IscanScanOrchestrator.prototype = {
         // in v1 — do not change this) and the names the v2 briefing needs.
         var scanMode = run.getValue('scan_mode')
         var includeExtended =
-            scanMode !== 'full' || gs.getProperty('x_335329_iscan.include_extended_counts_on_full_scan', 'false') === 'true'
+            scanMode !== 'full' || gs.getProperty('x_nold_iscan.include_extended_counts_on_full_scan', 'false') === 'true'
         var files = this.appFilesScanner.scanApp(appSysId, includeExtended)
         var automationCounts = {
             business_rules: files.business_rules.length,
@@ -764,7 +764,7 @@ IscanScanOrchestrator.prototype = {
         var integrations = this._findIntegrations(appSysId)
         var integrationCount = integrations.length
 
-        var result = new GlideRecord('x_335329_iscan_result')
+        var result = new GlideRecord('x_nold_iscan_result')
         result.initialize()
         result.setValue('run', run.getUniqueValue())
         result.setValue('app', appSysId)
@@ -840,9 +840,9 @@ IscanScanOrchestrator.prototype = {
         var resultId = result.insert()
         if (!resultId) {
             throw new Error(
-                'Could not insert x_335329_iscan_result for app "' +
+                'Could not insert x_nold_iscan_result for app "' +
                     appGr.getValue('name') +
-                    '" — the calling user lacks create access (check the x_335329_iscan.scanner role and the result create ACL).'
+                    '" — the calling user lacks create access (check the x_nold_iscan.scanner role and the result create ACL).'
             )
         }
 
@@ -895,7 +895,7 @@ IscanScanOrchestrator.prototype = {
     },
 
     /**
-     * Writes one x_335329_iscan_global_customization row per base-system
+     * Writes one x_nold_iscan_global_customization row per base-system
      * table this app has customized, with `result` set so the Result
      * report can scope its own section to this app.
      * @param {GlideRecord} run
@@ -914,7 +914,7 @@ IscanScanOrchestrator.prototype = {
         )
 
         for (var i = 0; i < findings.length; i++) {
-            var row = new GlideRecord('x_335329_iscan_global_customization')
+            var row = new GlideRecord('x_nold_iscan_global_customization')
             row.initialize()
             row.setValue('run', run.getUniqueValue())
             row.setValue('result', resultId)
@@ -963,7 +963,7 @@ IscanScanOrchestrator.prototype = {
 
     _writeTableProfiles: function (resultSysId, tables) {
         for (var i = 0; i < tables.length; i++) {
-            var tableRow = new GlideRecord('x_335329_iscan_table')
+            var tableRow = new GlideRecord('x_nold_iscan_table')
             tableRow.initialize()
             tableRow.setValue('result', resultSysId)
             tableRow.setValue('table_name', tables[i].name)
@@ -1000,17 +1000,17 @@ IscanScanOrchestrator.prototype = {
     },
 
     /**
-     * One x_335329_iscan_crossref row per inbound-referencing field found
-     * for a single x_335329_iscan_table row. Same-app references ARE
+     * One x_nold_iscan_crossref row per inbound-referencing field found
+     * for a single x_nold_iscan_table row. Same-app references ARE
      * included (referencing_app will equal the app currently being
      * scanned in that case) — filtering intra-app vs. cross-app is a
      * Report sub-spec concern, not a write-time one.
-     * @param {String} tableRowId - sys_id of the just-inserted x_335329_iscan_table row
+     * @param {String} tableRowId - sys_id of the just-inserted x_nold_iscan_table row
      * @param {Array} inboundReferences - [{referencing_table, referencing_field, referencing_app, referencing_scope}]
      */
     _writeCrossrefRows: function (tableRowId, inboundReferences) {
         for (var i = 0; i < inboundReferences.length; i++) {
-            var crossrefRow = new GlideRecord('x_335329_iscan_crossref')
+            var crossrefRow = new GlideRecord('x_nold_iscan_crossref')
             crossrefRow.initialize()
             crossrefRow.setValue('table', tableRowId)
             crossrefRow.setValue('referencing_table', inboundReferences[i].referencing_table)

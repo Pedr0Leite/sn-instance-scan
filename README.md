@@ -1,6 +1,6 @@
 # sn-instance-scan
 
-ServiceNow custom scoped application (scope `x_335329_iscan`) that
+ServiceNow custom scoped application (scope `x_nold_iscan`) that
 scans an instance application-by-application and produces a
 per-application architecture summary: tables owned, key relationships,
 business rules/script includes/flows present, and a plain-English
@@ -26,23 +26,23 @@ See `CLAUDE.md` for how the two repos relate.
    needed for this path.
 3. Optionally hand the gathered facts to a single GenAI call for a
    plain-English summary paragraph.
-4. Results land in `x_335329_iscan_result` (one row per app) with a related
-   list of table profiles in `x_335329_iscan_table`.
+4. Results land in `x_nold_iscan_result` (one row per app) with a related
+   list of table profiles in `x_nold_iscan_table`.
 5. **Download Report** exports that data as a real PDF (via the platform
    PDF Generation Utilities plugin, `sn_pdfgeneratorutils`), attached as
    a `sys_attachment` on the same record and opened in a new tab —
    modeled on the Now Assist Readiness Evaluation app's "Download Report"
-   feature. It's a form button (`x_335329_iscan.scanner` role required),
+   feature. It's a form button (`x_nold_iscan.scanner` role required),
    so open an existing Run record or one of its Result records first —
    the button won't appear on an unsaved record or for a user without
    that role. Run form: after "Run Scan". Result form: the first button.
 
 Read-only app: nothing here ever writes to a scanned table, only to its
-own `x_335329_iscan_*` tables, and every query runs under the calling
+own `x_nold_iscan_*` tables, and every query runs under the calling
 user's own access (no elevated privilege, no `security_admin` assumption).
 
-Custom scope (`x_335329_iscan`), platform-namespaced — table/role/
-property names carry the `x_335329_iscan` prefix to match what the
+Custom scope (`x_nold_iscan`), platform-namespaced — table/role/
+property names carry the `x_nold_iscan` prefix to match what the
 platform generates — see `DEPLOY.md`.
 
 ## Layout

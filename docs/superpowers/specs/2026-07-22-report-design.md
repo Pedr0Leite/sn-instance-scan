@@ -16,8 +16,8 @@ yes/no check against data that already exists.
 
 ## Status flags
 
-Computed at report-build time from the `x_335329_iscan_result`/
-`x_335329_iscan_table`/`x_335329_iscan_crossref` records — not persisted
+Computed at report-build time from the `x_nold_iscan_result`/
+`x_nold_iscan_table`/`x_nold_iscan_crossref` records — not persisted
 anywhere new. Per app:
 
 - ⚠️ **"Scanned via Application Files fallback"** — `scan_mode_used ===
@@ -25,12 +25,12 @@ anywhere new. Per app:
   so table-level data is incomplete; this warning already exists as prose
   in the Result report today — it's promoted to a flag here).
 - ⚠️ **"N dictionary override(s) detected"** — sum of
-  `dictionary_override_count` across all of this app's `x_335329_iscan_table`
+  `dictionary_override_count` across all of this app's `x_nold_iscan_table`
   rows, shown when `> 0`. A real governance signal (another app modified a
   table it doesn't own, or this app did), not an invented threshold.
 - ℹ️ **"N other app(s) depend on this app's tables"** — count of distinct
   `referencing_app` values (excluding blank and excluding this app itself)
-  across all `x_335329_iscan_crossref` rows tied to this app's tables.
+  across all `x_nold_iscan_crossref` rows tied to this app's tables.
   Informational, not a warning — having dependents isn't inherently bad.
 - If none of the above trigger: **✅ OK**.
 
@@ -56,9 +56,9 @@ per-row link.
   short for apps that don't use a given artifact type.
 - The existing **Tables** table gains 2 columns: **Dictionary Overrides**
   and **Inbound References** — both already stored as counts on
-  `x_335329_iscan_table`, just not yet rendered.
+  `x_nold_iscan_table`, just not yet rendered.
 - New **Cross-references** section (after the Tables table): one row per
-  `x_335329_iscan_crossref` record belonging to any of this app's tables
+  `x_nold_iscan_crossref` record belonging to any of this app's tables
   — columns Table, Referencing Table, Referencing Field, Referencing App.
   Section is omitted entirely (not shown as an empty table) when the app
   has zero crossref rows.

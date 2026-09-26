@@ -7,7 +7,7 @@ export const iscanAppSelector = ScriptInclude({
     description: 'Resolves the app list for the 3 scan modes (full / custom_only / manual).',
     clientCallable: false,
     active: true,
-    apiName: 'x_335329_iscan.IscanAppSelector',
+    apiName: 'x_nold_iscan.IscanAppSelector',
     mobileCallable: false,
     sandboxCallable: false,
 })
@@ -20,7 +20,7 @@ export const iscanTableScanner = ScriptInclude({
         'Primary full-access scan path: canAccessMetadata() gate, owned-table discovery, and per-table profiling via GlideAggregate.',
     clientCallable: false,
     active: true,
-    apiName: 'x_335329_iscan.IscanTableScanner',
+    apiName: 'x_nold_iscan.IscanTableScanner',
     mobileCallable: false,
     sandboxCallable: false,
 })
@@ -33,7 +33,7 @@ export const iscanAppFilesScanner = ScriptInclude({
         'ACL-denial fallback path: enumerates script includes, business rules, ACLs, UI actions, and flows via sys_metadata.',
     clientCallable: false,
     active: true,
-    apiName: 'x_335329_iscan.IscanAppFilesScanner',
+    apiName: 'x_nold_iscan.IscanAppFilesScanner',
     mobileCallable: false,
     sandboxCallable: false,
 })
@@ -45,7 +45,7 @@ export const iscanSummaryGenerator = ScriptInclude({
     description: 'Single-shot GenAI summarization of gathered scan facts. Not an AI Agent/ReAct loop.',
     clientCallable: false,
     active: true,
-    apiName: 'x_335329_iscan.IscanSummaryGenerator',
+    apiName: 'x_nold_iscan.IscanSummaryGenerator',
     mobileCallable: false,
     sandboxCallable: false,
 })
@@ -58,7 +58,7 @@ export const iscanModuleScanner = ScriptInclude({
         'Installed Modules scan mode: instance-wide sys_plugins profile, cross-checked against GlidePluginManager().isActive(). No app/table scoping.',
     clientCallable: false,
     active: true,
-    apiName: 'x_335329_iscan.IscanModuleScanner',
+    apiName: 'x_nold_iscan.IscanModuleScanner',
     mobileCallable: false,
     sandboxCallable: false,
 })
@@ -71,7 +71,7 @@ export const iscanAiAgentScanner = ScriptInclude({
         'AI Agent Discovery scan mode: layered inventory of AI agents/tools/credentials (native platform, outbound integrations, script keywords, Flow Designer, configuration). No app/table scoping.',
     clientCallable: false,
     active: true,
-    apiName: 'x_335329_iscan.IscanAiAgentScanner',
+    apiName: 'x_nold_iscan.IscanAiAgentScanner',
     mobileCallable: false,
     sandboxCallable: false,
 })
@@ -84,7 +84,7 @@ export const iscanScanOrchestrator = ScriptInclude({
         'Orchestrates a full scan run across all resolved apps. Called directly (server-side) from the "Run Scan" UI Action script — not GlideAjax, so clientCallable is false.',
     clientCallable: false,
     active: true,
-    apiName: 'x_335329_iscan.IscanScanOrchestrator',
+    apiName: 'x_nold_iscan.IscanScanOrchestrator',
     mobileCallable: false,
     sandboxCallable: false,
 })
@@ -97,7 +97,7 @@ export const iscanReportGenerator = ScriptInclude({
         'GlideAjax entry point for the "Download Report" UI Actions. Builds HTML and converts it to a PDF attached to the source record.',
     clientCallable: true,
     active: true,
-    apiName: 'x_335329_iscan.IscanReportGenerator',
+    apiName: 'x_nold_iscan.IscanReportGenerator',
     mobileCallable: false,
     sandboxCallable: false,
     // Same as IscanScanOrchestrator — left at package_private, see that

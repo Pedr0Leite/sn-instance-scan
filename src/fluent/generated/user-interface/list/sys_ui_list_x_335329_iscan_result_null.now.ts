@@ -1,7 +1,7 @@
 import { List, default_view } from '@servicenow/sdk/core'
 
 List({
-    table: 'x_335329_iscan_result',
+    table: 'x_nold_iscan_result',
     view: default_view,
     columns: [
         'acl_count',
