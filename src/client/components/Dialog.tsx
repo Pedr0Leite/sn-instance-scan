@@ -17,9 +17,12 @@ interface DialogProps {
     footer?: React.ReactNode
     children: React.ReactNode
     wide?: boolean
+    // 'drawer' slides in from the right edge instead of the centered card --
+    // same focus-trap/Esc/backdrop behaviour, just a different panel shape.
+    variant?: 'center' | 'drawer'
 }
 
-export default function Dialog({ title, onClose, footer, children, wide }: DialogProps) {
+export default function Dialog({ title, onClose, footer, children, wide, variant = 'center' }: DialogProps) {
     const panel = useRef<HTMLDivElement>(null)
     const opener = useRef<Element | null>(null)
 
@@ -55,11 +58,22 @@ export default function Dialog({ title, onClose, footer, children, wide }: Dialo
         [onClose]
     )
 
+    const panelClass = [
+        'iscan-dialog',
+        wide ? 'iscan-dialog--wide' : '',
+        variant === 'drawer' ? 'iscan-dialog--drawer' : '',
+    ]
+        .filter(Boolean)
+        .join(' ')
+
     return (
-        <div className="iscan-backdrop" onClick={onClose}>
+        <div
+            className={variant === 'drawer' ? 'iscan-backdrop iscan-backdrop--drawer' : 'iscan-backdrop'}
+            onClick={onClose}
+        >
             <div
                 ref={panel}
-                className={wide ? 'iscan-dialog iscan-dialog--wide' : 'iscan-dialog'}
+                className={panelClass}
                 role="dialog"
                 aria-modal="true"
                 aria-label={title}

@@ -12,11 +12,15 @@ import { startScan } from '../services/ScanService'
    platform form, so those two deep-link to that form pre-filled with the mode
    -- the same link_type: 'NEW' + query shape this app's navigator modules use.
    Rebuilding those pickers in React would duplicate the form for no gain. */
+// `background` marks the modes the server queues to a worker (see
+// IscanScanOrchestrator.ASYNC_MODES). Kept here only to word the UI honestly -
+// the server decides, and rejects non-admins for these with a 403.
 const ONE_CLICK = [
-    { mode: 'full', label: 'Full' },
-    { mode: 'custom_only', label: 'Custom Only' },
-    { mode: 'modules', label: 'Installed Modules' },
-    { mode: 'ai_agents', label: 'AI Agent Discovery' },
+    { mode: 'full', label: 'Full', background: true },
+    { mode: 'cmdb_health', label: 'CMDB & CSDM Health', background: true },
+    { mode: 'custom_only', label: 'Custom Only', background: false },
+    { mode: 'modules', label: 'Installed Modules', background: false },
+    { mode: 'ai_agents', label: 'AI Agent Discovery', background: false },
 ]
 
 const ON_FORM = [
@@ -40,7 +44,14 @@ export default function ScanLauncher({ onRunStarted }: { onRunStarted: (sysId: s
         startScan(mode).then(
             started => {
                 setBusy('')
-                push('positive', `${label} scan started.`)
+                push(
+                    started.status === 'error' ? 'critical' : 'positive',
+                    started.queued
+                        ? `${label} scan queued - it runs in the background.`
+                        : started.status === 'error'
+                          ? `${label} scan finished with errors - see the run's findings.`
+                          : `${label} scan complete.`
+                )
                 onRunStarted(started.sys_id)
             },
             e => {
@@ -55,16 +66,18 @@ export default function ScanLauncher({ onRunStarted }: { onRunStarted: (sysId: s
             <SectionTitle id="iscan-launcher-heading">Start a scan</SectionTitle>
             {busy ? (
                 <>
-                    <Note tone="info" title="Scan in progress — do not navigate away">
-                        The page is waiting on the server for this scan to finish. A Full scan of
-                        a large instance can take several minutes.
+                    <Note tone="info" title="Starting scan">
+                        {ONE_CLICK.find(i => i.mode === busy)?.background
+                            ? 'Queuing this scan to run in the background.'
+                            : 'The page is waiting on the server for this scan to finish.'}
                     </Note>
                     <Spinner label={`Running ${ONE_CLICK.find(i => i.mode === busy)?.label} scan`} />
                 </>
             ) : (
                 <p className="iscan-hint">
-                    These four start immediately and run to completion before the page returns, so a
-                    Full scan of a large instance can take a while.
+                    Full and CMDB &amp; CSDM Health run in the background and are admin-only — the run
+                    opens straight away and its status moves from Pending to Running to Complete. The
+                    others finish before the page returns.
                 </p>
             )}
             {/* Announces busy/idle transitions for screen readers even when focus

@@ -252,7 +252,13 @@ wants a note created/appended there.
   under the caller's own access. `canAccessMetadata()` is a deterministic
   `canRead()` gate checked *before* querying — never convert this to a
   try/catch fallback. `GlideAggregate` for row counts, never
-  `GlideRecord.getRowCount()`.
+  `GlideRecord.getRowCount()`. **One sanctioned exception (2026-09-26):** the
+  two background modes (`full`, `cmdb_health`) run in a Script Action, which
+  the platform executes as System — so they are **admin-only to launch**
+  (`IscanScanOrchestrator.canLaunch()`), which keeps the worker's reads within
+  what the requester could already see. Do not open either mode to the scanner
+  role, and do not add a new async mode without the same gate. See "Later
+  addition #7".
 - **GenAI summary is single-shot**, not an AI Agent/ReAct loop — see
   `IscanSummaryGenerator`. Don't add multi-step reasoning here without
   the user explicitly asking for it.
@@ -1186,3 +1192,360 @@ PolarisUIScopedAPI.md`): "A direct UI page doesn't include the common HTML page
 template and **must include all CSS and JavaScript that you want to use in the
 page**." This page is `direct: true`, which is why the inline-CSS `prebuild` step
 is the correct architecture and not a workaround.
+
+
+**Later addition #7 (2026-09-26): runs stuck in "running", async execution, and
+the CMDB & CSDM Health scan mode.**
+
+*Why runs stayed "running" forever.* The only run on ven09425 after the
+scope rename (`f7da38d9…`, `full`) resolved **4 apps + 3,549 table-only fallback
+tables**, kept writing for **16.5 minutes**, and never reached `complete` or
+`error` — `completed` empty. Its `scan_findings` text froze 18 seconds in while
+`sys_updated_on` kept advancing. Two independent weaknesses explain it, and the
+fix covers both without needing to prove which fired:
+1. **The terminal status write was coupled to the log write.** `status=complete`
+   rode on the same long-lived `run` GlideRecord that carries the ever-growing
+   `scan_findings` log, so anything breaking that one `update()` lost the status
+   too. `IscanScanOrchestrator._finishRun()` now persists `status` + `completed`
+   through a FRESH GlideRecord touching only those two fields, in all four
+   `_execute*Run` methods. (Note: `scan_findings`' dictionary `max_length` is
+   8000 yet that run stored 24,959 characters — the limit is NOT enforced on
+   write, so do not assume truncation there.)
+2. **A 16-minute scan ran inside a request.** UI transactions are cancelled at
+   298s (`c_DefaultQuotaRules.md`: the "UI Transactions" rule exempts only
+   background scripts; KB0867099 gives the 298s default) and the load balancer
+   drops connections at 5 minutes. A killed transaction never reaches its own
+   `catch`.
+
+*Async execution — only for long modes.* `ASYNC_MODES = ['full', 'cmdb_health']`.
+The Run Scan UI Action and the REST endpoint call `queueScan()`, which fires
+`x_nold_iscan.scan.execute` (registered in `src/fluent/async-scan.now.ts` —
+scoped events need BOTH `suffix` and `event_name`, max 40 chars) and returns at
+once; the Script Action (`ExecuteQueuedScanScriptAction.server.js`, **`active:
+true` explicitly — it defaults to false**) calls `executeQueuedRun()`, which
+runs the unchanged synchronous `runScanForRecord()`. Parameters travel on the
+event (`parm1` = mode, `parm2` = JSON), so the UI Action's target_app precedence
+is still decided in one place. States are now honest: `pending` (queued) →
+`running` (worker started) → `complete`/`error`; `executeQueuedRun()`'s catch
+covers failures before a scan's own try/catch (unknown mode, missing record). The
+UI Action does NOT write the record itself — it sets `status='pending'` on
+`current` and lets the platform's single natural save commit it together with
+the event (a second save in one request is what caused the old "Invalid update").
+The REST endpoint returns **202** for queued modes and 201 for the rest.
+**Every other mode stays synchronous — deliberately.** The ATF tests click Run
+Scan and assert `status=complete` immediately; none use `full`, so async for
+`full`/`cmdb_health` only needs zero test changes. `runScan()` (the
+programmatic/ATF entry point) is still fully synchronous for every mode.
+The console's detail view (`RecordFields.tsx`) polls every 5s while a run is
+`pending`/`running` and stops at a terminal status, so a queued run visibly
+progresses instead of looking stuck.
+
+*The Script Action runs as System — hence admin-only.* Evidence from the docs
+corpus (convergent, not one explicit sentence): `events.md` (handlers are
+dispatched by scheduled jobs reading the queue), `r_BuildAScript.md` (the
+canonical pattern passes `gs.getUserID()` as a parameter because the handler
+does not run as that user), KB0785010 (Script Actions run as System), and the
+Fluent `ScriptAction` API has no run-as field. Letting a scanner-only user queue
+these modes would let them read, via `x_nold_iscan_*` tables their role CAN read,
+data beyond their own ACLs — including incident/change/CI display values stored
+as CMDB check samples. `canLaunch()` rejects non-admins in both entry points (UI
+Action: error message + abort; REST: **403**). The new nav module is `roles:
+['admin']`. Scanner-role users can still READ the resulting rows.
+
+*CMDB & CSDM Health (`cmdb_health`, sequence 6).* Port of noviq-cmdb-health
+(skill v1.1.0). Instance-wide, run-keyed, no `result` — the `ai_agents`
+template. Three script includes, all generated or parity-tested:
+- **`IscanCmdbHealthCatalog`** — the 49-check catalog as a JS literal,
+  GENERATED by `scripts/gen-cmdb-catalog.py` from `check_catalog.json`. Do not
+  hand-edit; the parity test deep-equals it against the upstream JSON.
+- **`IscanCmdbHealthScanner`** — GENERATED by `scripts/gen-cmdb-scanner.py`,
+  which splices the collector's 49 check bodies (lines 142–760) **verbatim** and
+  applies 11 named, match-count-asserted patches for scoped execution. Change the
+  generator's patch list, never the output. Scoped changes: CFG → the
+  `x_nold_iscan.cmdb_health.*` properties (snapshotted into `meta.config`);
+  `TableUtils` → `GlideTableHierarchy` (scoped; `getAllExtensions()` includes the
+  base per `c_GlideTableHierarchyScopedAPI.md`); returns the object instead of
+  `gs.print`; `addHaving()` only when it works — it is in the GLOBAL
+  `c_GlideAggregateAPI.md` but has **no match in `c_GlideAggregateScopedAPI.md`**,
+  so FD-03/CI-10 fall back to filtering `COUNT > 1` in the loop; the
+  `service_offering` id sets are now capped at `max_iterate` (the collector left
+  them unbounded). **Access handling:** `collect()` shadows `GlideRecord` and
+  `GlideAggregate` with guarded factories (the real constructors are captured in
+  `initialize()` because a `var` in `collect()` is hoisted over the whole
+  function), so all ~30 direct construction sites in the spliced bodies get a
+  `canRead()` gate without editing one check body; `count()`/`samples()` also
+  check `getLastErrorMessage()` for the cross-scope-denial signature reused from
+  `IscanTableScanner`. A denial becomes `NOT ASSESSED: access denied to <table>`
+  and is listed in `accessGaps` — never a zero count. **There is NO
+  `sys_scope_privilege` auto-creation** (the porting prompt assumed one existed;
+  it does not, and "Later addition #5" deliberately rejected building it).
+- **`IscanCmdbHealthScorer`** — port of `score_results.py`. **Pure JS, no Glide
+  calls — keep it that way**: it is what lets `tests/cmdb-health-scorer.parity.mjs`
+  run the real SI file under Node. Two Python semantics the port depends on:
+  `round()` is banker's rounding (`pyRound`), and `format(x, '.1f')` rounds exact
+  binary ties to even (`fixedN`). The first `fixed1` detected ties via `x * 10`,
+  which turns 12.35 (really 12.3499…) into a false tie at exactly 123.5 — the
+  parity test caught it. Ties are now detected from `toFixed(20)`'s exact digits.
+
+*Parity test* — `npm run test:cmdb-parity` (Node only, no instance, no new
+dependency; NOT an ATF test). Fixtures, the reference `score_results.py` and the
+catalog are snapshotted in `tests/fixtures/cmdb-health/`; `golden.json` comes
+from running the REAL Python scorer end to end (`scripts/gen-cmdb-golden.py`
+parses its markdown — it never re-implements scoring). 34 checks: the literal
+acceptance numbers (67 / 17 / 65; 35 / 42 / 36 scored), every per-check status,
+worst-first order, measure strings, theme scores, stage labels incl. the anchor
+override, unknown IDs, and the full markdown report **byte for byte**.
+
+*Tables* — `x_nold_iscan_cmdb_check` (one row per catalog check per run, all 49
+always, `status` = `fail|warn|pass|n_a|not_assessed`) and
+`x_nold_iscan_cmdb_summary` (one row per run: score, counts, theme/stage/
+population/inventory/meta as JSON text in StringColumns, `access_gaps`,
+`llm_context`). Read/create ACLs for the scanner role; explicit related lists on
+the Run form (positions 3 and 4) because its custom `sys_ui_section` suppresses
+defaults. Properties: `cmdb_health.stale_days` 90, `.ticket_window_days` 90,
+`.sample_size` 5, `.max_iterate` 200000, `.expected_ba_as_rel` `Consumes::Consumed
+by`, `.system_users` `fresh,system,glide.maint,maint`, plus
+`include_cmdb_health_on_full_scan` (false). Full-scan inclusion is an add-on: its
+own failure is logged as a finding and does NOT fail the Full scan.
+
+*Report* — `IscanReportGenerator._buildCmdbHealthHtml()` renders in the scorer's
+markdown order and reuses the scorer's `order()`/`formatMeasure()`/`kbLinks()`
+(one implementation, parity-tested); `pct` is recomputed from count/total so a
+decimal-column rounding step can never shift a displayed figure. The whole
+section sits in a `word-break`/`overflow-wrap` wrapper: the "Where:" lines carry
+unspaced encoded queries and `_reportStyles()` only wraps inside table cells —
+they ran off A4 until that (same class as the 2026-07-29 table fix). Narrative
+(executive interpretation, root-cause clusters, roadmap waves) is deliberately
+not generated.
+
+*LLM export* — "Copy CMDB Health LLM Context" is a CLIENT-side action on the
+**CMDB Health Summary** form, reusing `CopyLlmContext.client.js` unchanged (both
+tables call the field `llm_context`). Not on the Run form: that form has a custom
+`sys_ui_section`, so a new field would not render and `g_form.getValue()` would
+return ''. A server-side action can't write the clipboard at all. The context is
+built at scan time: a task brief + `report_template.md` + SKILL.md's Interpret /
+Recommend / Deliver / Expert judgments / Safety sections, copied verbatim, then
+`toMarkdown()` (byte-identical to the Python scorer).
+
+*Heuristics carried over from SKILL.md — label them as such in any output:*
+RL-01 / RL-03 (custom vs. modified relationship types) and CI-05 (relabelled
+status choices) rely on creator names (`system_users`) and a base-name list —
+confirm against a PDI of the same family before remediating; the fixture
+`demo_instance_results.json` itself shows RL-03 not assessed as a v1.0 heuristic
+false positive. RL-09's expected Business App → App Service type is ambiguous
+(`Consumes::Consumed by` per KB0831503, `Uses::Used by` in the CSDM 5 figure) —
+report the distribution, don't mass-change.
+
+**Verify before go-live** (append to the existing list): Script Actions really
+run as System on the target release; dot-walked encoded queries from scope
+(`parent.sys_class_nameIN…`, `model_id.sys_class_name!=…`,
+`cmdb_ci.sys_class_nameIN…`, `parent.sys_idISEMPTY`); whether scoped
+`addHaving()` works (the fallback covers it either way); `gs.getProperty` of the
+global `instance_name`/`glide.buildtag` from scope (meta only, degrades to '');
+and **collector parity** — run the original `cmdb_health_collector.js` in
+Scripts - Background (global) and the new mode on the same data, then compare
+check IDs, counts and statuses (a difference is acceptable only as
+`not_assessed` with a reason).
+
+**Console v6 (2026-09-28): right-side "New scan" drawer + Mosaic-direction
+visual pass.** Two independent changes, zero logic touched outside them.
+
+*New-scan drawer.* Clicking "+ New" anywhere in the console (Dashboard's
+recent-runs list, the Scan Runs and Scan Results tables) used to hard-navigate
+to `/x_nold_iscan_run.do?sys_id=-1`. It now opens
+`src/client/components/NewScanPanel.tsx`, a right-side slide-in panel built on
+the existing `Dialog.tsx` (new `variant="drawer"` prop — same focus-trap/Esc/
+backdrop-click/restore-focus behaviour Dialog already had, just a different
+panel shape: full height, pinned to the right edge, `iscan-drawer-in` slide
+animation guarded by `prefers-reduced-motion`). The panel picks a scan mode
+from 7 radio tiles (one-line description each; Full and CMDB & CSDM Health
+carry a "background · admin only" badge, wording lifted from ScanLauncher's
+own note — the SERVER still decides sync/queued/403, this is purely honest
+labelling) and, for Manual — App / Manual — Single Table, a debounced
+typeahead (`TableService.searchRecords`, new — `nameLIKE`/`labelLIKE` against
+`sys_app`/`sys_db_object`, OR-joined via `^OR` when given several like-fields)
+with multi-select chips (apps) or a single chip (table). Client-side
+validation mirrors `IscanRunScanApi.server.js`'s own checks (manual needs
+≥1 app, single_table needs a table) so a bad request never reaches the
+network — the server still re-validates. Submission calls the EXACT same
+`ScanService.startScan(mode, appIds, targetTable)` ScanLauncher already used;
+nothing about the REST payload, response handling, toast wording, or
+navigate-to-the-new-run's-detail-view behaviour changed — `app.tsx`'s
+`newRun` callback just flips `newScanOpen` state instead of setting
+`window.location.href`. ScanLauncher's one-click buttons and its "pick target
+on form" deep-links were left exactly as they were (nothing they could do
+before is now unreachable) — the drawer is an additional, more integrated
+path to the same endpoint, and the drawer itself keeps an "Open platform form
+instead" link for parity. No file under `src/server` or `src/fluent` changed.
+
+*Mosaic-direction visual pass.* Inspiration was cruip.com/mosaic (grouped
+sidebar nav, slim header, dense clean cards, indigo accent) — ported as
+layout/spacing/hierarchy direction, no code copied, no new dependency, no CDN
+(the existing Google Fonts `<link>` in index.html is still the only external
+resource). Three concrete changes: (1) `SideNav.tsx` rebuilt around grouped
+sections (Overview / Scans / Governance) with a collapse-to-icon-only toggle,
+replacing the old single-sliding-pill active-indicator (`ITEM_STEP`, a
+hardcoded pixel-step calculation that assumed a flat item list — grouping
+breaks that assumption, so the indicator is now a plain per-item background +
+left accent bar that stays correct regardless of how many group labels sit
+above an item). Collapse state is mirrored onto
+`document.documentElement`'s `data-nav-collapsed` attribute (same pattern
+`utils/theme.ts` already uses for `data-theme`) so the shell's grid column
+width (`--iscan-nav-width`, 230px expanded / 72px collapsed) can react without
+threading state through `app.tsx`; persisted to `localStorage`
+(`iscan-nav-collapsed`), wrapped in try/catch like the theme toggle. (2) The
+decorative aurora wash/blobs (`.iscan-shell`'s background gradient,
+`.iscan-main::before/::after`) had their opacity roughly halved — Mosaic's own
+look is closer to flat/clean than the previous glass-heavy treatment, and
+this keeps the existing oklch token architecture, dark mode, and every
+accessibility guard intact rather than ripping out the material system. (3)
+New drawer/mode-tile/chip/search-result styles added following the same
+rules as everything else in `app.css`: zero hardcoded colors (every color a
+`--snx-*` token), `.iscan-modetile` transition covered in the
+`prefers-reduced-motion` block, drawer animation covered in the same block
+plus its own `@keyframes`. The `--snx-*` two-theme oklch palette itself
+(hue 265, already indigo/violet) was NOT re-hued — it already matched the
+brief's "soft indigo/violet accent" direction, so re-deriving a new palette
+would have been change for its own sake.
+
+*Verified with a local render harness* (the built bundle served over
+`python3 -m http.server`, `window.g_ck`/`window.fetch` stubbed with
+realistic row shapes for `/api/now/table/*`, `/api/now/stats/*`, and the
+scan-run POST endpoint; screenshotted headless via `playwright-core` +
+the Chrome under `~/.cache/puppeteer/`, harness files under
+`/tmp/claude-1000/iscan-harness`, not the repo): dashboard, scan runs, and
+scan results at 1440×900 and 400×850 in both light and dark
+(`data-theme` set directly, not via the toggle button — the "Light mode"
+label text in the dark screenshots is a harness artifact of that shortcut,
+not an app bug), plus the new-scan drawer with Manual — App selected at
+1440×900 light. All render correctly: grouped/collapsible sidebar, dense
+tables scrolling inside their own container (never the page body) down to
+400px wide, dark-mode contrast holding, drawer sliding in with working
+mode-tile selection and client-side validation. `npm run build` is clean (0
+errors/0 warnings, TypeScript type check passes); the generated
+`sys_ui_page_*.xml` still has exactly 1 CDATA section and 0 split-escapes.
+**Not verified — no real ServiceNow instance available:** the sys_app/
+sys_db_object typeahead against real data (stubbed in the harness), the
+actual POST response shapes for `queued`/`error` states inside the drawer's
+toast wording, and rendering inside the real Polaris iframe (the harness
+serves the page standalone, not inside `x_nold_iscan_console.do`'s actual
+UI Page frame).
+
+*Console v6 follow-up (2026-09-28): the base-element reset had been zeroing
+component padding.* `.iscan-shell nav/section/header/...{padding:0}` has
+specificity (0,1,1), which beats every single-class rule (`.iscan-nav`,
+`.iscan-panel`, 0,1,0) - so the rail and every panel rendered with NO inner
+padding, in every version before this. The reset is now wrapped in `:where()`
+(zero specificity). Keep it that way; if a component's padding "does nothing",
+check for element-qualified selectors first. The rail is also capped at
+`calc(100vh - 6.5rem)` so its footer (collapse + theme toggle) stays in view,
+and the Collapse button is hidden under 768px. Harness gotcha: the harness
+serves its OWN copy of `app.css` - re-copy it after every CSS edit, or the
+screenshots show stale styles (the v6 agent's first shots did).
+
+**Console v6, full Mosaic pass (2026-09-28): the whole shell, not just the
+sidebar.** Second request from the user after the drawer + partial pass above
+landed — this covers the rest of cruip.com/mosaic's direction. Zero logic
+changed; no `src/server`/`src/fluent` edits; no new npm dependency; no CDN.
+
+*Shell restructure — one brand, one header.* The rail previously duplicated
+its own "Instance Scan Console" brand as a second, large page-level `<h1>` in
+a separate header row spanning both grid columns above everything. Now
+`.iscan-nav` is explicitly placed `grid-column: 1; grid-row: 1 / -1` in
+`app.css`, so it runs the FULL height of the page from the very top (brand at
+its own top, nothing above it) — CSS Grid places explicitly-positioned items
+first regardless of DOM order, then auto-places the rest into whatever cells
+remain, so `.iscan-header`/`.iscan-main` need no matching declaration of their
+own; they simply land in the one remaining column. `app.tsx`'s header is now
+a slim bar: breadcrumb + a small per-view `<h1 class="iscan-header__title">`
+(19px, not 28px) + one-line description on the left, "+ New" and the theme
+toggle on the right. The theme toggle moved out of `SideNav`'s footer
+entirely into a new self-contained `ThemeToggle` component
+(`components/ui.tsx`, owns its own `useTheme()` call) so it renders in the
+header instead — `SideNav.tsx` no longer imports `useTheme` at all, and its
+footer now holds only the collapse button. At the 768px breakpoint,
+`.iscan-nav`'s span is cancelled back to `grid-column/row: auto` — a
+single-column grid would otherwise force the rail across both explicit rows
+and push header/main into new implicit rows below it, instead of the plain
+top-to-bottom stack that breakpoint wants.
+
+*KPI tiles gained a real proportion bar, not a fake trend.* `MetricTile`
+takes an optional `proportion` (0..1), rendered as a thin `.iscan-tile__bar`
+track + coloured fill under the number. Wired up ONLY on `Dashboard.tsx`'s 4
+"Run activity" tiles (Complete/In flight/Errored, each against `metrics.runs`
+as the total) — the one place this app has a real total to compare a count
+against. Deliberately NOT added to `ResultSummary`'s 41 per-result count
+tiles: there is no meaningful "total" to divide any one of those counts by,
+and no stored time series anywhere in this schema to draw an actual
+sparkline from — inventing one would violate the "don't fabricate trends"
+constraint. If a real historical series is ever stored, a sparkline can reuse
+the same `.iscan-tile__bar` slot; until then a proportion-of-total bar is the
+honest version of the same idea.
+
+*Tables, Mosaic density.* `RecordTable.tsx` gained `isNumericField()` (any
+field ending in `_count` — a naming convention already true of every numeric
+column in this schema, not a hand-maintained list) applied as
+`.iscan-table__num` (right-align + tabular figures) to both the header cell
+and body cells; `app.css` added a tinted header band
+(`--snx-color-surface-alt` behind `thead th`, not just muted text) and zebra
+striping (`tbody tr:nth-child(even)`, placed before the existing `:hover` rule
+so hover still wins at equal specificity — same technique the file already
+uses elsewhere for cascade ordering). Status is unchanged: it was already a
+coloured pill via `statusField`/`statusSeverity`, including the pulsing dot on
+Running (`.iscan-status--info::before`) — that already satisfied the "animated
+status dot for Running" ask from the first pass. Mode/app/table columns stay
+plain text or a real link, per the brief.
+
+*Card header row.* `.iscan-panel__toolbar` (already the title+actions row on
+every panel/table/detail view — no JSX changed) gained a bottom hairline plus
+a touch more bottom margin, so the header reads as visually separated from the
+card body; a second toolbar in the same panel (RecordTable's pagination
+footer) gets a top hairline instead via `.iscan-panel__toolbar ~
+.iscan-panel__toolbar`, so it reads as a footer, not another header. Panel
+padding itself grew from `--snx-space-inner` (0.75rem, still used for
+internal row/gap spacing everywhere) to a dedicated 1.25rem card padding, only
+on `.iscan-panel` — Mosaic's own cards give the edge more room than a list
+row needs.
+
+*Scan launcher, detail view, preview modal, toasts — already the same
+language, no JSX touched.* `ScanLauncher.tsx`'s one-click buttons and
+secondary form-deep-link buttons already used `.iscan-btn--primary`/
+`--secondary`; `RecordDetail`/`RecordFields`/`RecordPreviewModal`/`toast.tsx`
+already rendered through the same `.iscan-panel`/`.iscan-fields`/
+`.iscan-dialog`/`.iscan-toast` classes app.css owns. The "bring to the same
+visual language" ask for these was therefore a CSS-only exercise (card
+padding, header-row hairline, table density) that reached them automatically
+— confirmed in the run-detail and toast screenshots without editing those
+components.
+
+*Motion, ported dependency-free.* Three additions, all guarded under
+`prefers-reduced-motion`: (1) `ui.tsx`'s new `Skeleton` component — a
+reactbits-style shimmer (`background-position` sweep on a gradient, no
+library) with `lines` bars at decreasing widths, replacing `RecordTable`'s
+loading-state `Spinner` (its per-row `Spinner` uses elsewhere are unchanged —
+this is only the "a whole list is loading" case); reduced motion leaves the
+bars visible but static. (2) `.iscan-btn:active` gets a `scale(0.97)` press
+"squash", a uiverse-style button-feedback pattern ported as a plain
+transform; disabled under reduced motion via the existing `.iscan-btn`
+transition-none rule (already present from the first pass). (3) The KPI
+proportion bar's fill transitions its width in on mount/update
+(`inline-size` 480ms ease-out); reduced motion drops straight to the final
+width. Card hover-lift (tiles) and the drawer's slide-in were both already
+built and guarded in the first pass — nothing new needed there.
+
+*Verified* by rebuilding (`npm run build`: 0 errors/0 warnings, TypeScript
+clean) and re-syncing the harness's OWN copies of `app.css`/`main.jsdbx` into
+`/tmp/claude-1000/iscan-harness/static/` before reshooting (see the
+follow-up note above — this bit the first v6 pass). Generated
+`sys_ui_page_*.xml`: still exactly 1 CDATA, 0 split-escapes. 19 screenshots
+at 1440×900 and 400×850, light and dark, covering dashboard/runs/results/
+detail/new-panel (new-panel: desktop light+dark and mobile, per spec) — all
+in `/tmp/claude-1000/iscan-harness/shots/`. One harness fidelity fix along
+the way: the stub's `RUNS` fixture originally gave `status` the SAME string
+for both `value` and `display_value` ('Complete' instead of
+`{value:'complete', display_value:'Complete'}`), which silently defeated
+`runStatusSeverity()`'s lookup and rendered plain text instead of a pill in
+the screenshots — fixed in the harness fixture only, `severity.ts` itself was
+never the bug. **Not verified — no real instance:** actual sys_app/
+sys_db_object typeahead results, and rendering inside the real Polaris
+iframe.

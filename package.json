@@ -1,6 +1,6 @@
 {
     "name": "x_nold_iscan",
-    "version": "3.0.0",
+    "version": "5.0.0",
     "description": "",
     "license": "UNLICENSED",
     "imports": {
@@ -14,7 +14,8 @@
         "tosn-mj": "npm version major --no-git-tag-version && npm run build && npm run deploy",
         "transform": "now-sdk transform",
         "types": "now-sdk dependencies",
-        "prebuild": "node scripts/inline-css.mjs"
+        "prebuild": "node scripts/inline-css.mjs",
+        "test:cmdb-parity": "node tests/cmdb-health-scorer.parity.mjs"
     },
     "devDependencies": {
         "@servicenow/glide": "27.0.5",

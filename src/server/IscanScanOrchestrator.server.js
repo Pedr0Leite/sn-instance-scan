@@ -10,6 +10,50 @@
  */
 var IscanScanOrchestrator = Class.create()
 IscanScanOrchestrator.prototype = {
+    // Must match the sysevent_register record in src/fluent/async-scan.now.ts.
+    // Scoped event names are '<scope>.<suffix>' and capped at 40 characters.
+    QUEUE_EVENT: 'x_nold_iscan.scan.execute',
+
+    // Modes that run in a worker instead of inside the caller's request. Only
+    // the long-running ones: Full walks every table-only scope (3,549 tables on
+    // ven09425, 16.5 minutes) and CMDB Health iterates record-by-record
+    // up to max_iterate. Every other mode finishes in seconds and stays
+    // synchronous - which also keeps the ATF tests valid, since they click
+    // Run Scan and assert status=complete immediately (none of them use full).
+    ASYNC_MODES: ['full', 'cmdb_health'],
+
+    /**
+     * @param {String} scanMode
+     * @returns {Boolean} true when this mode is queued rather than run inline
+     */
+    isAsyncMode: function (scanMode) {
+        return this.ASYNC_MODES.indexOf(scanMode) !== -1
+    },
+
+    /**
+     * Whether the CURRENT user may launch this mode. Async modes are admin-only.
+     *
+     * Why: the queued work runs in a Script Action, and event handlers run as
+     * System - not as the user who queued the event. Evidence (docs corpus):
+     * events.md says handlers are dispatched by scheduled jobs reading the
+     * queue; r_BuildAScript.md's canonical pattern passes gs.getUserID() as a
+     * parameter precisely because the handler does not run as that user;
+     * KB0785010 describes Script Actions running as System; and the Fluent
+     * ScriptAction API has no run-as field. Letting a scanner-only user queue a
+     * Full or CMDB Health scan would therefore let them read, through the
+     * x_nold_iscan_* tables their role CAN read, data beyond their own ACLs -
+     * including incident / change_request / cmdb_ci display values stored as
+     * check samples. That breaks this app's hard "no elevated privilege" rule.
+     * Requiring admin to queue means the worker's System reads never exceed
+     * what the caller could already see. Synchronous modes are unaffected and
+     * keep running under the caller's own access.
+     * @param {String} scanMode
+     * @returns {Boolean}
+     */
+    canLaunch: function (scanMode) {
+        return !this.isAsyncMode(scanMode) || gs.hasRole('admin')
+    },
+
     initialize: function () {
         this.appSelector = new IscanAppSelector()
         this.tableScanner = new IscanTableScanner()
@@ -17,13 +61,15 @@ IscanScanOrchestrator.prototype = {
         this.summaryGenerator = new IscanSummaryGenerator()
         this.moduleScanner = new IscanModuleScanner()
         this.aiAgentScanner = new IscanAiAgentScanner()
+        this.cmdbHealthScanner = new IscanCmdbHealthScanner()
+        this.cmdbHealthScorer = new IscanCmdbHealthScorer()
     },
 
     /**
      * Runs a scan against an already-existing run record (e.g. the one
      * open in the form when "Run Scan" was clicked), updating it in place.
      * @param {String} runSysId - sys_id of an existing x_nold_iscan_run record
-     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules' | 'ai_agents'
+     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules' | 'ai_agents' | 'cmdb_health'
      * @param {Array} manualAppList - array of sys_app sys_ids, only used
      *   when scanMode === 'manual'
      * @param {String} [targetTableSysId] - sys_id of a sys_db_object record,
@@ -57,7 +103,7 @@ IscanScanOrchestrator.prototype = {
      * Creates a brand-new run record and scans it. Used for programmatic/
      * ATF-style invocation where there's no pre-existing form record to
      * update — see runScanForRecord() for the UI Action path.
-     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules' | 'ai_agents'
+     * @param {String} scanMode - 'full' | 'custom_only' | 'manual' | 'single_table' | 'modules' | 'ai_agents' | 'cmdb_health'
      * @param {Array} manualAppList - array of sys_app sys_ids, only used
      *   when scanMode === 'manual'
      * @param {String} [targetTableSysId] - sys_id of a sys_db_object record,
@@ -77,6 +123,86 @@ IscanScanOrchestrator.prototype = {
     },
 
     /**
+     * Queues a scan to run asynchronously in a worker thread, instead of
+     * inside the caller's UI or REST transaction.
+     *
+     * Why async: UI transactions are cancelled at 298s (the "UI Transactions"
+     * default quota rule, which exempts only background scripts), and HTTP
+     * connections are cut by the load balancer at 5 minutes. A scan that is
+     * killed mid-flight can never reach its own catch block, so it stays
+     * 'running' forever. A Full scan on ven09425 resolves 3,549
+     * table-only tables and ran for 16.5 minutes - it can never finish inside a
+     * request. The event is processed by the Script Action in
+     * src/fluent/async-scan.now.ts, which calls executeQueuedRun() below.
+     *
+     * This method does NOT write the run record. Its callers own that write:
+     * the UI Action lets the platform's single natural save of `current`
+     * persist status='pending' (a second save of the same record in one request
+     * is what produced the old "Invalid update" banner), and the REST endpoint
+     * creates the record itself. The sysevent row is committed by
+     * gs.eventQueue() itself, a few milliseconds before the UI Action's save; a
+     * worker that somehow started inside that gap would only see 'pending'
+     * shown briefly - _finishRun still writes the terminal status.
+     *
+     * Parameters travel on the event rather than being re-read from the record,
+     * so the target_app / manual_app_list precedence decided by the caller is
+     * applied exactly once, in one place.
+     * @param {GlideRecord} run - the run record (may be `current`, unsaved yet)
+     * @param {String} scanMode
+     * @param {Array} manualAppList - sys_app sys_ids (manual mode only)
+     * @param {String} [targetTableSysId] - sys_db_object sys_id (single_table only)
+     */
+    queueScan: function (run, scanMode, manualAppList, targetTableSysId) {
+        var params = JSON.stringify({ apps: manualAppList || [], table: targetTableSysId || '' })
+        gs.eventQueue(this.QUEUE_EVENT, run, scanMode, params)
+        gs.info('IscanScanOrchestrator.queueScan: run=' + run.getUniqueValue() + ' queued, scan_mode=' + scanMode)
+    },
+
+    /**
+     * Worker-side entry point, called by the Script Action on the queued event.
+     * Runs the existing synchronous pipeline unchanged. The catch here covers
+     * failures that happen BEFORE a scan's own try/catch is reached (unknown
+     * mode in _resolveAppList, a missing record, a write denial on the first
+     * update) - without it those would leave the run 'pending' indefinitely.
+     * @param {String} runSysId
+     * @param {String} scanMode - event parm1
+     * @param {String} paramsJson - event parm2, from queueScan()
+     */
+    executeQueuedRun: function (runSysId, scanMode, paramsJson) {
+        gs.info('IscanScanOrchestrator.executeQueuedRun: run=' + runSysId + ', scan_mode=' + scanMode)
+        var params = {}
+        try {
+            params = paramsJson ? JSON.parse(paramsJson) : {}
+        } catch (parseError) {
+            this._failRun(runSysId, 'Could not read the queued scan parameters: ' + parseError.message)
+            return
+        }
+        try {
+            this.runScanForRecord(runSysId, scanMode, params.apps || [], params.table || '')
+        } catch (e) {
+            gs.error('IscanScanOrchestrator.executeQueuedRun: run=' + runSysId + ' failed before completing: ' + e.message)
+            this._failRun(runSysId, e.message)
+        }
+    },
+
+    /**
+     * Marks a run as failed, with the reason in its findings log, when the
+     * failure happened outside a scan's own try/catch.
+     * @param {String} runSysId
+     * @param {String} message
+     */
+    _failRun: function (runSysId, message) {
+        var run = new GlideRecord('x_nold_iscan_run')
+        if (!run.get(runSysId)) {
+            gs.error('IscanScanOrchestrator._failRun: no run record for sys_id ' + runSysId + ' (' + message + ')')
+            return
+        }
+        this._appendScanFinding(run, 'ERROR: ' + message)
+        run.setValue('status', 'error')
+        this._finishRun(run)
+    },
+
+    /**
      * appIdsOrTarget's shape varies by scan mode:
      *   - {tableOnly, tableName} — Single Table mode, no owning sys_app.
      *   - {appIds, tableOnlyTables} — Full mode, via getFullScanScopes():
@@ -91,6 +217,9 @@ IscanScanOrchestrator.prototype = {
         }
         if (appIdsOrTarget && appIdsOrTarget.aiAgentsOnly) {
             return this._executeAiAgentsRun(run)
+        }
+        if (appIdsOrTarget && appIdsOrTarget.cmdbHealthOnly) {
+            return this._executeCmdbHealthRun(run)
         }
         if (appIdsOrTarget && appIdsOrTarget.tableOnly) {
             return this._executeSingleTableRun(run, appIdsOrTarget.tableName)
@@ -145,6 +274,22 @@ IscanScanOrchestrator.prototype = {
                     )
                 }
             }
+            // Opt-in CMDB & CSDM Health add-on for Full scans. It is an add-on,
+            // so its own failure becomes a finding rather than failing the Full
+            // scan. Off by default: it is instance-wide record-by-record work up
+            // to max_iterate, on top of an already long scan.
+            if (
+                run.getValue('scan_mode') === 'full' &&
+                gs.getProperty('x_nold_iscan.include_cmdb_health_on_full_scan', 'false') === 'true'
+            ) {
+                this._appendScanFinding(run, 'Running CMDB & CSDM Health checks (include_cmdb_health_on_full_scan is on)...')
+                try {
+                    this._appendScanFinding(run, this._cmdbHealthSummaryLine(this._runCmdbHealth(run)))
+                } catch (cmdbError) {
+                    gs.error('IscanScanOrchestrator._executeRun: CMDB Health add-on failed for run=' + run.getUniqueValue() + ': ' + cmdbError.message)
+                    this._appendScanFinding(run, 'CMDB & CSDM Health checks failed: ' + cmdbError.message)
+                }
+            }
             run.setValue('status', 'complete')
             gs.info('IscanScanOrchestrator._executeRun: run=' + run.getUniqueValue() + ' completed successfully')
             this._appendScanFinding(run, 'Scan complete. ' + this._reportPointerMessage(appIds.length))
@@ -154,8 +299,7 @@ IscanScanOrchestrator.prototype = {
             run.setValue('status', 'error')
         }
 
-        run.setValue('completed', new GlideDateTime())
-        run.update()
+        this._finishRun(run)
     },
 
     /**
@@ -200,8 +344,7 @@ IscanScanOrchestrator.prototype = {
             run.setValue('status', 'error')
         }
 
-        run.setValue('completed', new GlideDateTime())
-        run.update()
+        this._finishRun(run)
     },
 
     /**
@@ -379,8 +522,7 @@ IscanScanOrchestrator.prototype = {
             run.setValue('status', 'error')
         }
 
-        run.setValue('completed', new GlideDateTime())
-        run.update()
+        this._finishRun(run)
     },
 
     _writeModuleRows: function (runSysId, modules) {
@@ -513,8 +655,7 @@ IscanScanOrchestrator.prototype = {
             run.setValue('status', 'error')
         }
 
-        run.setValue('completed', new GlideDateTime())
-        run.update()
+        this._finishRun(run)
     },
 
     _writeAiAgentRows: function (runSysId, findings) {
@@ -532,6 +673,248 @@ IscanScanOrchestrator.prototype = {
         gs.info('IscanScanOrchestrator._writeAiAgentRows: run=' + runSysId + ' wrote ' + findings.length + ' row(s)')
     },
 
+    /**
+     * CMDB & CSDM Health mode: instance-wide, no app/table scoping - same shape
+     * as _executeAiAgentsRun. No x_nold_iscan_result row (no owning app); the
+     * findings land run-keyed on x_nold_iscan_cmdb_check (one row per catalog
+     * check) and x_nold_iscan_cmdb_summary (one row). Always queued to the async
+     * worker (see ASYNC_MODES), so this runs as System - admin-only to launch.
+     * @param {GlideRecord} run
+     */
+    _executeCmdbHealthRun: function (run) {
+        run.setValue('app_count', 0)
+        run.setValue('status', 'running')
+        if (!run.update()) {
+            throw new Error(
+                'Cannot write to the scan run record — the calling user lacks write access to x_nold_iscan_run (check the x_nold_iscan.scanner role and its write ACL).'
+            )
+        }
+
+        gs.info('IscanScanOrchestrator._executeCmdbHealthRun: run=' + run.getUniqueValue() + ' assessing CMDB and CSDM health')
+        this._appendScanFinding(run, 'Assessing CMDB and CSDM health against the Get Well Playbooks...')
+
+        try {
+            var outcome = this._runCmdbHealth(run)
+            this._appendScanFinding(run, this._cmdbHealthSummaryLine(outcome))
+            this._appendScanFinding(run, this._cmdbHealthFindingsLog(outcome.scored))
+            run.setValue('status', 'complete')
+            gs.info('IscanScanOrchestrator._executeCmdbHealthRun: run=' + run.getUniqueValue() + ' completed')
+            this._appendScanFinding(
+                run,
+                'Scan complete. One row per check is on the CMDB Health Check list below, with the score roll-up on the CMDB Health Summary; the scored PDF report is attached to this run.'
+            )
+        } catch (e) {
+            gs.error('IscanScanOrchestrator._executeCmdbHealthRun failed: ' + e.message)
+            this._appendScanFinding(run, 'ERROR: ' + e.message)
+            run.setValue('status', 'error')
+        }
+
+        this._finishRun(run)
+
+        // This mode always runs in the background worker, so the PDF is built
+        // here rather than waiting for a Download Report click. After
+        // _finishRun so the report reads the terminal status. A failure is a
+        // finding, never a change to the run's outcome.
+        if (run.getValue('status') === 'complete') {
+            var attachmentId = ''
+            try {
+                attachmentId = new IscanReportGenerator().generateRunReport(run.getUniqueValue())
+            } catch (pe) {
+                gs.error('IscanScanOrchestrator._executeCmdbHealthRun: PDF failed: ' + pe.message)
+            }
+            if (!attachmentId) {
+                this._appendScanFinding(run, 'PDF report could not be generated automatically - use Download Report (see system log for the cause).')
+            }
+        }
+    },
+
+    /**
+     * Log block listing every Fail and Warn check, worst first, with the same
+     * measure strings the report uses - so the run log itself shows what needs
+     * attention instead of only the score.
+     */
+    _cmdbHealthFindingsLog: function (scored) {
+        var scorer = this.cmdbHealthScorer
+        var lines = []
+        scored.ordered.forEach(function (r) {
+            if (r.status !== 'fail' && r.status !== 'warn') return
+            lines.push(
+                (r.status === 'fail' ? 'FAIL ' : 'WARN ') + r.id + ' [' + r.check.priority + '] ' + r.check.title +
+                ' - ' + scorer.formatMeasure(r.check, r.res, r.pct)
+            )
+        })
+        return lines.length ? 'Findings needing attention (worst first):\n' + lines.join('\n') : 'No failing or warning checks.'
+    },
+
+    /**
+     * Collect, score and persist CMDB & CSDM Health for one run. Shared by the
+     * dedicated mode and the Full-scan add-on.
+     *
+     * Every one of the 49 catalog checks gets a row on every run. The scanner's
+     * own safe() blocks already absorb per-check failures; if the collector
+     * itself throws, the checks are still written - all not assessed, with the
+     * reason - rather than leaving the run with no check rows at all.
+     * @param {GlideRecord} run
+     * @returns {Object} {scored, results}
+     */
+    _runCmdbHealth: function (run) {
+        var results
+        try {
+            results = this.cmdbHealthScanner.collect()
+        } catch (e) {
+            gs.error('IscanScanOrchestrator._runCmdbHealth: collector failed for run=' + run.getUniqueValue() + ': ' + e.message)
+            this._appendScanFinding(run, 'CMDB Health collector failed: ' + e.message + ' - every check is recorded as not assessed.')
+            results = { meta: { collector_error: String(e.message || e) }, inventory: [], checks: [], accessGaps: [] }
+        }
+        var catalog = new IscanCmdbHealthCatalog().get()
+        var scored = this.cmdbHealthScorer.score(results, catalog)
+        // Run Scan can be clicked again on a finished run. Without this the run
+        // would carry two sets of 49 check rows and two summaries, and the
+        // report would list every finding twice. Only this app's own rows for
+        // this one run are removed (runs in the System worker).
+        var tables = ['x_nold_iscan_cmdb_check', 'x_nold_iscan_cmdb_summary']
+        for (var t = 0; t < tables.length; t++) {
+            var old = new GlideRecord(tables[t])
+            old.addQuery('run', run.getUniqueValue())
+            old.deleteMultiple()
+        }
+        this._writeCmdbHealthRows(run.getUniqueValue(), results, scored, catalog)
+        return { scored: scored, results: results }
+    },
+
+    /**
+     * Inserts one x_nold_iscan_cmdb_check row per catalog check (catalog order)
+     * and one x_nold_iscan_cmdb_summary row. These are the ONLY writes the CMDB
+     * Health feature makes - no CMDB or platform table is ever written.
+     */
+    _writeCmdbHealthRows: function (runSysId, results, scored, catalog) {
+        var failed = 0
+        for (var i = 0; i < scored.rows.length; i++) {
+            var r = scored.rows[i]
+            var chk = r.check
+            var res = r.res || {}
+            var row = new GlideRecord('x_nold_iscan_cmdb_check')
+            row.initialize()
+            row.setValue('run', runSysId)
+            row.setValue('check_id', chk.id)
+            row.setValue('title', chk.title)
+            row.setValue('theme', chk.theme)
+            row.setValue('priority', chk.priority)
+            row.setValue('kind', chk.kind)
+            row.setValue('status', r.status)
+            if (res.count !== null && res.count !== undefined) row.setValue('count', res.count)
+            if (res.total !== null && res.total !== undefined) row.setValue('total', res.total)
+            if (r.pct !== null && r.pct !== undefined) row.setValue('pct', r.pct)
+            row.setValue('samples', (res.samples || []).map(String).join('\n').substring(0, 4000))
+            row.setValue('note', String(res.note || this._cmdbWhy(r.status)).substring(0, 4000))
+            row.setValue('kb', (chk.kb || []).join(', '))
+            row.setValue('target_table', chk.table)
+            row.setValue('issue_query', chk.issue_query)
+            row.setValue('recommended_action', chk.action)
+            if (!row.insert()) failed++
+        }
+
+        var meta = {}
+        var srcMeta = results.meta || {}
+        for (var k in srcMeta) if (srcMeta.hasOwnProperty(k)) meta[k] = srcMeta[k]
+        meta.relationship_density = scored.meta.density
+
+        var sum = new GlideRecord('x_nold_iscan_cmdb_summary')
+        sum.initialize()
+        sum.setValue('run', runSysId)
+        if (scored.overall !== null) sum.setValue('overall_score', scored.overall)
+        sum.setValue('checks_scored', scored.checksScored)
+        sum.setValue('fail_count', scored.counts.fail)
+        sum.setValue('warn_count', scored.counts.warn)
+        sum.setValue('pass_count', scored.counts.pass)
+        sum.setValue('na_count', scored.counts.n_a)
+        sum.setValue('not_assessed_count', scored.counts.not_assessed)
+        sum.setValue('theme_scores', JSON.stringify(scored.themes))
+        sum.setValue('stage_readiness', JSON.stringify(scored.stages))
+        sum.setValue('csdm_population', JSON.stringify(scored.population))
+        sum.setValue('inventory', JSON.stringify(results.inventory || []))
+        sum.setValue('meta', JSON.stringify(meta))
+        sum.setValue('access_gaps', (results.accessGaps || []).join(', '))
+        sum.setValue('llm_context', this.cmdbHealthScorer.buildLlmContext(scored, catalog))
+        if (!sum.insert()) failed++
+
+        gs.info('IscanScanOrchestrator._writeCmdbHealthRows: run=' + runSysId + ' wrote ' + scored.rows.length + ' check row(s) + 1 summary, ' + failed + ' failed')
+        if (failed) {
+            // Same pattern as every other write here: fail loudly, never scan
+            // silently into rows nobody can see.
+            throw new Error(failed + ' CMDB Health row(s) could not be written - check the create ACLs on x_nold_iscan_cmdb_check / x_nold_iscan_cmdb_summary.')
+        }
+    },
+
+    /** score_results.py's reason text for a check with no collector note. */
+    _cmdbWhy: function (status) {
+        if (status === 'n_a') return 'no records in population'
+        if (status === 'not_assessed') return 'no data provided'
+        return ''
+    },
+
+    /** One log line summarising a scored CMDB Health run. */
+    _cmdbHealthSummaryLine: function (outcome) {
+        var sc = outcome.scored
+        var c = sc.counts
+        var gaps = (outcome.results && outcome.results.accessGaps) || []
+        return (
+            'CMDB health score: ' + (sc.overall === null ? 'n/a' : sc.overall + '/100') +
+            ' (' + sc.checksScored + ' checks scored) - Fail ' + c.fail + ', Warn ' + c.warn + ', Pass ' + c.pass +
+            ', N/A ' + c.n_a + ', Not assessed ' + c.not_assessed + '.' +
+            (gaps.length ? ' Could not read: ' + gaps.join(', ') + ' - the checks using them are not assessed, not zero.' : '')
+        )
+    },
+
+    /**
+     * Persists a run's terminal state (status + completed) through a FRESH
+     * GlideRecord that touches ONLY those two fields.
+     *
+     * Why not just run.update(): the `run` GlideRecord is reused for the whole
+     * scan and carries the ever-growing scan_findings log. Its terminal write
+     * used to be the same update() that also flushed that log, so anything that
+     * broke that one call - an oversized value, a data policy, an ACL - lost the
+     * status with it, and the run stayed 'running' forever with `completed`
+     * empty. Observed on ven09425 2026-09-24: a Full run (4 apps + 3,549
+     * table-only tables) worked for 16.5 minutes and never reached a terminal
+     * state. Decoupling the status write from the log write means a terminal
+     * status lands whenever execution gets this far, regardless of the log.
+     *
+     * The in-memory `run` is kept in step so callers reading it afterwards (the
+     * REST response, the UI Action's mirror) see the same values.
+     * @param {GlideRecord} run - status already set in memory to complete|error
+     */
+    _finishRun: function (run) {
+        var runSysId = run.getUniqueValue()
+        var status = run.getValue('status')
+        if (status !== 'complete' && status !== 'error') {
+            // Every _execute*Run sets complete or error before calling this.
+            // Anything else means a code path forgot to, so record it as a
+            // failure rather than leave the run looking live.
+            gs.error('IscanScanOrchestrator._finishRun: run=' + runSysId + ' reached finish with status=' + status + ', recording as error')
+            status = 'error'
+        }
+        var completed = new GlideDateTime()
+        run.setValue('status', status)
+        run.setValue('completed', completed)
+
+        var fin = new GlideRecord('x_nold_iscan_run')
+        if (!fin.get(runSysId)) {
+            gs.error('IscanScanOrchestrator._finishRun: could not re-fetch run=' + runSysId + ' to record status=' + status)
+            return
+        }
+        fin.setValue('status', status)
+        fin.setValue('completed', completed)
+        if (!fin.update()) {
+            gs.error(
+                'IscanScanOrchestrator._finishRun: FAILED to persist status=' + status + ' for run=' + runSysId +
+                    ' - the run will still show its previous status. Check the write ACL on x_nold_iscan_run.'
+            )
+            return
+        }
+        gs.info('IscanScanOrchestrator._finishRun: run=' + runSysId + ' finished with status=' + status)
+    },
+
     _createRun: function (scanMode, manualAppList) {
         var run = new GlideRecord('x_nold_iscan_run')
         run.initialize()
@@ -542,6 +925,9 @@ IscanScanOrchestrator.prototype = {
             run.setValue('manual_app_list', manualAppList.join(','))
         }
         var runSysId = run.insert()
+        if (!runSysId) {
+            throw new Error('Could not create the scan run - the calling user may lack create access to x_nold_iscan_run.')
+        }
         gs.info('IscanScanOrchestrator._createRun: created run=' + runSysId + ', scan_mode=' + scanMode)
         return run
     },
@@ -560,6 +946,8 @@ IscanScanOrchestrator.prototype = {
                 return { modulesOnly: true }
             case 'ai_agents':
                 return { aiAgentsOnly: true }
+            case 'cmdb_health':
+                return { cmdbHealthOnly: true }
             default:
                 gs.error('IscanScanOrchestrator._resolveAppList: unknown scan_mode: ' + scanMode)
                 throw new Error('Unknown scan_mode: ' + scanMode)

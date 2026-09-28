@@ -1,0 +1,824 @@
+/*
+ * Script Include: IscanCmdbHealthCatalog
+ * Client callable: false. Data only.
+ *
+ * GENERATED - do not edit by hand. Source: noviq-cmdb-health
+ * scripts/check_catalog.json (version 1.0), regenerated with
+ * scripts/gen-cmdb-catalog.py. tests/cmdb-health-scorer.parity.mjs deep-equals
+ * this against the upstream JSON, so edits here fail that check.
+ *
+ * 49 checks (id, title, kb[], theme, priority, kind, table, issue_query,
+ * population_query, action, optional pct_thresholds / warn_max), scoring
+ * defaults (weights High=3 Medium=2 Low=1, pct thresholds per priority), 9
+ * themes, 5 CSDM stages and the stage anchors used for the "Not started"
+ * override. Consumed by IscanCmdbHealthScorer.
+ */
+var IscanCmdbHealthCatalog = Class.create()
+
+IscanCmdbHealthCatalog.DATA = {
+    "version": "1.0",
+    "kb_url": "https://support.servicenow.com/kb?id=kb_article_view&sysparm_article={kb}",
+    "defaults": {
+        "weights": {
+            "High": 3,
+            "Medium": 2,
+            "Low": 1
+        },
+        "pct_thresholds": {
+            "High": {
+                "pass_max": 1,
+                "warn_max": 5
+            },
+            "Medium": {
+                "pass_max": 5,
+                "warn_max": 15
+            },
+            "Low": {
+                "pass_max": 10,
+                "warn_max": 25
+            }
+        }
+    },
+    "themes": {
+        "Foundation": "Foundation data (org structure, locations, models, asset/CI sync)",
+        "Hygiene": "CI data quality (names, models, serials, staleness, duplicates, orphans)",
+        "Integration": "Data ingestion through the IRE",
+        "Customization": "Class model and choice/relationship customizations (technical debt)",
+        "Consumption": "ITSM use of CIs and services",
+        "Crawl": "CSDM Crawl - applications",
+        "Walk": "CSDM Walk - technology management services",
+        "Run": "CSDM Run - business services",
+        "Fly": "CSDM Fly - capabilities and information"
+    },
+    "stages": [
+        "Foundation",
+        "Crawl",
+        "Walk",
+        "Run",
+        "Fly"
+    ],
+    "checks": [
+        {
+            "id": "FD-01",
+            "title": "Business Units without a Company",
+            "kb": [
+                "KB0864259"
+            ],
+            "theme": "Foundation",
+            "priority": "High",
+            "kind": "pct",
+            "table": "business_unit",
+            "issue_query": "companyISEMPTY",
+            "population_query": "",
+            "action": "Populate company on every business unit from the HR/finance source of truth; make company mandatory on the form/integration."
+        },
+        {
+            "id": "FD-02",
+            "title": "CI-referenced Locations without a Parent Location",
+            "kb": [
+                "KB0864260"
+            ],
+            "theme": "Foundation",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmn_location",
+            "issue_query": "parentISEMPTY (restricted to locations referenced by non-retired CIs - use collector)",
+            "population_query": "locations referenced by non-retired CIs",
+            "action": "Build a location hierarchy (Region > Country > State > City > Site > Building > Floor > Room) using Location Type; top-level nodes may legitimately have no parent."
+        },
+        {
+            "id": "FD-03",
+            "title": "Duplicate Location names",
+            "kb": [
+                "KB0832200"
+            ],
+            "theme": "Foundation",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmn_location",
+            "issue_query": "group by name, count > 1",
+            "population_query": "",
+            "action": "Identify a primary per duplicate group, repoint references, flag the rest as Duplicate (Rome+) and fix the feeding integration so it does not recreate them."
+        },
+        {
+            "id": "FD-04",
+            "title": "Incidents without a Configuration Item",
+            "kb": [
+                "KB0864671"
+            ],
+            "theme": "Consumption",
+            "priority": "High",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 5,
+                "warn_max": 15
+            },
+            "table": "incident",
+            "issue_query": "cmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90",
+            "population_query": "opened_atRELATIVEGT@dayofweek@ago@90",
+            "action": "Require CI before resolve; improve CI picker (reference qualifiers to operational classes, show identifying columns); train agents; use Service/Offering to narrow CI choice."
+        },
+        {
+            "id": "FD-05",
+            "title": "Changes without a Configuration Item",
+            "kb": [
+                "KB0868259"
+            ],
+            "theme": "Consumption",
+            "priority": "High",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 5,
+                "warn_max": 15
+            },
+            "table": "change_request",
+            "issue_query": "cmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90",
+            "population_query": "opened_atRELATIVEGT@dayofweek@ago@90",
+            "action": "Require CI (or Affected CIs) before Assess/Authorize; use Dynamic CI Groups for bulk changes; drive risk and conflict detection from CI data."
+        },
+        {
+            "id": "FD-06",
+            "title": "Changes missing a Service or a CI",
+            "kb": [
+                "KB1116973"
+            ],
+            "theme": "Consumption",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "change_request",
+            "issue_query": "business_serviceISEMPTY^ORcmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90",
+            "population_query": "opened_atRELATIVEGT@dayofweek@ago@90",
+            "action": "Populate Service/Service Offering alongside the CI (auto-derive from the CI's offering where possible) so change windows, risk and impact use service context."
+        },
+        {
+            "id": "FD-07",
+            "title": "Incidents missing a Service or a CI",
+            "kb": [
+                "KB1116972"
+            ],
+            "theme": "Consumption",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "incident",
+            "issue_query": "business_serviceISEMPTY^ORcmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90",
+            "population_query": "opened_atRELATIVEGT@dayofweek@ago@90",
+            "action": "Capture Service Offering and CI on every incident so SLAs, MTTR and outage reporting roll up to services."
+        },
+        {
+            "id": "FD-08",
+            "title": "'Create Asset on insert' business rule inactive or missing",
+            "kb": [
+                "KB0829855"
+            ],
+            "theme": "Foundation",
+            "priority": "Medium",
+            "kind": "bool",
+            "table": "sys_script",
+            "issue_query": "collection=cmdb_ci^nameLIKECreate Asset^active=true (issue if no rows)",
+            "population_query": "",
+            "action": "Re-activate the OOB rule (do not copy/modify it); verify model category asset/CI class mappings so assets are created for hardware and software CIs."
+        },
+        {
+            "id": "CI-01",
+            "title": "Custom CMDB classes not following naming standard",
+            "kb": [
+                "KB1116975"
+            ],
+            "theme": "Customization",
+            "priority": "Low",
+            "kind": "count",
+            "warn_max": 5,
+            "table": "sys_db_object",
+            "issue_query": "custom extensions of cmdb_ci not named u_cmdb_ci_* (use collector)",
+            "population_query": "",
+            "action": "Review every custom class for an OOB/store-app equivalent (CMDB CI Class Models app); keep only justified ones, named u_cmdb_ci_*, created via CI Class Manager."
+        },
+        {
+            "id": "CI-02",
+            "title": "Custom attributes defined at the wrong hierarchy level",
+            "kb": [
+                "KB0832206"
+            ],
+            "theme": "Customization",
+            "priority": "Low",
+            "kind": "count",
+            "warn_max": 5,
+            "table": "sys_dictionary",
+            "issue_query": "same u_ element on several CMDB classes, or u_ element on cmdb_ci/cmdb (use collector)",
+            "population_query": "",
+            "action": "Consolidate duplicated attributes on the lowest common parent class; move root-level attributes down to the classes that use them."
+        },
+        {
+            "id": "CI-03",
+            "title": "Custom attributes on CMDB classes",
+            "kb": [
+                "KB0832208"
+            ],
+            "theme": "Customization",
+            "priority": "Medium",
+            "kind": "count",
+            "warn_max": 25,
+            "table": "sys_dictionary",
+            "issue_query": "name in cmdb_ci extensions^elementSTARTSWITHu_",
+            "population_query": "",
+            "action": "Classify each as Best Practice / Keep / Refactor / Do Not Need; drop attributes populated on <10% of CIs or unused for years; map to OOB attributes where they exist."
+        },
+        {
+            "id": "CI-04",
+            "title": "Custom attributes on ITAM tables",
+            "kb": [
+                "KB0998512"
+            ],
+            "theme": "Customization",
+            "priority": "Low",
+            "kind": "count",
+            "warn_max": 25,
+            "table": "sys_dictionary",
+            "issue_query": "name in alm_asset/cmdb_model extensions^elementSTARTSWITHu_",
+            "population_query": "",
+            "action": "Same rationalisation as CI-03 for asset and model tables; keep asset and CI attributes on the correct side of the asset-CI sync."
+        },
+        {
+            "id": "CI-05",
+            "title": "Custom or relabelled CI status choice values",
+            "kb": [
+                "KB0952946"
+            ],
+            "theme": "Customization",
+            "priority": "High",
+            "kind": "count",
+            "warn_max": 0,
+            "table": "sys_choice",
+            "issue_query": "name=cmdb_ci*^elementINinstall_status,operational_status (compare with OOB values)",
+            "population_query": "",
+            "action": "Revert to OOB values and labels; express extra meaning with Life Cycle Stage/Status or a separate attribute; remap existing records before removing choices."
+        },
+        {
+            "id": "CI-06",
+            "title": "Non-retired CIs with empty or invalid names",
+            "kb": [
+                "KB0829852"
+            ],
+            "theme": "Hygiene",
+            "priority": "High",
+            "kind": "pct",
+            "table": "cmdb_ci",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^nameISEMPTY^ORnameINlocalhost,unknown,n/a,none,null,test,default",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Fix names at the source (discovery patterns, integrations); set a naming standard per class; add CMDB Health completeness rules for name."
+        },
+        {
+            "id": "CI-07",
+            "title": "Hardware CIs with missing or wrong Model",
+            "kb": [
+                "KB0852421",
+                "KB0832205"
+            ],
+            "theme": "Hygiene",
+            "priority": "High",
+            "kind": "pct",
+            "table": "cmdb_ci_hardware",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^model_idISEMPTY^ORmodel_id.sys_class_name!=cmdb_hardware_product_model^ORmodel_id.nameLIKEunknown",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Enable hardware model normalisation; ensure discovery populates manufacturer+model; reassign CIs pointing at non-hardware or 'Unknown' models."
+        },
+        {
+            "id": "CI-08",
+            "title": "Stale CIs (not updated in 90 days)",
+            "kb": [
+                "KB0829106"
+            ],
+            "theme": "Hygiene",
+            "priority": "High",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 5,
+                "warn_max": 15
+            },
+            "table": "cmdb_ci",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^sys_updated_onRELATIVELT@dayofweek@ago@90",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Define staleness rules per class (CMDB Health); investigate discovery coverage; retire what no longer exists via CMDB Data Manager policies. Manually-managed design classes need attestation, not discovery."
+        },
+        {
+            "id": "CI-09",
+            "title": "CIs with empty Discovery Source",
+            "kb": [
+                "KB0829078"
+            ],
+            "theme": "Integration",
+            "priority": "High",
+            "kind": "pct",
+            "table": "cmdb_ci",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^discovery_sourceISEMPTY",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Every writer must identify itself: register sources in the discovery_source choice list, route writes through the IRE, back-fill legacy records with the real source."
+        },
+        {
+            "id": "CI-10",
+            "title": "Duplicate CIs",
+            "kb": [
+                "KB0829103"
+            ],
+            "theme": "Hygiene",
+            "priority": "High",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 0.5,
+                "warn_max": 2
+            },
+            "table": "cmdb_ci",
+            "issue_query": "duplicate_ofISNOTEMPTY (plus open reconcile_duplicate_task, plus shared serial numbers)",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Work de-duplication tasks with the Duplicate CI Remediator (merge, not delete); define de-duplication templates; fix identification rules and the non-IRE source that created them."
+        },
+        {
+            "id": "CI-11",
+            "title": "Custom Service tables (not OOB CSDM service classes)",
+            "kb": [
+                "KB0831512"
+            ],
+            "theme": "Customization",
+            "priority": "High",
+            "kind": "count",
+            "warn_max": 0,
+            "table": "sys_db_object",
+            "issue_query": "custom extensions of cmdb_ci_service (use collector)",
+            "population_query": "",
+            "action": "Migrate records to cmdb_ci_service_business / cmdb_ci_service_technical / service_offering / cmdb_ci_service_auto children using the CSDM 5-step migration; retire the custom tables."
+        },
+        {
+            "id": "CI-12",
+            "title": "Active Servers without a Location",
+            "kb": [
+                "KB0966472"
+            ],
+            "theme": "Hygiene",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_ci_server",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^locationISEMPTY",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Derive location from IP ranges/subnets, data-centre or cloud region; set location from the asset where the asset is authoritative."
+        },
+        {
+            "id": "CI-13",
+            "title": "Hardware CIs without Serial Number",
+            "kb": [
+                "KB0829077"
+            ],
+            "theme": "Hygiene",
+            "priority": "High",
+            "kind": "pct",
+            "table": "cmdb_ci_hardware",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^serial_numberISEMPTY^virtual!=true",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY^virtual!=true",
+            "action": "Fix discovery credentials/patterns that fail to read serials; include serial in identification rules; reject junk serials ('To be filled by O.E.M.', '0')."
+        },
+        {
+            "id": "CI-14",
+            "title": "Computer CIs where name and host name disagree",
+            "kb": [
+                "KB0864735"
+            ],
+            "theme": "Hygiene",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_ci_computer",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^nameNSAMEAShost_name (collector compares short names)",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY^host_nameISNOTEMPTY",
+            "action": "Decide the naming rule (short vs FQDN), align reconciliation rules so one authoritative source owns name, and correct renamed hosts."
+        },
+        {
+            "id": "CI-15",
+            "title": "Hardware and VM Instance CIs not updated in 90 days",
+            "kb": [
+                "KB0867489"
+            ],
+            "theme": "Hygiene",
+            "priority": "High",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 5,
+                "warn_max": 10
+            },
+            "table": "cmdb_ci",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^sys_class_nameINSTANCEOFcmdb_ci_hardware^ORsys_class_nameINSTANCEOFcmdb_ci_vm_instance^sys_updated_onRELATIVELT@dayofweek@ago@90",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY^sys_class_nameINSTANCEOFcmdb_ci_hardware^ORsys_class_nameINSTANCEOFcmdb_ci_vm_instance",
+            "action": "Check discovery schedules, MID servers and credentials; for cloud VMs verify cloud discovery; retire terminated instances automatically."
+        },
+        {
+            "id": "CI-16",
+            "title": "'Create CI on insert' (asset) business rule inactive or missing",
+            "kb": [
+                "KB0999333"
+            ],
+            "theme": "Foundation",
+            "priority": "Medium",
+            "kind": "bool",
+            "table": "sys_script",
+            "issue_query": "collection=alm_asset^nameLIKECreate CI^active=true (issue if no rows)",
+            "population_query": "",
+            "action": "Re-activate the OOB rule so every tracked asset has its CI for workflows."
+        },
+        {
+            "id": "CI-17",
+            "title": "CI-referenced Product Models without an owner",
+            "kb": [
+                "KB0864257"
+            ],
+            "theme": "Foundation",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_model",
+            "issue_query": "owner empty, restricted to models referenced by non-retired CIs (use collector)",
+            "population_query": "models referenced by non-retired CIs",
+            "action": "Assign product owners by model category/manufacturer; make ownership part of model intake; report EOL/EOS risk to owners."
+        },
+        {
+            "id": "CI-18",
+            "title": "Technology Management Service Offerings missing Support or Change group",
+            "kb": [
+                "KB0952941"
+            ],
+            "theme": "Walk",
+            "priority": "High",
+            "kind": "pct",
+            "table": "service_offering",
+            "issue_query": "service_classification=Technical Service^install_status!=7^ORinstall_statusISEMPTY^support_groupISEMPTY^ORchange_controlISEMPTY",
+            "population_query": "service_classification=Technical Service^install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Populate support, change and managed-by groups on every TSO so group synchronisation can push them to Dynamic CI Groups and CIs."
+        },
+        {
+            "id": "CI-19",
+            "title": "Services and Offerings without an owner",
+            "kb": [
+                "KB0869040"
+            ],
+            "theme": "Run",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_ci_service",
+            "issue_query": "sys_class_nameINcmdb_ci_service,cmdb_ci_service_business,cmdb_ci_service_technical,service_offering^install_status!=7^ORinstall_statusISEMPTY^owned_byISEMPTY",
+            "population_query": "sys_class_nameINcmdb_ci_service,cmdb_ci_service_business,cmdb_ci_service_technical,service_offering^install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Name an accountable owner for every service and offering; add ownership to the service intake and periodic attestation."
+        },
+        {
+            "id": "CI-20",
+            "title": "Custom Business Application tables",
+            "kb": [
+                "KB0868431"
+            ],
+            "theme": "Crawl",
+            "priority": "High",
+            "kind": "count",
+            "warn_max": 0,
+            "table": "sys_db_object",
+            "issue_query": "custom extensions of cmdb_ci_business_app, or custom 'app' tables outside cmdb_ci_appl (use collector)",
+            "population_query": "",
+            "action": "Move the application inventory into cmdb_ci_business_app (5-step migration); refactor dependencies; retire custom tables."
+        },
+        {
+            "id": "CI-21",
+            "title": "Third-party data sources not using the IRE",
+            "kb": [
+                "KB0854301"
+            ],
+            "theme": "Integration",
+            "priority": "High",
+            "kind": "count",
+            "warn_max": 2,
+            "table": "sys_transform_map",
+            "issue_query": "active=true^target_tableSTARTSWITHcmdb_ci (review scripts for CMDBTransformUtil) + unregistered discovery_source values",
+            "population_query": "",
+            "action": "Replace direct transforms with Service Graph Connectors, IntegrationHub ETL/RTE or CMDBTransformUtil; register each source; configure identification, reconciliation and data refresh rules."
+        },
+        {
+            "id": "CI-22",
+            "title": "No archive/retirement policy for CMDB data",
+            "kb": [
+                "KB0830056"
+            ],
+            "theme": "Hygiene",
+            "priority": "Low",
+            "kind": "bool",
+            "table": "sys_archive",
+            "issue_query": "no active archive rules on CMDB tables and no CMDB Data Manager policies",
+            "population_query": "",
+            "action": "Define CMDB Data Manager retire/archive/delete policies per class (or Data Archive rules on older releases), with retention aligned to audit needs."
+        },
+        {
+            "id": "RL-01",
+            "title": "Modified or deleted base relationship types",
+            "kb": [
+                "KB0829857"
+            ],
+            "theme": "Customization",
+            "priority": "High",
+            "kind": "count",
+            "warn_max": 0,
+            "table": "cmdb_rel_type",
+            "issue_query": "OOB-created types updated by non-system users; deletions in sys_audit_delete (heuristic)",
+            "population_query": "",
+            "action": "Restore OOB types with their original sys_ids (from a PDI/update set), never delete base types; re-test service maps."
+        },
+        {
+            "id": "RL-02",
+            "title": "Custom attributes on the CI relationship table",
+            "kb": [
+                "KB0868633"
+            ],
+            "theme": "Customization",
+            "priority": "Medium",
+            "kind": "count",
+            "warn_max": 0,
+            "table": "sys_dictionary",
+            "issue_query": "name=cmdb_rel_ci^elementSTARTSWITHu_",
+            "population_query": "",
+            "action": "Remove or relocate custom fields from cmdb_rel_ci (high-volume table); model extra meaning as CIs or on the related CIs."
+        },
+        {
+            "id": "RL-03",
+            "title": "Custom relationship types",
+            "kb": [
+                "KB0829858"
+            ],
+            "theme": "Customization",
+            "priority": "Medium",
+            "kind": "count",
+            "warn_max": 5,
+            "table": "cmdb_rel_type",
+            "issue_query": "types not created by the system (heuristic; compare with PDI)",
+            "population_query": "",
+            "action": "Map custom types to base types (WWDD), re-point relationships, delete unused custom types; govern new types through the CMDB change process."
+        },
+        {
+            "id": "RL-04",
+            "title": "Orphaned CI relationships",
+            "kb": [
+                "KB0829101"
+            ],
+            "theme": "Hygiene",
+            "priority": "High",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 0.1,
+                "warn_max": 1
+            },
+            "table": "cmdb_rel_ci",
+            "issue_query": "parentISEMPTY^ORchildISEMPTY^ORparent.sys_idISEMPTY^ORchild.sys_idISEMPTY",
+            "population_query": "",
+            "action": "Remove relationships whose parent or child no longer exists (batch, sub-prod first); find the process that deletes CIs without cascading."
+        },
+        {
+            "id": "RL-05",
+            "title": "Information Objects without a Business Application",
+            "kb": [
+                "KB0831514"
+            ],
+            "theme": "Fly",
+            "priority": "Low",
+            "kind": "pct",
+            "table": "cmdb_ci_information_object",
+            "issue_query": "no cmdb_rel_ci from a Business Application (use collector)",
+            "population_query": "",
+            "action": "Relate each Information Object to the Business Applications that hold the data (Uses::Used by)."
+        },
+        {
+            "id": "RL-06",
+            "title": "Business Applications without an Information Object",
+            "kb": [
+                "KB0831515"
+            ],
+            "theme": "Fly",
+            "priority": "Low",
+            "kind": "pct",
+            "table": "cmdb_ci_business_app",
+            "issue_query": "no cmdb_rel_ci to an Information Object (use collector)",
+            "population_query": "",
+            "action": "Record the data types (PII, PCI, health...) each application holds, prioritising regulated and critical applications."
+        },
+        {
+            "id": "RL-07",
+            "title": "Application Services without a Business Service Offering",
+            "kb": [
+                "KB0831510"
+            ],
+            "theme": "Run",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_ci_service_auto",
+            "issue_query": "no cmdb_rel_ci from a Business Service Offering (use collector)",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Relate Business Service Offering -> Application Service with Depends on::Used by so technical outages show business impact."
+        },
+        {
+            "id": "RL-08",
+            "title": "Business Service Offerings without an Application Service",
+            "kb": [
+                "KB0831511"
+            ],
+            "theme": "Run",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "service_offering",
+            "issue_query": "service_classification=Business Service with no child service instance (use collector)",
+            "population_query": "service_classification=Business Service",
+            "action": "Model the service instances each business offering depends on (some offerings are purely people/process - document those exceptions)."
+        },
+        {
+            "id": "RL-09",
+            "title": "Business App -> Application Service relationships with a non-standard type",
+            "kb": [
+                "KB0831503"
+            ],
+            "theme": "Crawl",
+            "priority": "High",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 0,
+                "warn_max": 5
+            },
+            "table": "cmdb_rel_ci",
+            "issue_query": "parent is Business App, child is Application Service, type != expected (use collector)",
+            "population_query": "all Business App -> Application Service relationships",
+            "action": "Standardise on the type your EA release expects (KB0831503: Consumes::Consumed by; CSDM 5 figure shows Uses::Used by) - confirm before bulk-changing."
+        },
+        {
+            "id": "RL-10",
+            "title": "Application Services without a Business Application",
+            "kb": [
+                "KB0831505"
+            ],
+            "theme": "Crawl",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_ci_service_auto",
+            "issue_query": "no cmdb_rel_ci from a Business Application (use collector)",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Relate every Application Service to the Business Application it instantiates (one BA, many environments/regions)."
+        },
+        {
+            "id": "RL-11",
+            "title": "Business Applications without an Application Service",
+            "kb": [
+                "KB0831506"
+            ],
+            "theme": "Crawl",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_ci_business_app",
+            "issue_query": "no cmdb_rel_ci to an Application Service (use collector)",
+            "population_query": "",
+            "action": "Create Application Services (wizard/API) for each deployed environment of in-production business applications; SaaS apps still get an Application Service."
+        },
+        {
+            "id": "RL-12",
+            "title": "Technology Management Service Offerings without a parent Service",
+            "kb": [
+                "KB0831509"
+            ],
+            "theme": "Walk",
+            "priority": "High",
+            "kind": "pct",
+            "table": "service_offering",
+            "issue_query": "service_classification=Technical Service^parentISEMPTY",
+            "population_query": "service_classification=Technical Service",
+            "action": "Set the parent Technology Management Service on every TSO so cost, SLA and outage data roll up."
+        },
+        {
+            "id": "RL-13",
+            "title": "Dynamic CI Groups without a CMDB Group",
+            "kb": [
+                "KB0952944"
+            ],
+            "theme": "Walk",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_ci_query_based_service",
+            "issue_query": "cmdb_groupISEMPTY",
+            "population_query": "",
+            "action": "Rebuild legacy (pre-Orlando) technical-service groupings as CMDB Groups (query builder/encoded query) and link them to the Dynamic CI Group."
+        },
+        {
+            "id": "BP-01",
+            "title": "CIs related to more than one Technology Management Service Offering",
+            "kb": [],
+            "theme": "Walk",
+            "priority": "High",
+            "kind": "count",
+            "warn_max": 10,
+            "table": "cmdb_rel_ci",
+            "issue_query": "child related to >1 technical service offering (direct relationships; use collector)",
+            "population_query": "",
+            "action": "Make each CI belong to exactly one TSO (directly or via one DCG) to avoid group-sync overwrites."
+        },
+        {
+            "id": "BP-02",
+            "title": "Design-domain CIs used on incidents/changes",
+            "kb": [],
+            "theme": "Crawl",
+            "priority": "Medium",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 0.5,
+                "warn_max": 2
+            },
+            "table": "task",
+            "issue_query": "cmdb_ci.sys_class_nameINcmdb_ci_business_app,cmdb_ci_business_capability,cmdb_ci_information_object,cmdb_ci_sdlc_component (incident+change, 90d)",
+            "population_query": "incident+change opened in 90d",
+            "action": "Restrict CI reference qualifiers to operational classes; point users to Application Services/Service Offerings instead."
+        },
+        {
+            "id": "BP-03",
+            "title": "Manually maintained Application (cmdb_ci_appl) CIs",
+            "kb": [],
+            "theme": "Crawl",
+            "priority": "Medium",
+            "kind": "pct",
+            "table": "cmdb_ci_appl",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^discovery_sourceISEMPTY^ORdiscovery_sourceLIKEmanual",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Move the application inventory to Business Application; let Discovery/Service Mapping own cmdb_ci_appl."
+        },
+        {
+            "id": "BP-04",
+            "title": "Non-retired CIs without Life Cycle Stage",
+            "kb": [],
+            "theme": "Hygiene",
+            "priority": "Low",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 20,
+                "warn_max": 60
+            },
+            "table": "cmdb_ci",
+            "issue_query": "install_status!=7^ORinstall_statusISEMPTY^life_cycle_stageISEMPTY",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Plan CSDM Life Cycle adoption (map legacy statuses; evaluate PI 2.0 in sub-prod). Informational until the customer commits to Life Cycle fields."
+        },
+        {
+            "id": "BP-05",
+            "title": "Services on the generic cmdb_ci_service class",
+            "kb": [
+                "KB0831512"
+            ],
+            "theme": "Run",
+            "priority": "High",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 0,
+                "warn_max": 10
+            },
+            "table": "cmdb_ci_service",
+            "issue_query": "sys_class_name=cmdb_ci_service^install_status!=7^ORinstall_statusISEMPTY",
+            "population_query": "sys_class_nameINSTANCEOFcmdb_ci_service",
+            "action": "Classify each record (business service, technology management service, or application service/service instance) and move it to the CSDM class with the 5-step migration; add offerings."
+        },
+        {
+            "id": "BP-06",
+            "title": "CIs on the abstract base cmdb_ci class",
+            "kb": [],
+            "theme": "Hygiene",
+            "priority": "Medium",
+            "kind": "pct",
+            "pct_thresholds": {
+                "pass_max": 0,
+                "warn_max": 0.5
+            },
+            "table": "cmdb_ci",
+            "issue_query": "sys_class_name=cmdb_ci^install_status!=7^ORinstall_statusISEMPTY",
+            "population_query": "install_status!=7^ORinstall_statusISEMPTY",
+            "action": "Reclassify to the correct class (or retire); block inserts into the base class."
+        }
+    ],
+    "stage_anchors": {
+        "Crawl": [
+            "business_application",
+            "service_instance"
+        ],
+        "Walk": [
+            "technology_mgmt_service",
+            "technology_mgmt_offering"
+        ],
+        "Run": [
+            "business_service",
+            "business_offering"
+        ],
+        "Fly": [
+            "business_capability",
+            "information_object"
+        ]
+    }
+}
+
+IscanCmdbHealthCatalog.prototype = {
+    initialize: function () {},
+
+    /** @returns {Object} the catalog, same shape as check_catalog.json */
+    get: function () {
+        return IscanCmdbHealthCatalog.DATA
+    },
+
+    type: 'IscanCmdbHealthCatalog',
+}

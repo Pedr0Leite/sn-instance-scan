@@ -18,6 +18,13 @@ interface MetricTileProps {
     // largest, per-result detail tiles smaller). Defaults to the coverage/
     // detail-adjacent size used everywhere this isn't passed explicitly.
     size?: 'xl' | 'lg' | 'md'
+    // Mosaic KPI tiles carry a small inline proportion bar under the number --
+    // 0..1 of *this tile's own count against a meaningful total the caller
+    // already has* (e.g. this status's share of all runs). Optional and never
+    // fabricated: a tile with no real total to compare against renders none,
+    // per the "don't invent fake trends" constraint -- there is no historical
+    // series stored anywhere in this app to draw a real sparkline from.
+    proportion?: number
 }
 
 /* Own element, not a platform <now-card> -- see app.css's tile section for
@@ -35,6 +42,7 @@ export default function MetricTile({
     severityLabel,
     onActivate,
     size = 'lg',
+    proportion,
 }: MetricTileProps) {
     const ref = useRef<HTMLDivElement>(null)
     const shown = useCountUp(count)
@@ -58,10 +66,24 @@ export default function MetricTile({
         el.style.setProperty(TILT_VAR.tiltY, '0deg')
     }
 
+    const pct = typeof proportion === 'number' ? Math.max(0, Math.min(1, proportion)) : null
+
     const content = (
         <>
             <span className={`iscan-tile__value iscan-tile__value--${size}`}>{shown}</span>
             <span className="iscan-tile__label">{label}</span>
+            {pct !== null ? (
+                <span
+                    className="iscan-tile__bar"
+                    role="img"
+                    aria-label={`${Math.round(pct * 100)}% of total`}
+                >
+                    <span
+                        className={severity ? `iscan-tile__bar-fill iscan-tile__bar-fill--${severity}` : 'iscan-tile__bar-fill'}
+                        style={{ inlineSize: `${pct * 100}%` }}
+                    />
+                </span>
+            ) : null}
             {severity && severityLabel ? (
                 <span className={`iscan-status iscan-status--${severity}`}>{severityLabel}</span>
             ) : null}

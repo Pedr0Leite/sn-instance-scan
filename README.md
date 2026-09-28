@@ -37,9 +37,45 @@ See `CLAUDE.md` for how the two repos relate.
    the button won't appear on an unsaved record or for a user without
    that role. Run form: after "Run Scan". Result form: the first button.
 
+## Scan modes
+
+| Mode | Scope | Runs | Who can launch |
+|---|---|---|---|
+| Full | every app, plus table-only scopes | background worker | admin |
+| Custom Only | customer-built apps (store apps excluded) | in the request | scanner role |
+| Manual — App | the apps you pick | in the request | scanner role |
+| Manual — Single Table | one table (its owning app if it has one) | in the request | scanner role |
+| Installed Modules | `sys_plugins`, instance-wide | in the request | scanner role |
+| AI Agent Discovery | AI agents, LLM integrations and credentials, instance-wide | in the request | scanner role |
+| CMDB & CSDM Health | 49 Get Well Playbook checks against the CMDB, scored against CSDM 5 | background worker | admin |
+
+**Background modes.** Full and CMDB & CSDM Health can run for many minutes —
+far longer than a request survives — so they are queued to a worker
+(`x_nold_iscan.scan.execute` event + Script Action). The run's status moves
+Pending → Running → Complete or Error, and the console's detail view refreshes
+itself while it's live. A Full scan can also run the CMDB checks when
+`x_nold_iscan.include_cmdb_health_on_full_scan` is on (off by default).
+
+**CMDB & CSDM Health** is a port of the noviq-cmdb-health skill: the read-only
+collector, the 49-check catalog and the scorer. Each run writes one row per
+check (`x_nold_iscan_cmdb_check`) and a scored summary
+(`x_nold_iscan_cmdb_summary`); **Download Report** includes the full scored
+section, and **Copy CMDB Health LLM Context** on the summary copies the findings
+plus the assessment rules so an LLM can write the narrative and roadmap.
+`npm run test:cmdb-parity` proves the scorer matches the upstream Python scorer
+on its fixtures.
+
+## Access model
+
 Read-only app: nothing here ever writes to a scanned table, only to its
-own `x_nold_iscan_*` tables, and every query runs under the calling
-user's own access (no elevated privilege, no `security_admin` assumption).
+own `x_nold_iscan_*` tables.
+
+The synchronous modes run every query under the calling user's own access
+(no elevated privilege, no `security_admin` assumption). The two background
+modes are the deliberate exception: the platform runs Script Actions as
+System, not as the user who queued them, so those modes are **admin-only to
+launch** — the worker's reads never exceed what the requester could already
+see.
 
 Custom scope (`x_nold_iscan`), platform-namespaced — table/role/
 property names carry the `x_nold_iscan` prefix to match what the

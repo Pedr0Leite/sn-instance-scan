@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { ToastProvider } from './utils/toast'
 import SideNav from './components/SideNav'
-import { Crumbs, PageTitle } from './components/ui'
+import { ActionButton, Crumbs, ThemeToggle } from './components/ui'
 import Dashboard from './components/Dashboard'
 import RecordTable from './components/RecordTable'
 import RecordDetail from './components/RecordDetail'
 import ScanLauncher from './components/ScanLauncher'
+import NewScanPanel from './components/NewScanPanel'
 import { buildPath, getViewFromUrl, setPageTitle, ViewState } from './utils/nav'
 import { runStatusSeverity } from './utils/severity'
 
@@ -103,27 +104,37 @@ function AppShell() {
         (table: string, sysId: string) => navigate('detail', sysId, table),
         [navigate]
     )
-    // Creating a run from a list's New button stays on the platform form, which
-    // carries the Run Scan UI Action. The Scan Runs tab's launcher is the
-    // one-click path (see ScanLauncher); this console still never writes.
-    const newRun = useCallback(() => {
-        window.location.href = '/x_nold_iscan_run.do?sys_id=-1'
-    }, [])
+    // Every "+ New" trigger (Dashboard's recent-runs list, the Scan Runs and
+    // Scan Results tables) opens this right-side panel instead of navigating
+    // to the platform form -- it POSTs through the existing Scripted REST
+    // endpoint via ScanService.startScan, the same call ScanLauncher already
+    // makes. "Open platform form instead" inside the panel covers anyone who
+    // still wants the real form.
+    const [newScanOpen, setNewScanOpen] = useState(false)
+    const newRun = useCallback(() => setNewScanOpen(true), [])
 
     const meta = VIEW_META[state.view] || VIEW_META.dashboard
 
     return (
         <div className="iscan-shell">
-            {/* The design puts the title straight on the page -- breadcrumb above
-                it, description right-aligned beside it -- not inside a card. */}
-            <header className="iscan-header">
-                <div>
-                    <Crumbs current={meta.label} />
-                    <PageTitle>Instance Scan Console</PageTitle>
-                </div>
-                <p className="iscan-header__subtitle">{meta.description}</p>
-            </header>
             <SideNav current={state.view} onNavigate={navigate} />
+            {/* Slim Mosaic-style app bar: breadcrumb + the current view's own
+                (small) title and one-line description on the left, global actions
+                on the right. Previously this duplicated the rail's own "Instance
+                Scan Console" brand as a large page-level h1 -- the brand now lives
+                in exactly one place (the rail), and the header carries only
+                per-view wayfinding + actions, per the full Mosaic pass. */}
+            <header className="iscan-header">
+                <div className="iscan-header__titles">
+                    <Crumbs current={meta.label} />
+                    <h1 className="iscan-header__title">{meta.label}</h1>
+                    <p className="iscan-header__subtitle">{meta.description}</p>
+                </div>
+                <div className="iscan-header__actions">
+                    <ActionButton label="+ New" variant="primary" onClick={newRun} />
+                    <ThemeToggle />
+                </div>
+            </header>
             <main className="iscan-main">
                 {state.view === 'dashboard' && (
                     <Dashboard
@@ -213,6 +224,12 @@ function AppShell() {
                     />
                 )}
             </main>
+            {newScanOpen ? (
+                <NewScanPanel
+                    onClose={() => setNewScanOpen(false)}
+                    onRunStarted={sysId => openRecord('x_nold_iscan_run', sysId)}
+                />
+            ) : null}
         </div>
     )
 }

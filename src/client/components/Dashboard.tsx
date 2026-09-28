@@ -46,6 +46,10 @@ export default function Dashboard({
     }
 
     const status = metrics.byStatus
+    // Proportion bars for the 4 run-activity tiles -- each tile's own share of
+    // ALL runs, the one total this dashboard already has. Guarded against 0
+    // runs so a fresh instance shows no bar rather than a NaN-driven one.
+    const proportionOf = (count: number) => (metrics.runs > 0 ? count / metrics.runs : undefined)
     return (
         <>
             <section aria-labelledby="iscan-metrics-heading">
@@ -63,6 +67,7 @@ export default function Dashboard({
                         severity="positive"
                         severityLabel={SEVERITY_LABELS.positive}
                         size="xl"
+                        proportion={proportionOf(status.complete || 0)}
                     />
                     <MetricTile
                         label="Runs in flight"
@@ -70,6 +75,7 @@ export default function Dashboard({
                         severity="info"
                         severityLabel={SEVERITY_LABELS.info}
                         size="xl"
+                        proportion={proportionOf((status.running || 0) + (status.pending || 0))}
                     />
                     <MetricTile
                         label="Runs errored"
@@ -77,6 +83,7 @@ export default function Dashboard({
                         severity="critical"
                         severityLabel={SEVERITY_LABELS.critical}
                         size="xl"
+                        proportion={proportionOf(status.error || 0)}
                     />
                 </ul>
 

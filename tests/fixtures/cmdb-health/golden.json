@@ -1,0 +1,977 @@
+{
+  "demo_instance_results.json": {
+    "overall": 67,
+    "scored": 35,
+    "counts": {
+      "fail": 9,
+      "warn": 6,
+      "pass": 20,
+      "n_a": 12,
+      "not_assessed": 2
+    },
+    "themes": [
+      {
+        "theme": "Foundation",
+        "score": 85
+      },
+      {
+        "theme": "Hygiene",
+        "score": 76
+      },
+      {
+        "theme": "Integration",
+        "score": 25
+      },
+      {
+        "theme": "Customization",
+        "score": 90
+      },
+      {
+        "theme": "Consumption",
+        "score": 45
+      },
+      {
+        "theme": "Crawl",
+        "score": 71
+      },
+      {
+        "theme": "Walk",
+        "score": null
+      },
+      {
+        "theme": "Run",
+        "score": 0
+      },
+      {
+        "theme": "Fly",
+        "score": null
+      }
+    ],
+    "stages": [
+      {
+        "stage": "Foundation",
+        "score": 72,
+        "label": "In progress"
+      },
+      {
+        "stage": "Crawl",
+        "score": 71,
+        "label": "Not started - no business application / service instance records (scores below reflect only peripheral checks)"
+      },
+      {
+        "stage": "Walk",
+        "score": null,
+        "label": "Not started - no technology mgmt service / technology mgmt offering records (scores below reflect only peripheral checks)"
+      },
+      {
+        "stage": "Run",
+        "score": 0,
+        "label": "Not started - no business service / business offering records (scores below reflect only peripheral checks)"
+      },
+      {
+        "stage": "Fly",
+        "score": null,
+        "label": "Not started - no business capability / information object records (scores below reflect only peripheral checks)"
+      }
+    ],
+    "findings": [
+      {
+        "id": "BP-05",
+        "status": "fail",
+        "measure": "41 / 41 (100.0%)"
+      },
+      {
+        "id": "CI-09",
+        "status": "fail",
+        "measure": "2,734 / 2,869 (95.3%)"
+      },
+      {
+        "id": "CI-13",
+        "status": "fail",
+        "measure": "152 / 901 (16.9%)"
+      },
+      {
+        "id": "BP-03",
+        "status": "fail",
+        "measure": "16 / 16 (100.0%)"
+      },
+      {
+        "id": "FD-06",
+        "status": "fail",
+        "measure": "67 / 67 (100.0%)"
+      },
+      {
+        "id": "CI-17",
+        "status": "fail",
+        "measure": "70 / 73 (95.9%)"
+      },
+      {
+        "id": "FD-07",
+        "status": "fail",
+        "measure": "9 / 10 (90.0%)"
+      },
+      {
+        "id": "CI-19",
+        "status": "fail",
+        "measure": "8 / 41 (19.5%)"
+      },
+      {
+        "id": "BP-04",
+        "status": "fail",
+        "measure": "2,869 / 2,869 (100.0%)"
+      },
+      {
+        "id": "FD-05",
+        "status": "warn",
+        "measure": "6 / 67 (9.0%)"
+      },
+      {
+        "id": "CI-10",
+        "status": "warn",
+        "measure": "19 / 2,869 (0.7%)"
+      },
+      {
+        "id": "CI-21",
+        "status": "warn",
+        "measure": "1"
+      },
+      {
+        "id": "BP-06",
+        "status": "warn",
+        "measure": "1 / 2,869 (0.0%)"
+      },
+      {
+        "id": "CI-03",
+        "status": "warn",
+        "measure": "6"
+      },
+      {
+        "id": "CI-02",
+        "status": "warn",
+        "measure": "1 (of 2)"
+      },
+      {
+        "id": "CI-08",
+        "status": "pass",
+        "measure": "124 / 2,869 (4.3%)"
+      },
+      {
+        "id": "CI-15",
+        "status": "pass",
+        "measure": "15 / 901 (1.7%)"
+      },
+      {
+        "id": "CI-07",
+        "status": "pass",
+        "measure": "4 / 901 (0.4%)"
+      },
+      {
+        "id": "CI-06",
+        "status": "pass",
+        "measure": "1 / 2,869 (0.0%)"
+      },
+      {
+        "id": "CI-05",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "CI-11",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "CI-20",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "FD-01",
+        "status": "pass",
+        "measure": "0 / 6 (0.0%)"
+      },
+      {
+        "id": "FD-04",
+        "status": "pass",
+        "measure": "0 / 10 (0.0%)"
+      },
+      {
+        "id": "RL-01",
+        "status": "pass",
+        "measure": "0 (of 44)"
+      },
+      {
+        "id": "RL-04",
+        "status": "pass",
+        "measure": "0 / 235 (0.0%)"
+      },
+      {
+        "id": "FD-03",
+        "status": "pass",
+        "measure": "10 / 427 (2.3%)"
+      },
+      {
+        "id": "BP-02",
+        "status": "pass",
+        "measure": "0 / 77 (0.0%)"
+      },
+      {
+        "id": "CI-12",
+        "status": "pass",
+        "measure": "0 / 40 (0.0%)"
+      },
+      {
+        "id": "CI-16",
+        "status": "pass",
+        "measure": "ok"
+      },
+      {
+        "id": "FD-02",
+        "status": "pass",
+        "measure": "0 / 61 (0.0%)"
+      },
+      {
+        "id": "FD-08",
+        "status": "pass",
+        "measure": "ok"
+      },
+      {
+        "id": "RL-02",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "CI-04",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "CI-22",
+        "status": "pass",
+        "measure": "ok"
+      },
+      {
+        "id": "BP-01",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "CI-18",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-09",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-12",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-07",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-08",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-10",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-11",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-13",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "CI-01",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-05",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-06",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "CI-14",
+        "status": "not_assessed",
+        "measure": "-"
+      },
+      {
+        "id": "RL-03",
+        "status": "not_assessed",
+        "measure": "-"
+      }
+    ],
+    "unknown": [],
+    "markdown": "# CMDB & CSDM Health Findings — demo-instance\n\n- **Build:** glide-australia-02-11-2026__patch5w37-09-04-2026  \n- **Generated:** 2026-09-17 09:42:48  \n- **CIs:** 2,869 total, 2,869 non-retired; **relationships:** 235  \n- **Adjustments:** Real collector v1.0 run on a ServiceNow demo instance, with two verified false positives corrected (CI-05, RL-03) and two checks derived from the class inventory (BP-05, BP-06).  \n- **Relationship density:** 0.08 relationships per non-retired CI  \n- ⚠️ **Collector ran with maxIterate=100** — record-by-record checks may be truncated; re-run with the default (200000) for a real assessment.  \n- **CMDB classes:** 1238 (0 custom)  \n- **Data Foundations dashboard installed:** yes; **Service Graph Connectors:** 0  \n\n**Overall health score: 67/100** (weighted High=3, Medium=2, Low=1; 35 checks scored). 🔴 Fail: 9 · 🟠 Warn: 6 · 🟢 Pass: 20 · ⚪ N/A: 12 · ⚫ Not assessed: 2\n\n## Score by theme\n\n| Theme | Score | Fail | Warn | Pass | N/A / not assessed |\n|---|---|---|---|---|---|\n| Foundation — Foundation data (org structure, locations, models, asset/CI sync) | 85 | 1 | 0 | 5 | 0 |\n| Hygiene — CI data quality (names, models, serials, staleness, duplicates, orphans) | 76 | 2 | 2 | 7 | 1 |\n| Integration — Data ingestion through the IRE | 25 | 1 | 1 | 0 | 0 |\n| Customization — Class model and choice/relationship customizations (technical debt) | 90 | 0 | 2 | 5 | 2 |\n| Consumption — ITSM use of CIs and services | 45 | 2 | 1 | 1 | 0 |\n| Crawl — CSDM Crawl - applications | 71 | 1 | 0 | 2 | 3 |\n| Walk — CSDM Walk - technology management services | - | 0 | 0 | 0 | 4 |\n| Run — CSDM Run - business services | 0 | 2 | 0 | 0 | 2 |\n| Fly — CSDM Fly - capabilities and information | - | 0 | 0 | 0 | 2 |\n\n## CSDM stage readiness\n\nFoundation combines the Foundation, Hygiene and Integration themes; later stages use their own checks.\n\n| Stage | Score | Assessment |\n|---|---|---|\n| Foundation | 72 | In progress |\n| Crawl | 71 | Not started - no business application / service instance records (scores below reflect only peripheral checks) |\n| Walk | - | Not started - no technology mgmt service / technology mgmt offering records (scores below reflect only peripheral checks) |\n| Run | 0 | Not started - no business service / business offering records (scores below reflect only peripheral checks) |\n| Fly | - | Not started - no business capability / information object records (scores below reflect only peripheral checks) |\n\n## CSDM population\n\n| Entity | Records |\n|---|---|\n| business capability | 0 |\n| business application | 0 |\n| information object | 0 |\n| sdlc component | 0 |\n| service instance | 0 |\n| dynamic ci group | 0 |\n| technology mgmt service | 0 |\n| technology mgmt offering | 0 |\n| business service | 0 |\n| business offering | 0 |\n| legacy base service | 41 |\n| cmdb group | not collected |\n| ai function | 44 |\n| software package ci | 1767 |\n\n## Findings (worst first)\n\n| Status | ID | Priority | Check | Measure | Playbook |\n|---|---|---|---|---|---|\n| 🔴 Fail | BP-05 | High | Services on the generic cmdb_ci_service class | 41 / 41 (100.0%) | [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512) |\n| 🔴 Fail | CI-09 | High | CIs with empty Discovery Source | 2,734 / 2,869 (95.3%) | [KB0829078](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829078) |\n| 🔴 Fail | CI-13 | High | Hardware CIs without Serial Number | 152 / 901 (16.9%) | [KB0829077](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829077) |\n| 🔴 Fail | BP-03 | Medium | Manually maintained Application (cmdb_ci_appl) CIs | 16 / 16 (100.0%) | CSDM best practice |\n| 🔴 Fail | FD-06 | Medium | Changes missing a Service or a CI | 67 / 67 (100.0%) | [KB1116973](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116973) |\n| 🔴 Fail | CI-17 | Medium | CI-referenced Product Models without an owner | 70 / 73 (95.9%) | [KB0864257](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864257) |\n| 🔴 Fail | FD-07 | Medium | Incidents missing a Service or a CI | 9 / 10 (90.0%) | [KB1116972](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116972) |\n| 🔴 Fail | CI-19 | Medium | Services and Offerings without an owner | 8 / 41 (19.5%) | [KB0869040](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0869040) |\n| 🔴 Fail | BP-04 | Low | Non-retired CIs without Life Cycle Stage | 2,869 / 2,869 (100.0%) | CSDM best practice |\n| 🟠 Warn | FD-05 | High | Changes without a Configuration Item | 6 / 67 (9.0%) | [KB0868259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868259) |\n| 🟠 Warn | CI-10 | High | Duplicate CIs | 19 / 2,869 (0.7%) | [KB0829103](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829103) |\n| 🟠 Warn | CI-21 | High | Third-party data sources not using the IRE | 1 | [KB0854301](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0854301) |\n| 🟠 Warn | BP-06 | Medium | CIs on the abstract base cmdb_ci class | 1 / 2,869 (0.0%) | CSDM best practice |\n| 🟠 Warn | CI-03 | Medium | Custom attributes on CMDB classes | 6 | [KB0832208](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832208) |\n| 🟠 Warn | CI-02 | Low | Custom attributes defined at the wrong hierarchy level | 1 (of 2) | [KB0832206](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832206) |\n| 🟢 Pass | CI-08 | High | Stale CIs (not updated in 90 days) | 124 / 2,869 (4.3%) | [KB0829106](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829106) |\n| 🟢 Pass | CI-15 | High | Hardware and VM Instance CIs not updated in 90 days | 15 / 901 (1.7%) | [KB0867489](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0867489) |\n| 🟢 Pass | CI-07 | High | Hardware CIs with missing or wrong Model | 4 / 901 (0.4%) | [KB0852421](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0852421), [KB0832205](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832205) |\n| 🟢 Pass | CI-06 | High | Non-retired CIs with empty or invalid names | 1 / 2,869 (0.0%) | [KB0829852](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829852) |\n| 🟢 Pass | CI-05 | High | Custom or relabelled CI status choice values | 0 | [KB0952946](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952946) |\n| 🟢 Pass | CI-11 | High | Custom Service tables (not OOB CSDM service classes) | 0 | [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512) |\n| 🟢 Pass | CI-20 | High | Custom Business Application tables | 0 | [KB0868431](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868431) |\n| 🟢 Pass | FD-01 | High | Business Units without a Company | 0 / 6 (0.0%) | [KB0864259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864259) |\n| 🟢 Pass | FD-04 | High | Incidents without a Configuration Item | 0 / 10 (0.0%) | [KB0864671](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864671) |\n| 🟢 Pass | RL-01 | High | Modified or deleted base relationship types | 0 (of 44) | [KB0829857](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829857) |\n| 🟢 Pass | RL-04 | High | Orphaned CI relationships | 0 / 235 (0.0%) | [KB0829101](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829101) |\n| 🟢 Pass | FD-03 | Medium | Duplicate Location names | 10 / 427 (2.3%) | [KB0832200](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832200) |\n| 🟢 Pass | BP-02 | Medium | Design-domain CIs used on incidents/changes | 0 / 77 (0.0%) | CSDM best practice |\n| 🟢 Pass | CI-12 | Medium | Active Servers without a Location | 0 / 40 (0.0%) | [KB0966472](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0966472) |\n| 🟢 Pass | CI-16 | Medium | 'Create CI on insert' (asset) business rule inactive or missing | ok | [KB0999333](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0999333) |\n| 🟢 Pass | FD-02 | Medium | CI-referenced Locations without a Parent Location | 0 / 61 (0.0%) | [KB0864260](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864260) |\n| 🟢 Pass | FD-08 | Medium | 'Create Asset on insert' business rule inactive or missing | ok | [KB0829855](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829855) |\n| 🟢 Pass | RL-02 | Medium | Custom attributes on the CI relationship table | 0 | [KB0868633](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868633) |\n| 🟢 Pass | CI-04 | Low | Custom attributes on ITAM tables | 0 | [KB0998512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0998512) |\n| 🟢 Pass | CI-22 | Low | No archive/retirement policy for CMDB data | ok | [KB0830056](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0830056) |\n| ⚪ N/A | BP-01 | High | CIs related to more than one Technology Management Service Offering | 0 | CSDM best practice |\n| ⚪ N/A | CI-18 | High | Technology Management Service Offerings missing Support or Change group | 0 | [KB0952941](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952941) |\n| ⚪ N/A | RL-09 | High | Business App -> Application Service relationships with a non-standard type | 0 | [KB0831503](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831503) |\n| ⚪ N/A | RL-12 | High | Technology Management Service Offerings without a parent Service | 0 | [KB0831509](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831509) |\n| ⚪ N/A | RL-07 | Medium | Application Services without a Business Service Offering | 0 | [KB0831510](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831510) |\n| ⚪ N/A | RL-08 | Medium | Business Service Offerings without an Application Service | 0 | [KB0831511](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831511) |\n| ⚪ N/A | RL-10 | Medium | Application Services without a Business Application | 0 | [KB0831505](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831505) |\n| ⚪ N/A | RL-11 | Medium | Business Applications without an Application Service | 0 | [KB0831506](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831506) |\n| ⚪ N/A | RL-13 | Medium | Dynamic CI Groups without a CMDB Group | 0 | [KB0952944](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952944) |\n| ⚪ N/A | CI-01 | Low | Custom CMDB classes not following naming standard | 0 | [KB1116975](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116975) |\n| ⚪ N/A | RL-05 | Low | Information Objects without a Business Application | 0 | [KB0831514](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831514) |\n| ⚪ N/A | RL-06 | Low | Business Applications without an Information Object | 0 | [KB0831515](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831515) |\n| ⚫ Not assessed | CI-14 | Medium | Computer CIs where name and host name disagree | - | [KB0864735](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864735) |\n| ⚫ Not assessed | RL-03 | Medium | Custom relationship types | - | [KB0829858](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829858) |\n\n## Detail for failing and warning checks\n\n### BP-05 · Services on the generic cmdb_ci_service class — 🔴 Fail\n\n- **Measure:** 41 / 41 (100.0%) · **Priority:** High · **Theme:** Run\n- **Playbook:** [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512)\n- **Where:** `cmdb_ci_service` — `sys_class_name=cmdb_ci_service^install_status!=7^ORinstall_statusISEMPTY`\n- **Collector note:** DERIVED from inventory: all 41 services sit on generic cmdb_ci_service; no business/technology management/application service classes in use\n- **Examples:** Retail; Retail Adding Points; Retail Client Lookup; Retail Client Registration; Retail POS (Point of Sale)\n- **Recommended action:** Classify each record (business service, technology management service, or application service/service instance) and move it to the CSDM class with the 5-step migration; add offerings.\n\n### CI-09 · CIs with empty Discovery Source — 🔴 Fail\n\n- **Measure:** 2,734 / 2,869 (95.3%) · **Priority:** High · **Theme:** Integration\n- **Playbook:** [KB0829078](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829078)\n- **Where:** `cmdb_ci` — `install_status!=7^ORinstall_statusISEMPTY^discovery_sourceISEMPTY`\n- **Examples:** Unknown; All; nyc oracle rac cluster; AppServerHelpDesk1; AppServerHelpDesk2\n- **Recommended action:** Every writer must identify itself: register sources in the discovery_source choice list, route writes through the IRE, back-fill legacy records with the real source.\n\n### CI-13 · Hardware CIs without Serial Number — 🔴 Fail\n\n- **Measure:** 152 / 901 (16.9%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0829077](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829077)\n- **Where:** `cmdb_ci_hardware` — `install_status!=7^ORinstall_statusISEMPTY^serial_numberISEMPTY^virtual!=true`\n- **Examples:** IP-Router-1; IP-Router-2; IP-Router-3; IP-Switch-1; IP-Storage-Sw-1\n- **Recommended action:** Fix discovery credentials/patterns that fail to read serials; include serial in identification rules; reject junk serials ('To be filled by O.E.M.', '0').\n\n### BP-03 · Manually maintained Application (cmdb_ci_appl) CIs — 🔴 Fail\n\n- **Measure:** 16 / 16 (100.0%) · **Priority:** Medium · **Theme:** Crawl\n- **Playbook:** CSDM best practice\n- **Where:** `cmdb_ci_appl` — `install_status!=7^ORinstall_statusISEMPTY^discovery_sourceISEMPTY^ORdiscovery_sourceLIKEmanual`\n- **Examples:** CMS App FLX; Java Application Server FLX; PS Apache01; PS Apache02; PS Apache03\n- **Recommended action:** Move the application inventory to Business Application; let Discovery/Service Mapping own cmdb_ci_appl.\n\n### FD-06 · Changes missing a Service or a CI — 🔴 Fail\n\n- **Measure:** 67 / 67 (100.0%) · **Priority:** Medium · **Theme:** Consumption\n- **Playbook:** [KB1116973](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116973)\n- **Where:** `change_request` — `business_serviceISEMPTY^ORcmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Collector note:** with offering populated: 0\n- **Examples:** CHG0000009; CHG0000010; CHG0000011; CHG0000012; CHG0000013\n- **Recommended action:** Populate Service/Service Offering alongside the CI (auto-derive from the CI's offering where possible) so change windows, risk and impact use service context.\n\n### CI-17 · CI-referenced Product Models without an owner — 🔴 Fail\n\n- **Measure:** 70 / 73 (95.9%) · **Priority:** Medium · **Theme:** Foundation\n- **Playbook:** [KB0864257](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864257)\n- **Where:** `cmdb_model` — `owner empty, restricted to models referenced by non-retired CIs (use collector)`\n- **Collector note:** owner field used: cmdb_model.owner\n- **Examples:** Adtran Total Access 924e; APC 42U 3100 SP1 NetShelter Rack; APC 42U 3100 SP2 NetShelter Rack; Apple iMac 27\"; Apple MacBook Air 13\"\n- **Recommended action:** Assign product owners by model category/manufacturer; make ownership part of model intake; report EOL/EOS risk to owners.\n\n### FD-07 · Incidents missing a Service or a CI — 🔴 Fail\n\n- **Measure:** 9 / 10 (90.0%) · **Priority:** Medium · **Theme:** Consumption\n- **Playbook:** [KB1116972](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116972)\n- **Where:** `incident` — `business_serviceISEMPTY^ORcmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Collector note:** with offering populated: 0\n- **Examples:** INC0000046; INC0000047; INC0000049; INC0000050; INC0000051\n- **Recommended action:** Capture Service Offering and CI on every incident so SLAs, MTTR and outage reporting roll up to services.\n\n### CI-19 · Services and Offerings without an owner — 🔴 Fail\n\n- **Measure:** 8 / 41 (19.5%) · **Priority:** Medium · **Theme:** Run\n- **Playbook:** [KB0869040](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0869040)\n- **Where:** `cmdb_ci_service` — `sys_class_nameINcmdb_ci_service,cmdb_ci_service_business,cmdb_ci_service_technical,service_offering^install_status!=7^ORinstall_statusISEMPTY^owned_byISEMPTY`\n- **Collector note:** application services without owner: 0 of 0\n- **Examples:** Retail; Retail Adding Points; Retail Client Lookup; Retail Client Registration; Retail POS (Point of Sale)\n- **Recommended action:** Name an accountable owner for every service and offering; add ownership to the service intake and periodic attestation.\n\n### BP-04 · Non-retired CIs without Life Cycle Stage — 🔴 Fail\n\n- **Measure:** 2,869 / 2,869 (100.0%) · **Priority:** Low · **Theme:** Hygiene\n- **Playbook:** CSDM best practice\n- **Where:** `cmdb_ci` — `install_status!=7^ORinstall_statusISEMPTY^life_cycle_stageISEMPTY`\n- **Collector note:** informational until Life Cycle fields are adopted\n- **Recommended action:** Plan CSDM Life Cycle adoption (map legacy statuses; evaluate PI 2.0 in sub-prod). Informational until the customer commits to Life Cycle fields.\n\n### FD-05 · Changes without a Configuration Item — 🟠 Warn\n\n- **Measure:** 6 / 67 (9.0%) · **Priority:** High · **Theme:** Consumption\n- **Playbook:** [KB0868259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868259)\n- **Where:** `change_request` — `cmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Collector note:** changes opened in last 90 days\n- **Examples:** CHG0000037; CHG0000047; CHG0000057; CHG0000067; CHG0000077\n- **Recommended action:** Require CI (or Affected CIs) before Assess/Authorize; use Dynamic CI Groups for bulk changes; drive risk and conflict detection from CI data.\n\n### CI-10 · Duplicate CIs — 🟠 Warn\n\n- **Measure:** 19 / 2,869 (0.7%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0829103](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829103)\n- **Where:** `cmdb_ci` — `duplicate_ofISNOTEMPTY (plus open reconcile_duplicate_task, plus shared serial numbers)`\n- **Collector note:** IRE-flagged duplicates: 0; open de-duplication tasks: 0; hardware CIs sharing a serial: 19; CIs with junk serials: 0\n- **Examples:** serial 56WHL71 x2; serial AEX5635Z0001AC x2; serial L3BB911 x15\n- **Recommended action:** Work de-duplication tasks with the Duplicate CI Remediator (merge, not delete); define de-duplication templates; fix identification rules and the non-IRE source that created them.\n\n### CI-21 · Third-party data sources not using the IRE — 🟠 Warn\n\n- **Measure:** 1 · **Priority:** High · **Theme:** Integration\n- **Playbook:** [KB0854301](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0854301)\n- **Where:** `sys_transform_map` — `active=true^target_tableSTARTSWITHcmdb_ci (review scripts for CMDBTransformUtil) + unregistered discovery_source values`\n- **Collector note:** discovery_source distribution: (empty)=2734; Other Automated=50; ServiceNow=85 | direct (non-IRE) transform maps into CMDB: 1 | IntegrationHub ETL/RTE definitions: 1 | SGC apps: 0\n- **Examples:** Computer -> cmdb_ci_computer\n- **Recommended action:** Replace direct transforms with Service Graph Connectors, IntegrationHub ETL/RTE or CMDBTransformUtil; register each source; configure identification, reconciliation and data refresh rules.\n\n### BP-06 · CIs on the abstract base cmdb_ci class — 🟠 Warn\n\n- **Measure:** 1 / 2,869 (0.0%) · **Priority:** Medium · **Theme:** Hygiene\n- **Playbook:** CSDM best practice\n- **Where:** `cmdb_ci` — `sys_class_name=cmdb_ci^install_status!=7^ORinstall_statusISEMPTY`\n- **Collector note:** DERIVED from inventory: 1 CI on base class cmdb_ci\n- **Recommended action:** Reclassify to the correct class (or retire); block inserts into the base class.\n\n### CI-03 · Custom attributes on CMDB classes — 🟠 Warn\n\n- **Measure:** 6 · **Priority:** Medium · **Theme:** Customization\n- **Playbook:** [KB0832208](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832208)\n- **Where:** `sys_dictionary` — `name in cmdb_ci extensions^elementSTARTSWITHu_`\n- **Collector note:** 6 on OOB classes, 0 on custom classes\n- **Examples:** cmdb_ci_appl_mq_queue_local.x_mitq; cmdb_ci_appl_mq_queue_remote.x_mitq; cmdb_ci_appl_ibm_wmq_queue.x_mitq; cmdb_ci_win_server.u_mecanografico; cmdb_ci_appl_mq_queue_model.x_mitq; cmdb_ci_appl_mq_queue_alias.x_mitq\n- **Recommended action:** Classify each as Best Practice / Keep / Refactor / Do Not Need; drop attributes populated on <10% of CIs or unused for years; map to OOB attributes where they exist.\n\n### CI-02 · Custom attributes defined at the wrong hierarchy level — 🟠 Warn\n\n- **Measure:** 1 (of 2) · **Priority:** Low · **Theme:** Customization\n- **Playbook:** [KB0832206](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832206)\n- **Where:** `sys_dictionary` — `same u_ element on several CMDB classes, or u_ element on cmdb_ci/cmdb (use collector)`\n- **Collector note:** 1 attributes duplicated across classes; 0 defined on cmdb/cmdb_ci root\n- **Examples:** x_mitq -> cmdb_ci_appl_mq_queue_local, cmdb_ci_appl_mq_queue_remote, cmdb_ci_appl_ibm_wmq_queue, cmdb_ci_appl_mq_queue_model, cmdb_ci_appl_mq_queue_alias\n- **Recommended action:** Consolidate duplicated attributes on the lowest common parent class; move root-level attributes down to the classes that use them.\n\n## Not applicable / not assessed\n\n- **CI-01** Custom CMDB classes not following naming standard — ⚪ N/A: 0 custom CMDB classes in total: \n- **CI-14** Computer CIs where name and host name disagree — ⚫ Not assessed: NOT ASSESSED: host_name not found on cmdb_ci_computer\n- **CI-18** Technology Management Service Offerings missing Support or Change group — ⚪ N/A: missing managed_by_group: 0\n- **RL-03** Custom relationship types — ⚫ Not assessed: NOT ASSESSED (collector v1.0 heuristic false positive): all 20 listed types are base relationship types created by a non-system user on this instance. Re-run collector v1.1, which checks names against the base list.\n- **RL-05** Information Objects without a Business Application — ⚪ N/A: no records in population\n- **RL-06** Business Applications without an Information Object — ⚪ N/A: no records in population\n- **RL-07** Application Services without a Business Service Offering — ⚪ N/A: relationship types used: {} (CSDM: Depends on::Used by)\n- **RL-08** Business Service Offerings without an Application Service — ⚪ N/A: relationship types used: {} (CSDM: Depends on::Used by)\n- **RL-09** Business App -> Application Service relationships with a non-standard type — ⚪ N/A: expected \"Consumes::Consumed by\"; types found: {}\n- **RL-10** Application Services without a Business Application — ⚪ N/A: no records in population\n- **RL-11** Business Applications without an Application Service — ⚪ N/A: Retired/planned applications may legitimately have no Application Service.\n- **RL-12** Technology Management Service Offerings without a parent Service — ⚪ N/A: Business offerings without parent: 0\n- **RL-13** Dynamic CI Groups without a CMDB Group — ⚪ N/A: reference field: cmdb_group\n- **BP-01** CIs related to more than one Technology Management Service Offering — ⚪ N/A: Direct TSO relationships only; membership via Dynamic CI Groups is not expanded here.\n\n## CI inventory (top classes, non-retired)\n\n| Class | CIs |\n|---|---|\n| cmdb_ci_spkg | 1,767 |\n| cmdb_ci_computer | 814 |\n| cmdb_ci_function_ai | 44 |\n| cmdb_ci_ai_model_deployment | 41 |\n| cmdb_ci_service | 41 |\n| cmdb_ci_printer | 28 |\n| cmdb_ci_server | 19 |\n| cmdb_ci_win_cluster_node | 14 |\n| cmdb_ci_database | 13 |\n| cmdb_ci_web_server | 9 |\n| cmdb_ci_win_server | 8 |\n| cmdb_ci_unix_server | 7 |\n| cmdb_ci_ups | 6 |\n| cmdb_ci_email_server | 5 |\n| cmdb_ci_netgear | 5 |\n| cmdb_ci_rack | 5 |\n| cmdb_ci_zone | 5 |\n| cmdb_ci_linux_server | 4 |\n| cmdb_ci_win_cluster | 4 |\n| cmdb_ci_cluster_node | 3 |\n| cmdb_ci_ip_router | 3 |\n| cmdb_ci_msd | 3 |\n| cmdb_ci_network_adapter | 3 |\n| cmdb_ci_aix_server | 2 |\n| cmdb_ci_computer_room | 2 |\n"
+  },
+  "sample_results.json": {
+    "overall": 17,
+    "scored": 42,
+    "counts": {
+      "fail": 31,
+      "warn": 6,
+      "pass": 5,
+      "n_a": 5,
+      "not_assessed": 2
+    },
+    "themes": [
+      {
+        "theme": "Foundation",
+        "score": 38
+      },
+      {
+        "theme": "Hygiene",
+        "score": 22
+      },
+      {
+        "theme": "Integration",
+        "score": 0
+      },
+      {
+        "theme": "Customization",
+        "score": 19
+      },
+      {
+        "theme": "Consumption",
+        "score": 15
+      },
+      {
+        "theme": "Crawl",
+        "score": 0
+      },
+      {
+        "theme": "Walk",
+        "score": 0
+      },
+      {
+        "theme": "Run",
+        "score": 0
+      },
+      {
+        "theme": "Fly",
+        "score": 0
+      }
+    ],
+    "stages": [
+      {
+        "stage": "Foundation",
+        "score": 24,
+        "label": "At risk"
+      },
+      {
+        "stage": "Crawl",
+        "score": 0,
+        "label": "At risk"
+      },
+      {
+        "stage": "Walk",
+        "score": 0,
+        "label": "Largely not started - at risk on the checks that apply (3 of 4 checks have no records)"
+      },
+      {
+        "stage": "Run",
+        "score": 0,
+        "label": "At risk (1 of 4 checks have no records)"
+      },
+      {
+        "stage": "Fly",
+        "score": 0,
+        "label": "Largely not started - at risk on the checks that apply (1 of 2 checks have no records)"
+      }
+    ],
+    "findings": [
+      {
+        "id": "RL-09",
+        "status": "fail",
+        "measure": "64 / 150 (42.7%)"
+      },
+      {
+        "id": "FD-04",
+        "status": "fail",
+        "measure": "7,420 / 18,900 (39.3%)"
+      },
+      {
+        "id": "FD-01",
+        "status": "fail",
+        "measure": "14 / 38 (36.8%)"
+      },
+      {
+        "id": "CI-08",
+        "status": "fail",
+        "measure": "13,900 / 48,210 (28.8%)"
+      },
+      {
+        "id": "CI-15",
+        "status": "fail",
+        "measure": "5,100 / 22,500 (22.7%)"
+      },
+      {
+        "id": "CI-09",
+        "status": "fail",
+        "measure": "9,800 / 48,210 (20.3%)"
+      },
+      {
+        "id": "CI-07",
+        "status": "fail",
+        "measure": "2,210 / 20,100 (11.0%)"
+      },
+      {
+        "id": "CI-13",
+        "status": "fail",
+        "measure": "1,190 / 17,700 (6.7%)"
+      },
+      {
+        "id": "CI-10",
+        "status": "fail",
+        "measure": "1,320 / 48,210 (2.7%)"
+      },
+      {
+        "id": "RL-04",
+        "status": "fail",
+        "measure": "2,900 / 212,400 (1.4%)"
+      },
+      {
+        "id": "CI-05",
+        "status": "fail",
+        "measure": "2 (of 19)"
+      },
+      {
+        "id": "CI-11",
+        "status": "fail",
+        "measure": "1"
+      },
+      {
+        "id": "CI-20",
+        "status": "fail",
+        "measure": "1"
+      },
+      {
+        "id": "CI-21",
+        "status": "fail",
+        "measure": "4"
+      },
+      {
+        "id": "RL-01",
+        "status": "fail",
+        "measure": "1 (of 94)"
+      },
+      {
+        "id": "RL-07",
+        "status": "fail",
+        "measure": "180 / 180 (100.0%)"
+      },
+      {
+        "id": "RL-13",
+        "status": "fail",
+        "measure": "22 / 22 (100.0%)"
+      },
+      {
+        "id": "CI-17",
+        "status": "fail",
+        "measure": "380 / 415 (91.6%)"
+      },
+      {
+        "id": "FD-07",
+        "status": "fail",
+        "measure": "16,200 / 18,900 (85.7%)"
+      },
+      {
+        "id": "RL-11",
+        "status": "fail",
+        "measure": "290 / 410 (70.7%)"
+      },
+      {
+        "id": "FD-06",
+        "status": "fail",
+        "measure": "1,480 / 2,150 (68.8%)"
+      },
+      {
+        "id": "FD-02",
+        "status": "fail",
+        "measure": "112 / 164 (68.3%)"
+      },
+      {
+        "id": "CI-19",
+        "status": "fail",
+        "measure": "60 / 118 (50.8%)"
+      },
+      {
+        "id": "BP-03",
+        "status": "fail",
+        "measure": "1,900 / 6,100 (31.1%)"
+      },
+      {
+        "id": "RL-10",
+        "status": "fail",
+        "measure": "40 / 180 (22.2%)"
+      },
+      {
+        "id": "BP-02",
+        "status": "fail",
+        "measure": "2,300 / 21,050 (10.9%)"
+      },
+      {
+        "id": "CI-03",
+        "status": "fail",
+        "measure": "64"
+      },
+      {
+        "id": "RL-03",
+        "status": "fail",
+        "measure": "6 (of 94)"
+      },
+      {
+        "id": "BP-04",
+        "status": "fail",
+        "measure": "48,210 / 48,210 (100.0%)"
+      },
+      {
+        "id": "RL-06",
+        "status": "fail",
+        "measure": "410 / 410 (100.0%)"
+      },
+      {
+        "id": "CI-22",
+        "status": "fail",
+        "measure": "issue"
+      },
+      {
+        "id": "FD-05",
+        "status": "warn",
+        "measure": "310 / 2,150 (14.4%)"
+      },
+      {
+        "id": "CI-12",
+        "status": "warn",
+        "measure": "410 / 2,770 (14.8%)"
+      },
+      {
+        "id": "FD-03",
+        "status": "warn",
+        "measure": "58 / 790 (7.3%)"
+      },
+      {
+        "id": "CI-01",
+        "status": "warn",
+        "measure": "3 (of 7)"
+      },
+      {
+        "id": "CI-02",
+        "status": "warn",
+        "measure": "4 (of 57)"
+      },
+      {
+        "id": "CI-04",
+        "status": "warn",
+        "measure": "9"
+      },
+      {
+        "id": "CI-06",
+        "status": "pass",
+        "measure": "190 / 48,210 (0.4%)"
+      },
+      {
+        "id": "CI-14",
+        "status": "pass",
+        "measure": "820 / 17,100 (4.8%)"
+      },
+      {
+        "id": "CI-16",
+        "status": "pass",
+        "measure": "ok"
+      },
+      {
+        "id": "FD-08",
+        "status": "pass",
+        "measure": "ok"
+      },
+      {
+        "id": "RL-02",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "BP-01",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "CI-18",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-12",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-08",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-05",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "BP-05",
+        "status": "not_assessed",
+        "measure": "-"
+      },
+      {
+        "id": "BP-06",
+        "status": "not_assessed",
+        "measure": "-"
+      }
+    ],
+    "unknown": [],
+    "markdown": "# CMDB & CSDM Health Findings — acmeseguros\n\n- **Build:** glide-xanadu-07-02-2024__patch6  \n- **Generated:** 2026-09-15 10:12:03  \n- **CIs:** 61,240 total, 48,210 non-retired; **relationships:** 212,400  \n- **Relationship density:** 4.41 relationships per non-retired CI  \n- **CMDB classes:** 912 (7 custom)  \n- **Data Foundations dashboard installed:** no; **Service Graph Connectors:** 1  \n\n**Overall health score: 17/100** (weighted High=3, Medium=2, Low=1; 42 checks scored). 🔴 Fail: 31 · 🟠 Warn: 6 · 🟢 Pass: 5 · ⚪ N/A: 5 · ⚫ Not assessed: 2\n\n## Score by theme\n\n| Theme | Score | Fail | Warn | Pass | N/A / not assessed |\n|---|---|---|---|---|---|\n| Foundation — Foundation data (org structure, locations, models, asset/CI sync) | 38 | 3 | 1 | 2 | 0 |\n| Hygiene — CI data quality (names, models, serials, staleness, duplicates, orphans) | 22 | 8 | 1 | 2 | 1 |\n| Integration — Data ingestion through the IRE | 0 | 2 | 0 | 0 | 0 |\n| Customization — Class model and choice/relationship customizations (technical debt) | 19 | 5 | 3 | 1 | 0 |\n| Consumption — ITSM use of CIs and services | 15 | 3 | 1 | 0 | 0 |\n| Crawl — CSDM Crawl - applications | 0 | 6 | 0 | 0 | 0 |\n| Walk — CSDM Walk - technology management services | 0 | 1 | 0 | 0 | 3 |\n| Run — CSDM Run - business services | 0 | 2 | 0 | 0 | 2 |\n| Fly — CSDM Fly - capabilities and information | 0 | 1 | 0 | 0 | 1 |\n\n## CSDM stage readiness\n\nFoundation combines the Foundation, Hygiene and Integration themes; later stages use their own checks.\n\n| Stage | Score | Assessment |\n|---|---|---|\n| Foundation | 24 | At risk |\n| Crawl | 0 | At risk |\n| Walk | 0 | Largely not started - at risk on the checks that apply (3 of 4 checks have no records) |\n| Run | 0 | At risk (1 of 4 checks have no records) |\n| Fly | 0 | Largely not started - at risk on the checks that apply (1 of 2 checks have no records) |\n\n## Findings (worst first)\n\n| Status | ID | Priority | Check | Measure | Playbook |\n|---|---|---|---|---|---|\n| 🔴 Fail | RL-09 | High | Business App -> Application Service relationships with a non-standard type | 64 / 150 (42.7%) | [KB0831503](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831503) |\n| 🔴 Fail | FD-04 | High | Incidents without a Configuration Item | 7,420 / 18,900 (39.3%) | [KB0864671](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864671) |\n| 🔴 Fail | FD-01 | High | Business Units without a Company | 14 / 38 (36.8%) | [KB0864259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864259) |\n| 🔴 Fail | CI-08 | High | Stale CIs (not updated in 90 days) | 13,900 / 48,210 (28.8%) | [KB0829106](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829106) |\n| 🔴 Fail | CI-15 | High | Hardware and VM Instance CIs not updated in 90 days | 5,100 / 22,500 (22.7%) | [KB0867489](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0867489) |\n| 🔴 Fail | CI-09 | High | CIs with empty Discovery Source | 9,800 / 48,210 (20.3%) | [KB0829078](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829078) |\n| 🔴 Fail | CI-07 | High | Hardware CIs with missing or wrong Model | 2,210 / 20,100 (11.0%) | [KB0852421](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0852421), [KB0832205](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832205) |\n| 🔴 Fail | CI-13 | High | Hardware CIs without Serial Number | 1,190 / 17,700 (6.7%) | [KB0829077](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829077) |\n| 🔴 Fail | CI-10 | High | Duplicate CIs | 1,320 / 48,210 (2.7%) | [KB0829103](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829103) |\n| 🔴 Fail | RL-04 | High | Orphaned CI relationships | 2,900 / 212,400 (1.4%) | [KB0829101](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829101) |\n| 🔴 Fail | CI-05 | High | Custom or relabelled CI status choice values | 2 (of 19) | [KB0952946](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952946) |\n| 🔴 Fail | CI-11 | High | Custom Service tables (not OOB CSDM service classes) | 1 | [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512) |\n| 🔴 Fail | CI-20 | High | Custom Business Application tables | 1 | [KB0868431](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868431) |\n| 🔴 Fail | CI-21 | High | Third-party data sources not using the IRE | 4 | [KB0854301](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0854301) |\n| 🔴 Fail | RL-01 | High | Modified or deleted base relationship types | 1 (of 94) | [KB0829857](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829857) |\n| 🔴 Fail | RL-07 | Medium | Application Services without a Business Service Offering | 180 / 180 (100.0%) | [KB0831510](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831510) |\n| 🔴 Fail | RL-13 | Medium | Dynamic CI Groups without a CMDB Group | 22 / 22 (100.0%) | [KB0952944](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952944) |\n| 🔴 Fail | CI-17 | Medium | CI-referenced Product Models without an owner | 380 / 415 (91.6%) | [KB0864257](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864257) |\n| 🔴 Fail | FD-07 | Medium | Incidents missing a Service or a CI | 16,200 / 18,900 (85.7%) | [KB1116972](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116972) |\n| 🔴 Fail | RL-11 | Medium | Business Applications without an Application Service | 290 / 410 (70.7%) | [KB0831506](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831506) |\n| 🔴 Fail | FD-06 | Medium | Changes missing a Service or a CI | 1,480 / 2,150 (68.8%) | [KB1116973](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116973) |\n| 🔴 Fail | FD-02 | Medium | CI-referenced Locations without a Parent Location | 112 / 164 (68.3%) | [KB0864260](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864260) |\n| 🔴 Fail | CI-19 | Medium | Services and Offerings without an owner | 60 / 118 (50.8%) | [KB0869040](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0869040) |\n| 🔴 Fail | BP-03 | Medium | Manually maintained Application (cmdb_ci_appl) CIs | 1,900 / 6,100 (31.1%) | CSDM best practice |\n| 🔴 Fail | RL-10 | Medium | Application Services without a Business Application | 40 / 180 (22.2%) | [KB0831505](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831505) |\n| 🔴 Fail | BP-02 | Medium | Design-domain CIs used on incidents/changes | 2,300 / 21,050 (10.9%) | CSDM best practice |\n| 🔴 Fail | CI-03 | Medium | Custom attributes on CMDB classes | 64 | [KB0832208](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832208) |\n| 🔴 Fail | RL-03 | Medium | Custom relationship types | 6 (of 94) | [KB0829858](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829858) |\n| 🔴 Fail | BP-04 | Low | Non-retired CIs without Life Cycle Stage | 48,210 / 48,210 (100.0%) | CSDM best practice |\n| 🔴 Fail | RL-06 | Low | Business Applications without an Information Object | 410 / 410 (100.0%) | [KB0831515](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831515) |\n| 🔴 Fail | CI-22 | Low | No archive/retirement policy for CMDB data | issue | [KB0830056](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0830056) |\n| 🟠 Warn | FD-05 | High | Changes without a Configuration Item | 310 / 2,150 (14.4%) | [KB0868259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868259) |\n| 🟠 Warn | CI-12 | Medium | Active Servers without a Location | 410 / 2,770 (14.8%) | [KB0966472](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0966472) |\n| 🟠 Warn | FD-03 | Medium | Duplicate Location names | 58 / 790 (7.3%) | [KB0832200](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832200) |\n| 🟠 Warn | CI-01 | Low | Custom CMDB classes not following naming standard | 3 (of 7) | [KB1116975](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116975) |\n| 🟠 Warn | CI-02 | Low | Custom attributes defined at the wrong hierarchy level | 4 (of 57) | [KB0832206](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832206) |\n| 🟠 Warn | CI-04 | Low | Custom attributes on ITAM tables | 9 | [KB0998512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0998512) |\n| 🟢 Pass | CI-06 | High | Non-retired CIs with empty or invalid names | 190 / 48,210 (0.4%) | [KB0829852](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829852) |\n| 🟢 Pass | CI-14 | Medium | Computer CIs where name and host name disagree | 820 / 17,100 (4.8%) | [KB0864735](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864735) |\n| 🟢 Pass | CI-16 | Medium | 'Create CI on insert' (asset) business rule inactive or missing | ok | [KB0999333](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0999333) |\n| 🟢 Pass | FD-08 | Medium | 'Create Asset on insert' business rule inactive or missing | ok | [KB0829855](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829855) |\n| 🟢 Pass | RL-02 | Medium | Custom attributes on the CI relationship table | 0 | [KB0868633](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868633) |\n| ⚪ N/A | BP-01 | High | CIs related to more than one Technology Management Service Offering | 0 | CSDM best practice |\n| ⚪ N/A | CI-18 | High | Technology Management Service Offerings missing Support or Change group | 0 | [KB0952941](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952941) |\n| ⚪ N/A | RL-12 | High | Technology Management Service Offerings without a parent Service | 0 | [KB0831509](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831509) |\n| ⚪ N/A | RL-08 | Medium | Business Service Offerings without an Application Service | 0 | [KB0831511](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831511) |\n| ⚪ N/A | RL-05 | Low | Information Objects without a Business Application | 0 | [KB0831514](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831514) |\n| ⚫ Not assessed | BP-05 | High | Services on the generic cmdb_ci_service class | - | [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512) |\n| ⚫ Not assessed | BP-06 | Medium | CIs on the abstract base cmdb_ci class | - | CSDM best practice |\n\n## Detail for failing and warning checks\n\n### RL-09 · Business App -> Application Service relationships with a non-standard type — 🔴 Fail\n\n- **Measure:** 64 / 150 (42.7%) · **Priority:** High · **Theme:** Crawl\n- **Playbook:** [KB0831503](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831503)\n- **Where:** `cmdb_rel_ci` — `parent is Business App, child is Application Service, type != expected (use collector)`\n- **Collector note:** expected \"Consumes::Consumed by\"; types found: {\"Consumes::Consumed by\": 86, \"Depends on::Used by\": 64}\n- **Recommended action:** Standardise on the type your EA release expects (KB0831503: Consumes::Consumed by; CSDM 5 figure shows Uses::Used by) - confirm before bulk-changing.\n\n### FD-04 · Incidents without a Configuration Item — 🔴 Fail\n\n- **Measure:** 7,420 / 18,900 (39.3%) · **Priority:** High · **Theme:** Consumption\n- **Playbook:** [KB0864671](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864671)\n- **Where:** `incident` — `cmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Examples:** INC0123456\n- **Recommended action:** Require CI before resolve; improve CI picker (reference qualifiers to operational classes, show identifying columns); train agents; use Service/Offering to narrow CI choice.\n\n### FD-01 · Business Units without a Company — 🔴 Fail\n\n- **Measure:** 14 / 38 (36.8%) · **Priority:** High · **Theme:** Foundation\n- **Playbook:** [KB0864259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864259)\n- **Where:** `business_unit` — `companyISEMPTY`\n- **Examples:** Sinistros; Canal Digital\n- **Recommended action:** Populate company on every business unit from the HR/finance source of truth; make company mandatory on the form/integration.\n\n### CI-08 · Stale CIs (not updated in 90 days) — 🔴 Fail\n\n- **Measure:** 13,900 / 48,210 (28.8%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0829106](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829106)\n- **Where:** `cmdb_ci` — `install_status!=7^ORinstall_statusISEMPTY^sys_updated_onRELATIVELT@dayofweek@ago@90`\n- **Collector note:** excluding manually-managed design classes: 13400 of 47780\n- **Recommended action:** Define staleness rules per class (CMDB Health); investigate discovery coverage; retire what no longer exists via CMDB Data Manager policies. Manually-managed design classes need attestation, not discovery.\n\n### CI-15 · Hardware and VM Instance CIs not updated in 90 days — 🔴 Fail\n\n- **Measure:** 5,100 / 22,500 (22.7%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0867489](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0867489)\n- **Where:** `cmdb_ci` — `install_status!=7^ORinstall_statusISEMPTY^sys_class_nameINSTANCEOFcmdb_ci_hardware^ORsys_class_nameINSTANCEOFcmdb_ci_vm_instance^sys_updated_onRELATIVELT@dayofweek@ago@90`\n- **Collector note:** last_discovered older than 90d or empty: 7200\n- **Recommended action:** Check discovery schedules, MID servers and credentials; for cloud VMs verify cloud discovery; retire terminated instances automatically.\n\n### CI-09 · CIs with empty Discovery Source — 🔴 Fail\n\n- **Measure:** 9,800 / 48,210 (20.3%) · **Priority:** High · **Theme:** Integration\n- **Playbook:** [KB0829078](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829078)\n- **Where:** `cmdb_ci` — `install_status!=7^ORinstall_statusISEMPTY^discovery_sourceISEMPTY`\n- **Recommended action:** Every writer must identify itself: register sources in the discovery_source choice list, route writes through the IRE, back-fill legacy records with the real source.\n\n### CI-07 · Hardware CIs with missing or wrong Model — 🔴 Fail\n\n- **Measure:** 2,210 / 20,100 (11.0%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0852421](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0852421), [KB0832205](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832205)\n- **Where:** `cmdb_ci_hardware` — `install_status!=7^ORinstall_statusISEMPTY^model_idISEMPTY^ORmodel_id.sys_class_name!=cmdb_hardware_product_model^ORmodel_id.nameLIKEunknown`\n- **Collector note:** empty model: 1650\n- **Recommended action:** Enable hardware model normalisation; ensure discovery populates manufacturer+model; reassign CIs pointing at non-hardware or 'Unknown' models.\n\n### CI-13 · Hardware CIs without Serial Number — 🔴 Fail\n\n- **Measure:** 1,190 / 17,700 (6.7%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0829077](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829077)\n- **Where:** `cmdb_ci_hardware` — `install_status!=7^ORinstall_statusISEMPTY^serial_numberISEMPTY^virtual!=true`\n- **Recommended action:** Fix discovery credentials/patterns that fail to read serials; include serial in identification rules; reject junk serials ('To be filled by O.E.M.', '0').\n\n### CI-10 · Duplicate CIs — 🔴 Fail\n\n- **Measure:** 1,320 / 48,210 (2.7%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0829103](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829103)\n- **Where:** `cmdb_ci` — `duplicate_ofISNOTEMPTY (plus open reconcile_duplicate_task, plus shared serial numbers)`\n- **Collector note:** IRE-flagged duplicates: 410; open de-duplication tasks: 380; hardware CIs sharing a serial: 1320; CIs with junk serials: 240\n- **Examples:** serial CZ1234 x3\n- **Recommended action:** Work de-duplication tasks with the Duplicate CI Remediator (merge, not delete); define de-duplication templates; fix identification rules and the non-IRE source that created them.\n\n### RL-04 · Orphaned CI relationships — 🔴 Fail\n\n- **Measure:** 2,900 / 212,400 (1.4%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0829101](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829101)\n- **Where:** `cmdb_rel_ci` — `parentISEMPTY^ORchildISEMPTY^ORparent.sys_idISEMPTY^ORchild.sys_idISEMPTY`\n- **Recommended action:** Remove relationships whose parent or child no longer exists (batch, sub-prod first); find the process that deletes CIs without cascading.\n\n### CI-05 · Custom or relabelled CI status choice values — 🔴 Fail\n\n- **Measure:** 2 (of 19) · **Priority:** High · **Theme:** Customization\n- **Playbook:** [KB0952946](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952946)\n- **Where:** `sys_choice` — `name=cmdb_ci*^elementINinstall_status,operational_status (compare with OOB values)`\n- **Collector note:** 1 non-OOB values, 1 relabelled (heuristic)\n- **Examples:** cmdb_ci.install_status NEW 20 (Em Abate)\n- **Recommended action:** Revert to OOB values and labels; express extra meaning with Life Cycle Stage/Status or a separate attribute; remap existing records before removing choices.\n\n### CI-11 · Custom Service tables (not OOB CSDM service classes) — 🔴 Fail\n\n- **Measure:** 1 · **Priority:** High · **Theme:** Customization\n- **Playbook:** [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512)\n- **Where:** `sys_db_object` — `custom extensions of cmdb_ci_service (use collector)`\n- **Examples:** u_cmdb_ci_servico_negocio (95 records)\n- **Recommended action:** Migrate records to cmdb_ci_service_business / cmdb_ci_service_technical / service_offering / cmdb_ci_service_auto children using the CSDM 5-step migration; retire the custom tables.\n\n### CI-20 · Custom Business Application tables — 🔴 Fail\n\n- **Measure:** 1 · **Priority:** High · **Theme:** Crawl\n- **Playbook:** [KB0868431](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868431)\n- **Where:** `sys_db_object` — `custom extensions of cmdb_ci_business_app, or custom 'app' tables outside cmdb_ci_appl (use collector)`\n- **Examples:** u_app_mainframe\n- **Recommended action:** Move the application inventory into cmdb_ci_business_app (5-step migration); refactor dependencies; retire custom tables.\n\n### CI-21 · Third-party data sources not using the IRE — 🔴 Fail\n\n- **Measure:** 4 · **Priority:** High · **Theme:** Integration\n- **Playbook:** [KB0854301](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0854301)\n- **Where:** `sys_transform_map` — `active=true^target_tableSTARTSWITHcmdb_ci (review scripts for CMDBTransformUtil) + unregistered discovery_source values`\n- **Collector note:** direct (non-IRE) transform maps into CMDB: 3\n- **Examples:** Import Servidores CSV -> cmdb_ci_server; Tivoli -> cmdb_ci_computer; unregistered source: TIVOLI\n- **Recommended action:** Replace direct transforms with Service Graph Connectors, IntegrationHub ETL/RTE or CMDBTransformUtil; register each source; configure identification, reconciliation and data refresh rules.\n\n### RL-01 · Modified or deleted base relationship types — 🔴 Fail\n\n- **Measure:** 1 (of 94) · **Priority:** High · **Theme:** Customization\n- **Playbook:** [KB0829857](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829857)\n- **Where:** `cmdb_rel_type` — `OOB-created types updated by non-system users; deletions in sys_audit_delete (heuristic)`\n- **Collector note:** HEURISTIC\n- **Examples:** Runs on::Runs updated by joao.silva\n- **Recommended action:** Restore OOB types with their original sys_ids (from a PDI/update set), never delete base types; re-test service maps.\n\n### RL-07 · Application Services without a Business Service Offering — 🔴 Fail\n\n- **Measure:** 180 / 180 (100.0%) · **Priority:** Medium · **Theme:** Run\n- **Playbook:** [KB0831510](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831510)\n- **Where:** `cmdb_ci_service_auto` — `no cmdb_rel_ci from a Business Service Offering (use collector)`\n- **Collector note:** relationship types used: {}\n- **Recommended action:** Relate Business Service Offering -> Application Service with Depends on::Used by so technical outages show business impact.\n\n### RL-13 · Dynamic CI Groups without a CMDB Group — 🔴 Fail\n\n- **Measure:** 22 / 22 (100.0%) · **Priority:** Medium · **Theme:** Walk\n- **Playbook:** [KB0952944](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952944)\n- **Where:** `cmdb_ci_query_based_service` — `cmdb_groupISEMPTY`\n- **Collector note:** reference field: cmdb_group\n- **Recommended action:** Rebuild legacy (pre-Orlando) technical-service groupings as CMDB Groups (query builder/encoded query) and link them to the Dynamic CI Group.\n\n### CI-17 · CI-referenced Product Models without an owner — 🔴 Fail\n\n- **Measure:** 380 / 415 (91.6%) · **Priority:** Medium · **Theme:** Foundation\n- **Playbook:** [KB0864257](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864257)\n- **Where:** `cmdb_model` — `owner empty, restricted to models referenced by non-retired CIs (use collector)`\n- **Collector note:** owner field used: cmdb_model.owner\n- **Recommended action:** Assign product owners by model category/manufacturer; make ownership part of model intake; report EOL/EOS risk to owners.\n\n### FD-07 · Incidents missing a Service or a CI — 🔴 Fail\n\n- **Measure:** 16,200 / 18,900 (85.7%) · **Priority:** Medium · **Theme:** Consumption\n- **Playbook:** [KB1116972](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116972)\n- **Where:** `incident` — `business_serviceISEMPTY^ORcmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Collector note:** with offering populated: 0\n- **Recommended action:** Capture Service Offering and CI on every incident so SLAs, MTTR and outage reporting roll up to services.\n\n### RL-11 · Business Applications without an Application Service — 🔴 Fail\n\n- **Measure:** 290 / 410 (70.7%) · **Priority:** Medium · **Theme:** Crawl\n- **Playbook:** [KB0831506](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831506)\n- **Where:** `cmdb_ci_business_app` — `no cmdb_rel_ci to an Application Service (use collector)`\n- **Recommended action:** Create Application Services (wizard/API) for each deployed environment of in-production business applications; SaaS apps still get an Application Service.\n\n### FD-06 · Changes missing a Service or a CI — 🔴 Fail\n\n- **Measure:** 1,480 / 2,150 (68.8%) · **Priority:** Medium · **Theme:** Consumption\n- **Playbook:** [KB1116973](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116973)\n- **Where:** `change_request` — `business_serviceISEMPTY^ORcmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Collector note:** with offering populated: 95\n- **Recommended action:** Populate Service/Service Offering alongside the CI (auto-derive from the CI's offering where possible) so change windows, risk and impact use service context.\n\n### FD-02 · CI-referenced Locations without a Parent Location — 🔴 Fail\n\n- **Measure:** 112 / 164 (68.3%) · **Priority:** Medium · **Theme:** Foundation\n- **Playbook:** [KB0864260](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864260)\n- **Where:** `cmn_location` — `parentISEMPTY (restricted to locations referenced by non-retired CIs - use collector)`\n- **Examples:** Lisboa DC1; Porto Edifício B\n- **Recommended action:** Build a location hierarchy (Region > Country > State > City > Site > Building > Floor > Room) using Location Type; top-level nodes may legitimately have no parent.\n\n### CI-19 · Services and Offerings without an owner — 🔴 Fail\n\n- **Measure:** 60 / 118 (50.8%) · **Priority:** Medium · **Theme:** Run\n- **Playbook:** [KB0869040](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0869040)\n- **Where:** `cmdb_ci_service` — `sys_class_nameINcmdb_ci_service,cmdb_ci_service_business,cmdb_ci_service_technical,service_offering^install_status!=7^ORinstall_statusISEMPTY^owned_byISEMPTY`\n- **Collector note:** application services without owner: 120 of 180\n- **Recommended action:** Name an accountable owner for every service and offering; add ownership to the service intake and periodic attestation.\n\n### BP-03 · Manually maintained Application (cmdb_ci_appl) CIs — 🔴 Fail\n\n- **Measure:** 1,900 / 6,100 (31.1%) · **Priority:** Medium · **Theme:** Crawl\n- **Playbook:** CSDM best practice\n- **Where:** `cmdb_ci_appl` — `install_status!=7^ORinstall_statusISEMPTY^discovery_sourceISEMPTY^ORdiscovery_sourceLIKEmanual`\n- **Recommended action:** Move the application inventory to Business Application; let Discovery/Service Mapping own cmdb_ci_appl.\n\n### RL-10 · Application Services without a Business Application — 🔴 Fail\n\n- **Measure:** 40 / 180 (22.2%) · **Priority:** Medium · **Theme:** Crawl\n- **Playbook:** [KB0831505](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831505)\n- **Where:** `cmdb_ci_service_auto` — `no cmdb_rel_ci from a Business Application (use collector)`\n- **Recommended action:** Relate every Application Service to the Business Application it instantiates (one BA, many environments/regions).\n\n### BP-02 · Design-domain CIs used on incidents/changes — 🔴 Fail\n\n- **Measure:** 2,300 / 21,050 (10.9%) · **Priority:** Medium · **Theme:** Crawl\n- **Playbook:** CSDM best practice\n- **Where:** `task` — `cmdb_ci.sys_class_nameINcmdb_ci_business_app,cmdb_ci_business_capability,cmdb_ci_information_object,cmdb_ci_sdlc_component (incident+change, 90d)`\n- **Collector note:** incidents: 2210; changes: 90\n- **Recommended action:** Restrict CI reference qualifiers to operational classes; point users to Application Services/Service Offerings instead.\n\n### CI-03 · Custom attributes on CMDB classes — 🔴 Fail\n\n- **Measure:** 64 · **Priority:** Medium · **Theme:** Customization\n- **Playbook:** [KB0832208](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832208)\n- **Where:** `sys_dictionary` — `name in cmdb_ci extensions^elementSTARTSWITHu_`\n- **Collector note:** 51 on OOB classes, 13 on custom classes\n- **Recommended action:** Classify each as Best Practice / Keep / Refactor / Do Not Need; drop attributes populated on <10% of CIs or unused for years; map to OOB attributes where they exist.\n\n### RL-03 · Custom relationship types — 🔴 Fail\n\n- **Measure:** 6 (of 94) · **Priority:** Medium · **Theme:** Customization\n- **Playbook:** [KB0829858](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829858)\n- **Where:** `cmdb_rel_type` — `types not created by the system (heuristic; compare with PDI)`\n- **Collector note:** HEURISTIC\n- **Examples:** Suporta::Suportado por (used 3100x)\n- **Recommended action:** Map custom types to base types (WWDD), re-point relationships, delete unused custom types; govern new types through the CMDB change process.\n\n### BP-04 · Non-retired CIs without Life Cycle Stage — 🔴 Fail\n\n- **Measure:** 48,210 / 48,210 (100.0%) · **Priority:** Low · **Theme:** Hygiene\n- **Playbook:** CSDM best practice\n- **Where:** `cmdb_ci` — `install_status!=7^ORinstall_statusISEMPTY^life_cycle_stageISEMPTY`\n- **Collector note:** informational until Life Cycle fields are adopted\n- **Recommended action:** Plan CSDM Life Cycle adoption (map legacy statuses; evaluate PI 2.0 in sub-prod). Informational until the customer commits to Life Cycle fields.\n\n### RL-06 · Business Applications without an Information Object — 🔴 Fail\n\n- **Measure:** 410 / 410 (100.0%) · **Priority:** Low · **Theme:** Fly\n- **Playbook:** [KB0831515](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831515)\n- **Where:** `cmdb_ci_business_app` — `no cmdb_rel_ci to an Information Object (use collector)`\n- **Recommended action:** Record the data types (PII, PCI, health...) each application holds, prioritising regulated and critical applications.\n\n### CI-22 · No archive/retirement policy for CMDB data — 🔴 Fail\n\n- **Measure:** issue · **Priority:** Low · **Theme:** Hygiene\n- **Playbook:** [KB0830056](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0830056)\n- **Where:** `sys_archive` — `no active archive rules on CMDB tables and no CMDB Data Manager policies`\n- **Collector note:** active CMDB archive rules: 0; CMDB Data Manager policy records: 0\n- **Recommended action:** Define CMDB Data Manager retire/archive/delete policies per class (or Data Archive rules on older releases), with retention aligned to audit needs.\n\n### FD-05 · Changes without a Configuration Item — 🟠 Warn\n\n- **Measure:** 310 / 2,150 (14.4%) · **Priority:** High · **Theme:** Consumption\n- **Playbook:** [KB0868259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868259)\n- **Where:** `change_request` — `cmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Examples:** CHG0034567\n- **Recommended action:** Require CI (or Affected CIs) before Assess/Authorize; use Dynamic CI Groups for bulk changes; drive risk and conflict detection from CI data.\n\n### CI-12 · Active Servers without a Location — 🟠 Warn\n\n- **Measure:** 410 / 2,770 (14.8%) · **Priority:** Medium · **Theme:** Hygiene\n- **Playbook:** [KB0966472](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0966472)\n- **Where:** `cmdb_ci_server` — `install_status!=7^ORinstall_statusISEMPTY^locationISEMPTY`\n- **Recommended action:** Derive location from IP ranges/subnets, data-centre or cloud region; set location from the asset where the asset is authoritative.\n\n### FD-03 · Duplicate Location names — 🟠 Warn\n\n- **Measure:** 58 / 790 (7.3%) · **Priority:** Medium · **Theme:** Foundation\n- **Playbook:** [KB0832200](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832200)\n- **Where:** `cmn_location` — `group by name, count > 1`\n- **Collector note:** 24 duplicate name groups\n- **Examples:** Lisboa (x3); Porto (x2)\n- **Recommended action:** Identify a primary per duplicate group, repoint references, flag the rest as Duplicate (Rome+) and fix the feeding integration so it does not recreate them.\n\n### CI-01 · Custom CMDB classes not following naming standard — 🟠 Warn\n\n- **Measure:** 3 (of 7) · **Priority:** Low · **Theme:** Customization\n- **Playbook:** [KB1116975](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116975)\n- **Where:** `sys_db_object` — `custom extensions of cmdb_ci not named u_cmdb_ci_* (use collector)`\n- **Examples:** u_atm; u_pos_terminal; u_app_mainframe\n- **Recommended action:** Review every custom class for an OOB/store-app equivalent (CMDB CI Class Models app); keep only justified ones, named u_cmdb_ci_*, created via CI Class Manager.\n\n### CI-02 · Custom attributes defined at the wrong hierarchy level — 🟠 Warn\n\n- **Measure:** 4 (of 57) · **Priority:** Low · **Theme:** Customization\n- **Playbook:** [KB0832206](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832206)\n- **Where:** `sys_dictionary` — `same u_ element on several CMDB classes, or u_ element on cmdb_ci/cmdb (use collector)`\n- **Examples:** u_ambiente -> cmdb_ci_win_server, cmdb_ci_linux_server, cmdb_ci_aix_server\n- **Recommended action:** Consolidate duplicated attributes on the lowest common parent class; move root-level attributes down to the classes that use them.\n\n### CI-04 · Custom attributes on ITAM tables — 🟠 Warn\n\n- **Measure:** 9 · **Priority:** Low · **Theme:** Customization\n- **Playbook:** [KB0998512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0998512)\n- **Where:** `sys_dictionary` — `name in alm_asset/cmdb_model extensions^elementSTARTSWITHu_`\n- **Recommended action:** Same rationalisation as CI-03 for asset and model tables; keep asset and CI attributes on the correct side of the asset-CI sync.\n\n## Not applicable / not assessed\n\n- **CI-18** Technology Management Service Offerings missing Support or Change group — ⚪ N/A: no records in population\n- **RL-05** Information Objects without a Business Application — ⚪ N/A: no records in population\n- **RL-08** Business Service Offerings without an Application Service — ⚪ N/A: no records in population\n- **RL-12** Technology Management Service Offerings without a parent Service — ⚪ N/A: no records in population\n- **BP-01** CIs related to more than one Technology Management Service Offering — ⚪ N/A: no records in population\n- **BP-05** Services on the generic cmdb_ci_service class — ⚫ Not assessed: no data provided\n- **BP-06** CIs on the abstract base cmdb_ci class — ⚫ Not assessed: no data provided\n\n## CI inventory (top classes, non-retired)\n\n| Class | CIs |\n|---|---|\n| cmdb_ci_pc_hardware | 14,800 |\n| cmdb_ci_win_server | 1,850 |\n| cmdb_ci_linux_server | 920 |\n| cmdb_ci_vmware_instance | 2,400 |\n| cmdb_ci_appl | 6,100 |\n| cmdb_ci_business_app | 410 |\n| cmdb_ci_service_discovered | 180 |\n| u_cmdb_ci_atm | 640 |\n"
+  },
+  "ven0295.txt": {
+    "overall": 65,
+    "scored": 36,
+    "counts": {
+      "fail": 10,
+      "warn": 6,
+      "pass": 20,
+      "n_a": 13,
+      "not_assessed": 0
+    },
+    "themes": [
+      {
+        "theme": "Foundation",
+        "score": 85
+      },
+      {
+        "theme": "Hygiene",
+        "score": 76
+      },
+      {
+        "theme": "Integration",
+        "score": 0
+      },
+      {
+        "theme": "Customization",
+        "score": 85
+      },
+      {
+        "theme": "Consumption",
+        "score": 45
+      },
+      {
+        "theme": "Crawl",
+        "score": 71
+      },
+      {
+        "theme": "Walk",
+        "score": null
+      },
+      {
+        "theme": "Run",
+        "score": 0
+      },
+      {
+        "theme": "Fly",
+        "score": null
+      }
+    ],
+    "stages": [
+      {
+        "stage": "Foundation",
+        "score": 68,
+        "label": "In progress (1 of 20 checks have no records)"
+      },
+      {
+        "stage": "Crawl",
+        "score": 71,
+        "label": "Not started - no business application / service instance records (scores below reflect only peripheral checks)"
+      },
+      {
+        "stage": "Walk",
+        "score": null,
+        "label": "Not started - no technology mgmt service / technology mgmt offering records (scores below reflect only peripheral checks)"
+      },
+      {
+        "stage": "Run",
+        "score": 0,
+        "label": "Not started - no business service / business offering records (scores below reflect only peripheral checks)"
+      },
+      {
+        "stage": "Fly",
+        "score": null,
+        "label": "Not started - no business capability / information object records (scores below reflect only peripheral checks)"
+      }
+    ],
+    "findings": [
+      {
+        "id": "BP-05",
+        "status": "fail",
+        "measure": "41 / 42 (97.6%)"
+      },
+      {
+        "id": "CI-09",
+        "status": "fail",
+        "measure": "2,418 / 2,981 (81.1%)"
+      },
+      {
+        "id": "CI-13",
+        "status": "fail",
+        "measure": "152 / 901 (16.9%)"
+      },
+      {
+        "id": "CI-21",
+        "status": "fail",
+        "measure": "3"
+      },
+      {
+        "id": "BP-03",
+        "status": "fail",
+        "measure": "16 / 16 (100.0%)"
+      },
+      {
+        "id": "FD-06",
+        "status": "fail",
+        "measure": "68 / 69 (98.6%)"
+      },
+      {
+        "id": "CI-17",
+        "status": "fail",
+        "measure": "75 / 78 (96.2%)"
+      },
+      {
+        "id": "FD-07",
+        "status": "fail",
+        "measure": "9 / 10 (90.0%)"
+      },
+      {
+        "id": "CI-19",
+        "status": "fail",
+        "measure": "8 / 41 (19.5%)"
+      },
+      {
+        "id": "BP-04",
+        "status": "fail",
+        "measure": "2,981 / 2,981 (100.0%)"
+      },
+      {
+        "id": "FD-05",
+        "status": "warn",
+        "measure": "8 / 69 (11.6%)"
+      },
+      {
+        "id": "CI-10",
+        "status": "warn",
+        "measure": "19 / 2,981 (0.6%)"
+      },
+      {
+        "id": "BP-06",
+        "status": "warn",
+        "measure": "1 / 2,981 (0.0%)"
+      },
+      {
+        "id": "CI-03",
+        "status": "warn",
+        "measure": "6"
+      },
+      {
+        "id": "RL-03",
+        "status": "warn",
+        "measure": "4 (of 44)"
+      },
+      {
+        "id": "CI-02",
+        "status": "warn",
+        "measure": "1 (of 2)"
+      },
+      {
+        "id": "CI-08",
+        "status": "pass",
+        "measure": "124 / 2,981 (4.2%)"
+      },
+      {
+        "id": "CI-15",
+        "status": "pass",
+        "measure": "15 / 901 (1.7%)"
+      },
+      {
+        "id": "CI-07",
+        "status": "pass",
+        "measure": "4 / 901 (0.4%)"
+      },
+      {
+        "id": "CI-06",
+        "status": "pass",
+        "measure": "1 / 2,981 (0.0%)"
+      },
+      {
+        "id": "CI-05",
+        "status": "pass",
+        "measure": "0 (of 32)"
+      },
+      {
+        "id": "CI-11",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "CI-20",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "FD-01",
+        "status": "pass",
+        "measure": "0 / 6 (0.0%)"
+      },
+      {
+        "id": "FD-04",
+        "status": "pass",
+        "measure": "0 / 10 (0.0%)"
+      },
+      {
+        "id": "RL-01",
+        "status": "pass",
+        "measure": "0 (of 44)"
+      },
+      {
+        "id": "RL-04",
+        "status": "pass",
+        "measure": "0 / 235 (0.0%)"
+      },
+      {
+        "id": "FD-03",
+        "status": "pass",
+        "measure": "10 / 427 (2.3%)"
+      },
+      {
+        "id": "BP-02",
+        "status": "pass",
+        "measure": "0 / 79 (0.0%)"
+      },
+      {
+        "id": "CI-12",
+        "status": "pass",
+        "measure": "0 / 40 (0.0%)"
+      },
+      {
+        "id": "CI-16",
+        "status": "pass",
+        "measure": "ok"
+      },
+      {
+        "id": "FD-02",
+        "status": "pass",
+        "measure": "0 / 61 (0.0%)"
+      },
+      {
+        "id": "FD-08",
+        "status": "pass",
+        "measure": "ok"
+      },
+      {
+        "id": "RL-02",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "CI-04",
+        "status": "pass",
+        "measure": "0"
+      },
+      {
+        "id": "CI-22",
+        "status": "pass",
+        "measure": "ok"
+      },
+      {
+        "id": "BP-01",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "CI-18",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-09",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-12",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "CI-14",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-07",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-08",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-10",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-11",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-13",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "CI-01",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-05",
+        "status": "n_a",
+        "measure": "0"
+      },
+      {
+        "id": "RL-06",
+        "status": "n_a",
+        "measure": "0"
+      }
+    ],
+    "unknown": [],
+    "markdown": "# CMDB & CSDM Health Findings — ven09425\n\n- **Build:** glide-australia-02-11-2026__patch6w38-09-10-2026  \n- **Generated:** 24/09/2026 16:52:24  \n- **CIs:** 2,981 total, 2,981 non-retired; **relationships:** 235  \n- **Relationship density:** 0.08 relationships per non-retired CI  \n- **CMDB classes:** 1258 (0 custom)  \n- **Data Foundations dashboard installed:** yes; **Service Graph Connectors:** 7  \n\n**Overall health score: 65/100** (weighted High=3, Medium=2, Low=1; 36 checks scored). 🔴 Fail: 10 · 🟠 Warn: 6 · 🟢 Pass: 20 · ⚪ N/A: 13 · ⚫ Not assessed: 0\n\n## Score by theme\n\n| Theme | Score | Fail | Warn | Pass | N/A / not assessed |\n|---|---|---|---|---|---|\n| Foundation — Foundation data (org structure, locations, models, asset/CI sync) | 85 | 1 | 0 | 5 | 0 |\n| Hygiene — CI data quality (names, models, serials, staleness, duplicates, orphans) | 76 | 2 | 2 | 7 | 1 |\n| Integration — Data ingestion through the IRE | 0 | 2 | 0 | 0 | 0 |\n| Customization — Class model and choice/relationship customizations (technical debt) | 85 | 0 | 3 | 5 | 1 |\n| Consumption — ITSM use of CIs and services | 45 | 2 | 1 | 1 | 0 |\n| Crawl — CSDM Crawl - applications | 71 | 1 | 0 | 2 | 3 |\n| Walk — CSDM Walk - technology management services | - | 0 | 0 | 0 | 4 |\n| Run — CSDM Run - business services | 0 | 2 | 0 | 0 | 2 |\n| Fly — CSDM Fly - capabilities and information | - | 0 | 0 | 0 | 2 |\n\n## CSDM stage readiness\n\nFoundation combines the Foundation, Hygiene and Integration themes; later stages use their own checks.\n\n| Stage | Score | Assessment |\n|---|---|---|\n| Foundation | 68 | In progress (1 of 20 checks have no records) |\n| Crawl | 71 | Not started - no business application / service instance records (scores below reflect only peripheral checks) |\n| Walk | - | Not started - no technology mgmt service / technology mgmt offering records (scores below reflect only peripheral checks) |\n| Run | 0 | Not started - no business service / business offering records (scores below reflect only peripheral checks) |\n| Fly | - | Not started - no business capability / information object records (scores below reflect only peripheral checks) |\n\n## CSDM population\n\n| Entity | Records |\n|---|---|\n| business capability | 0 |\n| business application | 0 |\n| information object | 0 |\n| sdlc component | 0 |\n| service instance | 0 |\n| dynamic ci group | 0 |\n| technology mgmt service | 0 |\n| technology mgmt offering | 0 |\n| business service | 0 |\n| business offering | 0 |\n| legacy base service | 41 |\n| cmdb group | 8 |\n| ai function | 197 |\n| software package ci | 1767 |\n\n## Findings (worst first)\n\n| Status | ID | Priority | Check | Measure | Playbook |\n|---|---|---|---|---|---|\n| 🔴 Fail | BP-05 | High | Services on the generic cmdb_ci_service class | 41 / 42 (97.6%) | [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512) |\n| 🔴 Fail | CI-09 | High | CIs with empty Discovery Source | 2,418 / 2,981 (81.1%) | [KB0829078](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829078) |\n| 🔴 Fail | CI-13 | High | Hardware CIs without Serial Number | 152 / 901 (16.9%) | [KB0829077](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829077) |\n| 🔴 Fail | CI-21 | High | Third-party data sources not using the IRE | 3 | [KB0854301](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0854301) |\n| 🔴 Fail | BP-03 | Medium | Manually maintained Application (cmdb_ci_appl) CIs | 16 / 16 (100.0%) | CSDM best practice |\n| 🔴 Fail | FD-06 | Medium | Changes missing a Service or a CI | 68 / 69 (98.6%) | [KB1116973](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116973) |\n| 🔴 Fail | CI-17 | Medium | CI-referenced Product Models without an owner | 75 / 78 (96.2%) | [KB0864257](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864257) |\n| 🔴 Fail | FD-07 | Medium | Incidents missing a Service or a CI | 9 / 10 (90.0%) | [KB1116972](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116972) |\n| 🔴 Fail | CI-19 | Medium | Services and Offerings without an owner | 8 / 41 (19.5%) | [KB0869040](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0869040) |\n| 🔴 Fail | BP-04 | Low | Non-retired CIs without Life Cycle Stage | 2,981 / 2,981 (100.0%) | CSDM best practice |\n| 🟠 Warn | FD-05 | High | Changes without a Configuration Item | 8 / 69 (11.6%) | [KB0868259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868259) |\n| 🟠 Warn | CI-10 | High | Duplicate CIs | 19 / 2,981 (0.6%) | [KB0829103](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829103) |\n| 🟠 Warn | BP-06 | Medium | CIs on the abstract base cmdb_ci class | 1 / 2,981 (0.0%) | CSDM best practice |\n| 🟠 Warn | CI-03 | Medium | Custom attributes on CMDB classes | 6 | [KB0832208](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832208) |\n| 🟠 Warn | RL-03 | Medium | Custom relationship types | 4 (of 44) | [KB0829858](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829858) |\n| 🟠 Warn | CI-02 | Low | Custom attributes defined at the wrong hierarchy level | 1 (of 2) | [KB0832206](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832206) |\n| 🟢 Pass | CI-08 | High | Stale CIs (not updated in 90 days) | 124 / 2,981 (4.2%) | [KB0829106](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829106) |\n| 🟢 Pass | CI-15 | High | Hardware and VM Instance CIs not updated in 90 days | 15 / 901 (1.7%) | [KB0867489](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0867489) |\n| 🟢 Pass | CI-07 | High | Hardware CIs with missing or wrong Model | 4 / 901 (0.4%) | [KB0852421](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0852421), [KB0832205](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832205) |\n| 🟢 Pass | CI-06 | High | Non-retired CIs with empty or invalid names | 1 / 2,981 (0.0%) | [KB0829852](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829852) |\n| 🟢 Pass | CI-05 | High | Custom or relabelled CI status choice values | 0 (of 32) | [KB0952946](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952946) |\n| 🟢 Pass | CI-11 | High | Custom Service tables (not OOB CSDM service classes) | 0 | [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512) |\n| 🟢 Pass | CI-20 | High | Custom Business Application tables | 0 | [KB0868431](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868431) |\n| 🟢 Pass | FD-01 | High | Business Units without a Company | 0 / 6 (0.0%) | [KB0864259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864259) |\n| 🟢 Pass | FD-04 | High | Incidents without a Configuration Item | 0 / 10 (0.0%) | [KB0864671](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864671) |\n| 🟢 Pass | RL-01 | High | Modified or deleted base relationship types | 0 (of 44) | [KB0829857](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829857) |\n| 🟢 Pass | RL-04 | High | Orphaned CI relationships | 0 / 235 (0.0%) | [KB0829101](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829101) |\n| 🟢 Pass | FD-03 | Medium | Duplicate Location names | 10 / 427 (2.3%) | [KB0832200](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832200) |\n| 🟢 Pass | BP-02 | Medium | Design-domain CIs used on incidents/changes | 0 / 79 (0.0%) | CSDM best practice |\n| 🟢 Pass | CI-12 | Medium | Active Servers without a Location | 0 / 40 (0.0%) | [KB0966472](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0966472) |\n| 🟢 Pass | CI-16 | Medium | 'Create CI on insert' (asset) business rule inactive or missing | ok | [KB0999333](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0999333) |\n| 🟢 Pass | FD-02 | Medium | CI-referenced Locations without a Parent Location | 0 / 61 (0.0%) | [KB0864260](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864260) |\n| 🟢 Pass | FD-08 | Medium | 'Create Asset on insert' business rule inactive or missing | ok | [KB0829855](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829855) |\n| 🟢 Pass | RL-02 | Medium | Custom attributes on the CI relationship table | 0 | [KB0868633](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868633) |\n| 🟢 Pass | CI-04 | Low | Custom attributes on ITAM tables | 0 | [KB0998512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0998512) |\n| 🟢 Pass | CI-22 | Low | No archive/retirement policy for CMDB data | ok | [KB0830056](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0830056) |\n| ⚪ N/A | BP-01 | High | CIs related to more than one Technology Management Service Offering | 0 | CSDM best practice |\n| ⚪ N/A | CI-18 | High | Technology Management Service Offerings missing Support or Change group | 0 | [KB0952941](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952941) |\n| ⚪ N/A | RL-09 | High | Business App -> Application Service relationships with a non-standard type | 0 | [KB0831503](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831503) |\n| ⚪ N/A | RL-12 | High | Technology Management Service Offerings without a parent Service | 0 | [KB0831509](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831509) |\n| ⚪ N/A | CI-14 | Medium | Computer CIs where name and host name disagree | 0 | [KB0864735](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864735) |\n| ⚪ N/A | RL-07 | Medium | Application Services without a Business Service Offering | 0 | [KB0831510](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831510) |\n| ⚪ N/A | RL-08 | Medium | Business Service Offerings without an Application Service | 0 | [KB0831511](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831511) |\n| ⚪ N/A | RL-10 | Medium | Application Services without a Business Application | 0 | [KB0831505](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831505) |\n| ⚪ N/A | RL-11 | Medium | Business Applications without an Application Service | 0 | [KB0831506](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831506) |\n| ⚪ N/A | RL-13 | Medium | Dynamic CI Groups without a CMDB Group | 0 | [KB0952944](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0952944) |\n| ⚪ N/A | CI-01 | Low | Custom CMDB classes not following naming standard | 0 | [KB1116975](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116975) |\n| ⚪ N/A | RL-05 | Low | Information Objects without a Business Application | 0 | [KB0831514](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831514) |\n| ⚪ N/A | RL-06 | Low | Business Applications without an Information Object | 0 | [KB0831515](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831515) |\n\n## Detail for failing and warning checks\n\n### BP-05 · Services on the generic cmdb_ci_service class — 🔴 Fail\n\n- **Measure:** 41 / 42 (97.6%) · **Priority:** High · **Theme:** Run\n- **Playbook:** [KB0831512](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0831512)\n- **Where:** `cmdb_ci_service` — `sys_class_name=cmdb_ci_service^install_status!=7^ORinstall_statusISEMPTY`\n- **Collector note:** services stored on the generic cmdb_ci_service class instead of Business / Technology Management / Application Service classes\n- **Examples:** Blackberry; Retail; Retail Adding Points; Retail Client Lookup; Retail Client Registration\n- **Recommended action:** Classify each record (business service, technology management service, or application service/service instance) and move it to the CSDM class with the 5-step migration; add offerings.\n\n### CI-09 · CIs with empty Discovery Source — 🔴 Fail\n\n- **Measure:** 2,418 / 2,981 (81.1%) · **Priority:** High · **Theme:** Integration\n- **Playbook:** [KB0829078](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829078)\n- **Where:** `cmdb_ci` — `install_status!=7^ORinstall_statusISEMPTY^discovery_sourceISEMPTY`\n- **Examples:** Unknown; All; nyc oracle rac cluster; AppServerHelpDesk1; AppServerHelpDesk2\n- **Recommended action:** Every writer must identify itself: register sources in the discovery_source choice list, route writes through the IRE, back-fill legacy records with the real source.\n\n### CI-13 · Hardware CIs without Serial Number — 🔴 Fail\n\n- **Measure:** 152 / 901 (16.9%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0829077](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829077)\n- **Where:** `cmdb_ci_hardware` — `install_status!=7^ORinstall_statusISEMPTY^serial_numberISEMPTY^virtual!=true`\n- **Examples:** MacBook Air 13\"; MacBook Pro 15\"; Canon i960 Inkjet Photo; Canon i960 Inkjet Photo; Canon i960 Inkjet Photo\n- **Recommended action:** Fix discovery credentials/patterns that fail to read serials; include serial in identification rules; reject junk serials ('To be filled by O.E.M.', '0').\n\n### CI-21 · Third-party data sources not using the IRE — 🔴 Fail\n\n- **Measure:** 3 · **Priority:** High · **Theme:** Integration\n- **Playbook:** [KB0854301](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0854301)\n- **Where:** `sys_transform_map` — `active=true^target_tableSTARTSWITHcmdb_ci (review scripts for CMDBTransformUtil) + unregistered discovery_source values`\n- **Collector note:** discovery_source distribution: (empty)=2418; Other Automated=50; ServiceNow=192; Unknown=321 | direct (non-IRE) transform maps into CMDB: 2 | IntegrationHub ETL/RTE definitions: 12 | SGC apps: 7\n- **Examples:** Remove Record Transform Map -> cmdb_ci_spkg; Computer -> cmdb_ci_computer; unregistered source: Unknown\n- **Recommended action:** Replace direct transforms with Service Graph Connectors, IntegrationHub ETL/RTE or CMDBTransformUtil; register each source; configure identification, reconciliation and data refresh rules.\n\n### BP-03 · Manually maintained Application (cmdb_ci_appl) CIs — 🔴 Fail\n\n- **Measure:** 16 / 16 (100.0%) · **Priority:** Medium · **Theme:** Crawl\n- **Playbook:** CSDM best practice\n- **Where:** `cmdb_ci_appl` — `install_status!=7^ORinstall_statusISEMPTY^discovery_sourceISEMPTY^ORdiscovery_sourceLIKEmanual`\n- **Examples:** CMS App FLX; Java Application Server FLX; PS Apache01; PS Apache02; PS Apache03\n- **Recommended action:** Move the application inventory to Business Application; let Discovery/Service Mapping own cmdb_ci_appl.\n\n### FD-06 · Changes missing a Service or a CI — 🔴 Fail\n\n- **Measure:** 68 / 69 (98.6%) · **Priority:** Medium · **Theme:** Consumption\n- **Playbook:** [KB1116973](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116973)\n- **Where:** `change_request` — `business_serviceISEMPTY^ORcmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Collector note:** with offering populated: 0\n- **Examples:** CHG0030003; CHG0000009; CHG0000010; CHG0000011; CHG0000012\n- **Recommended action:** Populate Service/Service Offering alongside the CI (auto-derive from the CI's offering where possible) so change windows, risk and impact use service context.\n\n### CI-17 · CI-referenced Product Models without an owner — 🔴 Fail\n\n- **Measure:** 75 / 78 (96.2%) · **Priority:** Medium · **Theme:** Foundation\n- **Playbook:** [KB0864257](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0864257)\n- **Where:** `cmdb_model` — `owner empty, restricted to models referenced by non-retired CIs (use collector)`\n- **Collector note:** owner field used: cmdb_model.owner\n- **Examples:** Adtran Total Access 924e; APC 42U 3100 SP1 NetShelter Rack; APC 42U 3100 SP2 NetShelter Rack; Apple iMac 27\"; Apple MacBook Air 13\"\n- **Recommended action:** Assign product owners by model category/manufacturer; make ownership part of model intake; report EOL/EOS risk to owners.\n\n### FD-07 · Incidents missing a Service or a CI — 🔴 Fail\n\n- **Measure:** 9 / 10 (90.0%) · **Priority:** Medium · **Theme:** Consumption\n- **Playbook:** [KB1116972](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB1116972)\n- **Where:** `incident` — `business_serviceISEMPTY^ORcmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Collector note:** with offering populated: 0\n- **Examples:** INC0000046; INC0000047; INC0000049; INC0000050; INC0000051\n- **Recommended action:** Capture Service Offering and CI on every incident so SLAs, MTTR and outage reporting roll up to services.\n\n### CI-19 · Services and Offerings without an owner — 🔴 Fail\n\n- **Measure:** 8 / 41 (19.5%) · **Priority:** Medium · **Theme:** Run\n- **Playbook:** [KB0869040](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0869040)\n- **Where:** `cmdb_ci_service` — `sys_class_nameINcmdb_ci_service,cmdb_ci_service_business,cmdb_ci_service_technical,service_offering^install_status!=7^ORinstall_statusISEMPTY^owned_byISEMPTY`\n- **Collector note:** application services without owner: 0 of 0\n- **Examples:** Retail; Retail Adding Points; Retail Client Lookup; Retail Client Registration; Retail POS (Point of Sale)\n- **Recommended action:** Name an accountable owner for every service and offering; add ownership to the service intake and periodic attestation.\n\n### BP-04 · Non-retired CIs without Life Cycle Stage — 🔴 Fail\n\n- **Measure:** 2,981 / 2,981 (100.0%) · **Priority:** Low · **Theme:** Hygiene\n- **Playbook:** CSDM best practice\n- **Where:** `cmdb_ci` — `install_status!=7^ORinstall_statusISEMPTY^life_cycle_stageISEMPTY`\n- **Collector note:** informational until Life Cycle fields are adopted\n- **Recommended action:** Plan CSDM Life Cycle adoption (map legacy statuses; evaluate PI 2.0 in sub-prod). Informational until the customer commits to Life Cycle fields.\n\n### FD-05 · Changes without a Configuration Item — 🟠 Warn\n\n- **Measure:** 8 / 69 (11.6%) · **Priority:** High · **Theme:** Consumption\n- **Playbook:** [KB0868259](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0868259)\n- **Where:** `change_request` — `cmdb_ciISEMPTY^opened_atRELATIVEGT@dayofweek@ago@90`\n- **Collector note:** changes opened in last 90 days\n- **Examples:** CHG0030003; CHG0000037; CHG0000047; CHG0000057; CHG0000067\n- **Recommended action:** Require CI (or Affected CIs) before Assess/Authorize; use Dynamic CI Groups for bulk changes; drive risk and conflict detection from CI data.\n\n### CI-10 · Duplicate CIs — 🟠 Warn\n\n- **Measure:** 19 / 2,981 (0.6%) · **Priority:** High · **Theme:** Hygiene\n- **Playbook:** [KB0829103](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829103)\n- **Where:** `cmdb_ci` — `duplicate_ofISNOTEMPTY (plus open reconcile_duplicate_task, plus shared serial numbers)`\n- **Collector note:** IRE-flagged duplicates: 2; open de-duplication tasks: 7; hardware CIs sharing a serial: 19; CIs with junk serials: 0\n- **Examples:** serial 56WHL71 x2; serial AEX5635Z0001AC x2; serial L3BB911 x15\n- **Recommended action:** Work de-duplication tasks with the Duplicate CI Remediator (merge, not delete); define de-duplication templates; fix identification rules and the non-IRE source that created them.\n\n### BP-06 · CIs on the abstract base cmdb_ci class — 🟠 Warn\n\n- **Measure:** 1 / 2,981 (0.0%) · **Priority:** Medium · **Theme:** Hygiene\n- **Playbook:** CSDM best practice\n- **Where:** `cmdb_ci` — `sys_class_name=cmdb_ci^install_status!=7^ORinstall_statusISEMPTY`\n- **Collector note:** CIs on the abstract base class have no class-specific identification, attributes or health rules\n- **Examples:** Unknown\n- **Recommended action:** Reclassify to the correct class (or retire); block inserts into the base class.\n\n### CI-03 · Custom attributes on CMDB classes — 🟠 Warn\n\n- **Measure:** 6 · **Priority:** Medium · **Theme:** Customization\n- **Playbook:** [KB0832208](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832208)\n- **Where:** `sys_dictionary` — `name in cmdb_ci extensions^elementSTARTSWITHu_`\n- **Collector note:** 6 on OOB classes, 0 on custom classes\n- **Examples:** cmdb_ci_appl_mq_queue_local.x_mitq; cmdb_ci_appl_mq_queue_remote.x_mitq; cmdb_ci_appl_ibm_wmq_queue.x_mitq; cmdb_ci_win_server.u_mecanografico; cmdb_ci_appl_mq_queue_model.x_mitq; cmdb_ci_appl_mq_queue_alias.x_mitq\n- **Recommended action:** Classify each as Best Practice / Keep / Refactor / Do Not Need; drop attributes populated on <10% of CIs or unused for years; map to OOB attributes where they exist.\n\n### RL-03 · Custom relationship types — 🟠 Warn\n\n- **Measure:** 4 (of 44) · **Priority:** Medium · **Theme:** Customization\n- **Playbook:** [KB0829858](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0829858)\n- **Where:** `cmdb_rel_type` — `types not created by the system (heuristic; compare with PDI)`\n- **Collector note:** HEURISTIC (non-system creator and name not in base list). Unused custom types: 4; base-named types created by non-system users (treated as OOB): 23. Confirm against a PDI.\n- **Examples:** Master of::Stack Member of (used 0x) created by admin; Is Primary::Is Secondary (used 0x) created by admin; Use End Point To::Use End Point From (used 0x) created by admin; Provides::Provided by (used 0x) created by aleck.lin\n- **Recommended action:** Map custom types to base types (WWDD), re-point relationships, delete unused custom types; govern new types through the CMDB change process.\n\n### CI-02 · Custom attributes defined at the wrong hierarchy level — 🟠 Warn\n\n- **Measure:** 1 (of 2) · **Priority:** Low · **Theme:** Customization\n- **Playbook:** [KB0832206](https://support.servicenow.com/kb?id=kb_article_view&sysparm_article=KB0832206)\n- **Where:** `sys_dictionary` — `same u_ element on several CMDB classes, or u_ element on cmdb_ci/cmdb (use collector)`\n- **Collector note:** 1 attributes duplicated across classes; 0 defined on cmdb/cmdb_ci root\n- **Examples:** x_mitq -> cmdb_ci_appl_mq_queue_local, cmdb_ci_appl_mq_queue_remote, cmdb_ci_appl_ibm_wmq_queue, cmdb_ci_appl_mq_queue_model, cmdb_ci_appl_mq_queue_alias\n- **Recommended action:** Consolidate duplicated attributes on the lowest common parent class; move root-level attributes down to the classes that use them.\n\n## Not applicable / not assessed\n\n- **CI-01** Custom CMDB classes not following naming standard — ⚪ N/A: 0 custom CMDB classes in total: \n- **CI-14** Computer CIs where name and host name disagree — ⚪ N/A: compared name with fqdn (short name, case-insensitive); computers with empty fqdn: 855\n- **CI-18** Technology Management Service Offerings missing Support or Change group — ⚪ N/A: missing managed_by_group: 0\n- **RL-05** Information Objects without a Business Application — ⚪ N/A: no records in population\n- **RL-06** Business Applications without an Information Object — ⚪ N/A: no records in population\n- **RL-07** Application Services without a Business Service Offering — ⚪ N/A: relationship types used: {} (CSDM: Depends on::Used by)\n- **RL-08** Business Service Offerings without an Application Service — ⚪ N/A: relationship types used: {} (CSDM: Depends on::Used by)\n- **RL-09** Business App -> Application Service relationships with a non-standard type — ⚪ N/A: expected \"Consumes::Consumed by\"; types found: {}\n- **RL-10** Application Services without a Business Application — ⚪ N/A: no records in population\n- **RL-11** Business Applications without an Application Service — ⚪ N/A: Retired/planned applications may legitimately have no Application Service.\n- **RL-12** Technology Management Service Offerings without a parent Service — ⚪ N/A: Business offerings without parent: 0\n- **RL-13** Dynamic CI Groups without a CMDB Group — ⚪ N/A: reference field: cmdb_group\n- **BP-01** CIs related to more than one Technology Management Service Offering — ⚪ N/A: Direct TSO relationships only; membership via Dynamic CI Groups is not expanded here.\n\n## CI inventory (top classes, non-retired)\n\n| Class | CIs |\n|---|---|\n| cmdb_ci_spkg | 1,767 |\n| cmdb_ci_computer | 814 |\n| cmdb_ci_function_ai | 151 |\n| cmdb_ci_ai_model_deployment | 41 |\n| cmdb_ci_service | 41 |\n| cmdb_ci_printer | 28 |\n| cmdb_ci_server | 19 |\n| cmdb_ci_win_cluster_node | 14 |\n| cmdb_ci_database | 13 |\n| cmdb_ci_web_server | 9 |\n| cmdb_ci_win_server | 8 |\n| cmdb_ci_unix_server | 7 |\n| cmdb_ci_ups | 6 |\n| cmdb_ci_email_server | 5 |\n| cmdb_ci_function_mcp | 5 |\n| cmdb_ci_netgear | 5 |\n| cmdb_ci_rack | 5 |\n| cmdb_ci_zone | 5 |\n| cmdb_ci_linux_server | 4 |\n| cmdb_ci_win_cluster | 4 |\n| cmdb_ci_cluster_node | 3 |\n| cmdb_ci_ip_router | 3 |\n| cmdb_ci_msd | 3 |\n| cmdb_ci_network_adapter | 3 |\n| cmdb_ci_aix_server | 2 |\n"
+  }
+}

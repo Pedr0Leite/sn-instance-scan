@@ -74,3 +74,41 @@ export const iscanAiAgentRelatedListEntry = Record({
         position: 2,
     },
 })
+
+// Same explicit-related-list treatment for the CMDB & CSDM Health child tables
+// (this form's custom sys_ui_section suppresses default related-list rendering).
+export const iscanCmdbSummaryRelatedList = Record({
+    $id: Now.ID['iscan_cmdb_summary_related_list'],
+    table: 'sys_ui_related_list',
+    data: {
+        name: 'x_nold_iscan_run',
+    },
+})
+
+export const iscanCmdbSummaryRelatedListEntry = Record({
+    $id: Now.ID['iscan_cmdb_summary_related_list_entry'],
+    table: 'sys_ui_related_list_entry',
+    data: {
+        list_id: iscanCmdbSummaryRelatedList,
+        related_list: 'x_nold_iscan_cmdb_summary.run',
+        position: 3,
+    },
+})
+
+export const iscanCmdbCheckRelatedList = Record({
+    $id: Now.ID['iscan_cmdb_check_related_list'],
+    table: 'sys_ui_related_list',
+    data: {
+        name: 'x_nold_iscan_run',
+    },
+})
+
+export const iscanCmdbCheckRelatedListEntry = Record({
+    $id: Now.ID['iscan_cmdb_check_related_list_entry'],
+    table: 'sys_ui_related_list_entry',
+    data: {
+        list_id: iscanCmdbCheckRelatedList,
+        related_list: 'x_nold_iscan_cmdb_check.run',
+        position: 4,
+    },
+})

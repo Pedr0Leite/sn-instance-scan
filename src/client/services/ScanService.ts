@@ -4,15 +4,20 @@
 // calling user. See src/fluent/rest-apis.now.ts for why it is REST and not a
 // business rule or GlideAjax.
 //
-// Synchronous: a `full` scan of a large instance runs inside this request and
-// can take a while. Same characteristic the platform form's UI Action already
-// has -- it is not made worse by calling it from here.
+// Two response shapes, decided server-side by scan mode:
+//   - long-running modes (full, cmdb_health): HTTP 202, the run comes back
+//     'pending' with queued=true and a worker does the scan. These are admin-only
+//     (the worker runs as System) and a non-admin gets a 403 with the reason.
+//   - every other mode: HTTP 201, synchronous, the run comes back finished.
+// See IscanScanOrchestrator.queueScan() for why the split exists.
 const ENDPOINT = '/api/x_nold_iscan/iscan_run_scan/run'
 
 export interface StartedScan {
     sys_id: string
     status: string
     scan_mode: string
+    // true when the scan was queued to a worker rather than run in the request
+    queued?: boolean
 }
 
 export async function startScan(

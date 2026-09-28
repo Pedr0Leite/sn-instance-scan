@@ -49,9 +49,65 @@
     // manual_app_list already does — split it the same way.
     var manualAppList = targetAppId ? targetAppId.split(',') : (manualAppListRaw ? manualAppListRaw.split(',') : [])
 
+    var orchestrator = new IscanScanOrchestrator()
+
+    // Long-running modes (full, cmdb_health) are queued to a worker rather than
+    // run inside this request - see IscanScanOrchestrator.queueScan() for why.
+    // `current` is NOT written here beyond setting fields in memory: the
+    // platform's single natural save below persists status='pending' together
+    // with the form's own values, and the queued event only becomes visible to
+    // the worker once that save commits. The worker moves it to 'running' when
+    // it picks the run up, then 'complete' or 'error'.
+    if (!orchestrator.canLaunch(scanMode)) {
+        gs.info('RunScanUiAction: aborted, scan_mode=' + scanMode + ' requires admin, user=' + gs.getUserName())
+        gs.addErrorMessage(
+            'Only an administrator can run this scan mode. It runs in the background with full read access, so it is ' +
+                'restricted to users who already have that access.'
+        )
+        current.setAbortAction(true)
+        return
+    }
+
+    if (orchestrator.isAsyncMode(scanMode)) {
+        // A second click while a worker has the run would start a second
+        // worker writing into the same record. 'pending' alone does NOT mean
+        // queued: it is the column DEFAULT, so every brand-new run starts as
+        // pending - only a run with `started` set was actually queued. A run
+        // still pending 10 minutes after queuing was never picked up (the
+        // worker moves it to running within seconds), so it may be re-queued.
+        // Same for a 'running' run older than 2 hours.
+        // No setAbortAction here: aborting a form update is what shows the
+        // platform's "Invalid update" banner; the natural save of an
+        // unchanged record is harmless.
+        var liveStatus = current.getValue('status')
+        var startedAt = current.getValue('started')
+        var queuedAgoMs = startedAt ? new GlideDateTime().getNumericValue() - new GlideDateTime(startedAt).getNumericValue() : -1
+        var workerOwnsRun =
+            startedAt &&
+            ((liveStatus === 'pending' && queuedAgoMs < 10 * 60 * 1000) ||
+                // 2h is far past the longest scan seen (16.5 min); older
+                // 'running' runs were killed before the async fix and never
+                // finished.
+                (liveStatus === 'running' && queuedAgoMs < 2 * 60 * 60 * 1000))
+        if (workerOwnsRun) {
+            gs.addErrorMessage('This run is already ' + liveStatus + ' in the background. Wait for it to finish, or create a new run.')
+            action.setRedirectURL(current)
+            return
+        }
+        current.setValue('status', 'pending')
+        current.setValue('started', new GlideDateTime())
+        orchestrator.queueScan(current, scanMode, manualAppList, targetTableId)
+        gs.info('RunScanUiAction: queued run=' + current.getUniqueValue() + ', scan_mode=' + scanMode)
+        gs.addInfoMessage(
+            'Scan queued. It runs in the background and can take several minutes on a large instance - ' +
+                'the Status field moves from Pending to Running to Complete. Refresh to see progress.'
+        )
+        action.setRedirectURL(current)
+        return
+    }
+
     gs.info('RunScanUiAction: starting scan, run=' + current.getUniqueValue() + ', scan_mode=' + scanMode)
     try {
-        var orchestrator = new IscanScanOrchestrator()
         orchestrator.runScanForRecord(current.getUniqueValue(), scanMode, manualAppList, targetTableId)
         gs.info('RunScanUiAction: scan finished, run=' + current.getUniqueValue())
         gs.addInfoMessage('Scan complete.')
