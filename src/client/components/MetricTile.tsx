@@ -10,10 +10,13 @@ interface MetricTileProps {
     severity?: Severity
     severityLabel?: string
     // When set, the whole tile becomes a real <button> (see app.css's
-    // .iscan-tile__hit) that navigates somewhere -- e.g. Dashboard's
-    // cross-reference/customization tiles jump to their dedicated views
-    // instead of just reporting a count nobody can act on.
+    // .iscan-tile__hit) that runs an arbitrary in-app action.
     onActivate?: () => void
+    // When set (and onActivate is not), the whole tile becomes a real <a>
+    // opening this URL in a new tab -- Dashboard's KPI tiles all link to the
+    // platform list of the exact table/query their number comes from. Takes
+    // priority over onActivate if somehow both are given.
+    href?: string
     // Numeral size per the design spec's type scale (run-activity tiles read
     // largest, per-result detail tiles smaller). Defaults to the coverage/
     // detail-adjacent size used everywhere this isn't passed explicitly.
@@ -41,6 +44,7 @@ export default function MetricTile({
     severity,
     severityLabel,
     onActivate,
+    href,
     size = 'lg',
     proportion,
 }: MetricTileProps) {
@@ -87,13 +91,30 @@ export default function MetricTile({
             {severity && severityLabel ? (
                 <span className={`iscan-status iscan-status--${severity}`}>{severityLabel}</span>
             ) : null}
+            {/* "Opens in new tab" affordance -- hidden until hover/focus via CSS,
+               so it doesn't compete with the number at rest. */}
+            {href ? (
+                <span className="iscan-tile__external" aria-hidden="true">
+                    ↗
+                </span>
+            ) : null}
         </>
     )
 
     return (
         <li>
             <div className="iscan-tile" ref={ref} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
-                {onActivate ? (
+                {href ? (
+                    <a
+                        className="iscan-tile__hit"
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${label}: ${shown}. Opens the source list in a new tab.`}
+                    >
+                        {content}
+                    </a>
+                ) : onActivate ? (
                     <button
                         type="button"
                         className="iscan-tile__hit"

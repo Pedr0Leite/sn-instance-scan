@@ -32,7 +32,23 @@ export default function ResultDashboard({ resultId, onSelect }: ResultDashboardP
 
     return (
         <section className="iscan-panel" aria-labelledby="iscan-result-heading">
-            <SectionTitle id="iscan-result-heading">Scan result detail</SectionTitle>
+            <div className="iscan-panel__toolbar">
+                <SectionTitle id="iscan-result-heading">Scan result detail</SectionTitle>
+                {/* Does EXACTLY what picking "-- none selected --" in the select
+                    below does -- same handler, same route (?view=dashboard with no
+                    result), so URL/back-forward behaviour is identical either way.
+                    Only shown once a result is actually selected. */}
+                {resultId ? (
+                    <button
+                        type="button"
+                        className="iscan-dialog__close"
+                        aria-label="Close scan result detail"
+                        onClick={() => onSelect('')}
+                    >
+                        ✕
+                    </button>
+                ) : null}
+            </div>
             {error ? (
                 <Note tone="critical" title="Could not load scan results">
                     {error}

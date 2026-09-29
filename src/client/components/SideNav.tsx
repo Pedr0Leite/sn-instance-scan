@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react'
+import { ThemeToggle } from './ui'
 
 /* Full Mosaic shell (console v6): the rail is now full-height from the very
    top of the page (brand at its top, nothing above it) with a slim header to
    its right -- rather than a rail plus a separate big page-level title that
-   duplicated the same "Instance Scan Console" name. The theme toggle moved to
-   that header (see components/ui.tsx's ThemeToggle) since Mosaic's own header
-   carries the global actions; this rail keeps only navigation + its own
-   collapse control.
+   duplicated the same "Instance Scan Console" name.
+
+   Console v7: the theme toggle moved BACK here from the header, per explicit
+   user feedback after reviewing the deployed v6 pass -- it now sits directly
+   above the Collapse button, both pinned to the rail's own footer. `ui.tsx`'s
+   `ThemeToggle` is self-contained (owns its own useTheme() call), so this is
+   just importing and placing it; no state moves with it. Both controls stay
+   reachable when the rail is collapsed (icon-only) and on a phone, where
+   Collapse itself is hidden but the toggle is not (see app.css's 768px
+   breakpoint) -- the theme has to be reachable somewhere at every width.
 
    Grouped sections (a flat list read as one undifferentiated block once
    Cross-References/Customizations were added), plus a collapse toggle to
@@ -135,6 +142,10 @@ export default function SideNav({ current, onNavigate }: SideNavProps) {
                 </div>
             ))}
             <div className="iscan-nav__footer">
+                <div className={collapsed ? 'iscan-nav__theme-row iscan-nav__theme-row--collapsed' : 'iscan-nav__theme-row'}>
+                    {!collapsed ? <span className="iscan-nav__theme-label">Theme</span> : null}
+                    <ThemeToggle />
+                </div>
                 <button
                     type="button"
                     className="iscan-nav__collapse"

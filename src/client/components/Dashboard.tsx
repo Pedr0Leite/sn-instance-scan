@@ -9,24 +9,21 @@ import { SEVERITY_LABELS } from '../utils/tokens'
 
 const RUN_COLUMNS = ['scan_mode', 'status', 'requested_by', 'started', 'completed', 'app_count']
 
+// Console v7: every KPI tile below links to the platform list of the EXACT
+// table/query it counts, opened in a new tab -- derived one-to-one from
+// MetricsService's own queries (read that file, don't guess). Centralized
+// here as one helper rather than a query string typed out at each tile, so
+// the table name and the query can't quietly drift apart.
+const tileHref = (table: string, query?: string) =>
+    `/${table}_list.do${query ? `?sysparm_query=${encodeURIComponent(query)}` : ''}`
+
 interface DashboardProps {
     onOpenRecord: (table: string, sysId: string) => void
-    onNewRun: () => void
     resultId: string | null
     onSelectResult: (sysId: string) => void
-    // Lets the two governance-signal tiles (cross-references, base-table
-    // customizations) jump straight to their dedicated list views instead of
-    // just reporting a count nobody can act on.
-    onNavigateView?: (view: string) => void
 }
 
-export default function Dashboard({
-    onOpenRecord,
-    onNewRun,
-    resultId,
-    onSelectResult,
-    onNavigateView,
-}: DashboardProps) {
+export default function Dashboard({ onOpenRecord, resultId, onSelectResult }: DashboardProps) {
     const [metrics, setMetrics] = useState<Metrics | null>(null)
     const [error, setError] = useState('')
 
@@ -60,7 +57,12 @@ export default function Dashboard({
                     than one undifferentiated strip. */}
                 <GroupLabel>Run activity</GroupLabel>
                 <ul className="iscan-tiles">
-                    <MetricTile label="Scan runs" count={metrics.runs} size="xl" />
+                    <MetricTile
+                        label="Scan runs"
+                        count={metrics.runs}
+                        size="xl"
+                        href={tileHref('x_nold_iscan_run')}
+                    />
                     <MetricTile
                         label="Runs complete"
                         count={status.complete || 0}
@@ -68,6 +70,7 @@ export default function Dashboard({
                         severityLabel={SEVERITY_LABELS.positive}
                         size="xl"
                         proportion={proportionOf(status.complete || 0)}
+                        href={tileHref('x_nold_iscan_run', 'status=complete')}
                     />
                     <MetricTile
                         label="Runs in flight"
@@ -76,6 +79,7 @@ export default function Dashboard({
                         severityLabel={SEVERITY_LABELS.info}
                         size="xl"
                         proportion={proportionOf((status.running || 0) + (status.pending || 0))}
+                        href={tileHref('x_nold_iscan_run', 'status=pending^ORstatus=running')}
                     />
                     <MetricTile
                         label="Runs errored"
@@ -84,32 +88,52 @@ export default function Dashboard({
                         severityLabel={SEVERITY_LABELS.critical}
                         size="xl"
                         proportion={proportionOf(status.error || 0)}
+                        href={tileHref('x_nold_iscan_run', 'status=error')}
                     />
                 </ul>
 
                 <GroupLabel>Coverage &amp; findings</GroupLabel>
                 <ul className="iscan-tiles">
-                    <MetricTile label="Apps scanned" count={metrics.results} />
-                    <MetricTile label="Tables profiled" count={metrics.tables} />
-                    <MetricTile label="Installed modules found" count={metrics.modules} />
-                    <MetricTile label="AI agent findings" count={metrics.aiAgents} />
+                    <MetricTile
+                        label="Apps scanned"
+                        count={metrics.results}
+                        href={tileHref('x_nold_iscan_result')}
+                    />
+                    <MetricTile
+                        label="Tables profiled"
+                        count={metrics.tables}
+                        href={tileHref('x_nold_iscan_table')}
+                    />
+                    <MetricTile
+                        label="Installed modules found"
+                        count={metrics.modules}
+                        href={tileHref('x_nold_iscan_module')}
+                    />
+                    <MetricTile
+                        label="AI agent findings"
+                        count={metrics.aiAgents}
+                        href={tileHref('x_nold_iscan_ai_agent')}
+                    />
                     <MetricTile
                         label="Inbound cross-references"
                         count={metrics.crossrefs}
-                        onActivate={onNavigateView ? () => onNavigateView('crossrefs') : undefined}
+                        href={tileHref('x_nold_iscan_crossref')}
                     />
                     <MetricTile
                         label="Base-table customizations"
                         count={metrics.customizations}
                         severity={metrics.customizations > 0 ? 'warning' : undefined}
                         severityLabel={SEVERITY_LABELS.warning}
-                        onActivate={onNavigateView ? () => onNavigateView('customizations') : undefined}
+                        href={tileHref('x_nold_iscan_global_customization')}
                     />
                 </ul>
             </section>
-            {/* The design's bottom half: a narrow result-detail column beside the
-                recent-runs list, not two stacked full-width panels. */}
-            <div className="iscan-dash-split">
+            {/* The design's bottom half: a result-detail column beside the
+                recent-runs list. Narrow until a result is picked, then the two
+                share the width evenly -- the detail card (LLM context especially)
+                needs real room, not a 340px sliver. See app.css's
+                .iscan-dash-split--wide. */}
+            <div className={resultId ? 'iscan-dash-split iscan-dash-split--wide' : 'iscan-dash-split'}>
                 <ResultDashboard resultId={resultId} onSelect={onSelectResult} />
                 <RecordTable
                     ariaLabel="Recent scan runs"
@@ -120,7 +144,6 @@ export default function Dashboard({
                     statusSeverity={runStatusSeverity}
                     pageSize={10}
                     onOpen={onOpenRecord}
-                    onNew={onNewRun}
                 />
             </div>
         </>

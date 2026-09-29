@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Dialog from './Dialog'
-import { ActionButton, Note, TextAction } from './ui'
+import { ActionButton, Note, Spinner, TextAction } from './ui'
 import { useToast } from '../utils/toast'
 import { startScan } from '../services/ScanService'
 import { searchRecords } from '../services/TableService'
@@ -69,15 +69,26 @@ function useSearch<T>(table: string, fields: string[], likeFields: string[], map
 interface NewScanPanelProps {
     onClose: () => void
     onRunStarted: (sysId: string) => void
+    // Every "Start a scan" button (ScanLauncher) AND the header's own "+ New"
+    // open this same panel now -- ScanLauncher passes the mode it was clicked
+    // on so the panel opens pre-selected; the header passes nothing, so the
+    // panel falls back to its own default (the first mode, `full`... actually
+    // `custom_only`, the safest one-click default -- see MODES below).
+    initialMode?: string
 }
 
-export default function NewScanPanel({ onClose, onRunStarted }: NewScanPanelProps) {
-    const [mode, setMode] = useState('custom_only')
+export default function NewScanPanel({ onClose, onRunStarted, initialMode }: NewScanPanelProps) {
+    const [mode, setMode] = useState(initialMode || 'custom_only')
     const [selectedApps, setSelectedApps] = useState<AppRow[]>([])
     const [selectedTable, setSelectedTable] = useState<TableRow | null>(null)
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
     const { push } = useToast()
+    // Dialog hands us the SAME animated-close function its own Esc/backdrop/×
+    // use, via exposeClose -- Cancel and the auto-close-on-success below call
+    // this instead of the raw `onClose` prop, so every way out of this panel
+    // plays the same exit animation.
+    const closeRef = useRef(onClose)
 
     const appSearch = useSearch<AppRow>(
         'sys_app',
@@ -125,7 +136,7 @@ export default function NewScanPanel({ onClose, onRunStarted }: NewScanPanelProp
                           : `${active?.label} scan complete.`
                 )
                 onRunStarted(started.sys_id)
-                onClose()
+                closeRef.current()
             },
             e => {
                 setBusy(false)
@@ -135,7 +146,14 @@ export default function NewScanPanel({ onClose, onRunStarted }: NewScanPanelProp
     }
 
     return (
-        <Dialog title="Start a new scan" onClose={onClose} variant="drawer">
+        <Dialog
+            title="Start a new scan"
+            onClose={onClose}
+            variant="drawer"
+            exposeClose={fn => {
+                closeRef.current = fn
+            }}
+        >
             <div className="iscan-newscan">
                 {error ? (
                     <Note tone="critical" title="Could not start scan">
@@ -145,7 +163,7 @@ export default function NewScanPanel({ onClose, onRunStarted }: NewScanPanelProp
 
                 <fieldset className="iscan-newscan__modes">
                     <legend className="iscan-field__label">Scan mode</legend>
-                    {MODES.map(item => (
+                    {MODES.map((item, i) => (
                         <label
                             key={item.mode}
                             className={
@@ -153,6 +171,7 @@ export default function NewScanPanel({ onClose, onRunStarted }: NewScanPanelProp
                                     ? 'iscan-modetile iscan-modetile--active'
                                     : 'iscan-modetile'
                             }
+                            style={{ '--i': i } as React.CSSProperties}
                         >
                             <input
                                 type="radio"
@@ -288,6 +307,18 @@ export default function NewScanPanel({ onClose, onRunStarted }: NewScanPanelProp
 
                 {clientError ? <p className="iscan-hint">{clientError}</p> : null}
 
+                {/* Sync modes can take a while (a real request the page waits on) --
+                    a spinner + aria-live status makes that wait legible instead of
+                    a button that just looks stuck. */}
+                {busy ? (
+                    <>
+                        <Spinner label={`Starting ${active?.label} scan`} />
+                        <span className="iscan-visually-hidden" role="status" aria-live="polite">
+                            Starting {active?.label} scan. This may take a moment.
+                        </span>
+                    </>
+                ) : null}
+
                 <div className="iscan-actions">
                     <ActionButton
                         label={busy ? 'Starting…' : 'Start scan'}
@@ -295,7 +326,12 @@ export default function NewScanPanel({ onClose, onRunStarted }: NewScanPanelProp
                         disabled={busy || !!clientError}
                         onClick={submit}
                     />
-                    <ActionButton label="Cancel" variant="secondary" disabled={busy} onClick={onClose} />
+                    <ActionButton
+                        label="Cancel"
+                        variant="secondary"
+                        disabled={busy}
+                        onClick={() => closeRef.current()}
+                    />
                 </div>
                 <TextAction
                     label="Open platform form instead →"

@@ -1549,3 +1549,128 @@ the screenshots — fixed in the harness fixture only, `severity.ts` itself was
 never the bug. **Not verified — no real instance:** actual sys_app/
 sys_db_object typeahead results, and rendering inside the real Polaris
 iframe.
+
+**Console v7 (2026-09-29): everything launches from the drawer, theme toggle
+back in the rail, dashboard split/close/tile-links.** User feedback after
+reviewing the deployed v6 pass (commit b18b444), six items. Zero
+`src/server`/`src/fluent` edits; no new npm dependency; no CDN.
+
+1. *Theme toggle moved back to the sidebar footer*, directly above Collapse
+   (`SideNav.tsx` now imports and renders `ui.tsx`'s `ThemeToggle` itself;
+   `app.tsx`'s header no longer does). Both controls are pinned to
+   `.iscan-nav__footer`; the toggle stays reachable collapsed (icon-only,
+   centered via `.iscan-nav__theme-row--collapsed`) and on a phone, where
+   Collapse itself is hidden at 768px but the theme row is not — the theme
+   has to be reachable at every width, Collapse doesn't.
+2. *"+ New" removed from every list toolbar* (`RecordTable`'s `onNew` prop
+   deleted outright, not just unused — no caller passes it any more) on
+   Scan Runs, Scan Results, and Dashboard's "Recent scan runs". The header's
+   own "+ New" (present on every view) is the one launch point now.
+3. *Every "Start a scan" button opens the drawer pre-selected*, instead of
+   running immediately or deep-linking to the platform form. `ScanLauncher.tsx`
+   lost its own `startScan` call, busy state, and toast handling entirely —
+   it is now a pure mode-picker that calls `onPickMode(mode)`
+   (`app.tsx`'s `openNewScan`, which also backs the header's own "+ New",
+   called with no argument there so it falls back to the panel's default).
+   `NewScanPanel` gained an `initialMode` prop feeding its `mode` useState's
+   initial value.
+4. *No path in the console requires leaving to run a scan any more.* The two
+   Manual modes' "— pick target on form" deep-link buttons are gone from
+   `ScanLauncher` — they now open the drawer pre-selected exactly like the
+   other five. `NewScanPanel`'s own "Open platform form instead" link stays,
+   for anyone who still wants the real form. The Start button now shows a
+   `Spinner` + an `aria-live` status span while the request is outstanding
+   (sync modes can take a while) — toast wording (queued / complete /
+   finished-with-errors / error) and the navigate-to-run-detail-on-success
+   behaviour are unchanged.
+   - *Drawer entrance/exit are now real animations, not an instant
+     mount/unmount.* `Dialog.tsx` gained a `requestClose` (internal state +
+     `useDialogClose`-style timer keyed by variant: 180ms center / 240ms
+     drawer) used for Esc/backdrop/× instead of calling `onClose` directly,
+     plus an `exposeClose` prop that hands that same animated closer up to
+     content — `NewScanPanel`'s Cancel button and its auto-close-on-success
+     both call it (via a `closeRef`) instead of the raw `onClose` prop, so
+     EVERY way out of the panel plays the same exit animation before the
+     parent actually unmounts it. Skipped entirely under
+     `prefers-reduced-motion` (checked via `matchMedia` inside
+     `requestClose` itself — the delay is just skipped, not merely the CSS).
+     New keyframes: `iscan-drawer-out`/`iscan-dialog-out`/
+     `iscan-backdrop-out` (reverse of the existing `-in` ones),
+     `iscan-newscan-in` (the drawer's own content fades/scales in ~90ms
+     after the panel itself starts sliding — a two-stage "frame arrives,
+     then content" entrance), and a per-tile stagger on `.iscan-modetile`
+     (same `--i`-custom-property technique `RecordTable`'s row stagger and
+     the dashboard's tile stagger already use). `RecordPreviewModal` was
+     deliberately NOT touched — only the New-scan drawer was asked to
+     animate its close.
+5. *Dashboard's result-detail card goes 50/50 with the runs list once a
+   result is selected*, instead of staying a fixed 340px column — real room
+   for the LLM context especially. `.iscan-dash-split--wide` (applied by
+   `Dashboard.tsx` whenever `resultId` is truthy) overrides
+   `grid-template-columns` to `1fr 1fr`; a plain CSS transition on
+   `grid-template-columns` is the animation (best-effort: interpolating
+   between a px+minmax template and a 1fr+1fr template is not guaranteed to
+   tween smoothly across every engine, since the track shapes differ, but
+   layout is correct either way — worst case it snaps instead of easing).
+   `ResultDashboard.tsx` gained a header row (`.iscan-panel__toolbar`,
+   sharing the same card-header-hairline pattern every other panel toolbar
+   already uses) with a × button, shown only when a result is selected, that
+   calls `onSelect('')` — the EXACT same call `FieldSelect`'s own
+   "— none selected —" option already made, so URL/back-forward behaviour is
+   byte-identical either way, not a second code path. (Added
+   `.iscan-panel__toolbar > .iscan-h2 { margin: 0; }` along the way — a
+   heading's own default bottom margin was throwing off vertical centering
+   against the ×, which has none.)
+6. *Every "Scan state" KPI tile now links to the platform list of the exact
+   table/query it counts*, opened in a new tab. `MetricTile` gained an
+   `href` prop (checked before `onActivate`, which the component keeps for
+   generality but nothing on the dashboard passes any more) — when present,
+   the tile's hit target renders as a real `<a target="_blank"
+   rel="noopener noreferrer">` instead of a `<button>`, so it is both
+   keyboard- and middle-click-friendly, plus a small ↗ glyph
+   (`.iscan-tile__external`) that fades in on hover/focus. Every href was
+   read directly off `MetricsService.ts`'s own queries, not guessed:
+   `x_nold_iscan_run` (no query / `status=complete` / `status=pending^OR
+   status=running` / `status=error`) for the 4 run-activity tiles, then
+   `x_nold_iscan_result`, `x_nold_iscan_table`, `x_nold_iscan_module`,
+   `x_nold_iscan_ai_agent`, `x_nold_iscan_crossref`, and
+   `x_nold_iscan_global_customization` (no query, one each) for the 6
+   coverage tiles. This REPLACES the two governance tiles' previous
+   `onActivate` behaviour (an in-app jump to the console's own
+   Cross-References/Customizations view) — deliberate, since the user asked
+   for exactly these two tiles by name to open the real platform list
+   instead; both views stay one click away via the sidebar regardless.
+   `Dashboard.tsx`'s now-fully-unused `onNavigateView` prop was removed
+   along with it. Tilt/glow hover and the count-up were untouched — `href`
+   only changes which element wraps the same `content`.
+
+*Harness note, hit again this round:* `/tmp/claude-1000/iscan-harness` does
+not survive a sandbox/session recycle (confirmed this round — the whole
+directory was gone, playwright-core included, requiring a full from-scratch
+rebuild: reinstall the npm package, recopy `app.css`/`main.jsdbx` as
+`main.js`, rewrite the stub `index.html` and `shoot.mjs`). Treat it as
+disposable scratch every session, not a fixture to assume still exists.
+Also hit: the harness's `http.server` sometimes leaves a socket bound to its
+port from a PREVIOUS session that this session's `ps`/`ss` can no longer see
+(different process namespace) — `Address already in use` on restart with no
+visible owning process is not a bug in the harness setup, just pick a new
+port (8732 this round) rather than debugging the phantom bind.
+
+*Verified*: `npm run build` clean (0 errors/0 warnings, TypeScript passes).
+Generated `sys_ui_page_*.xml`: exactly 1 CDATA, 0 split-escapes. 18
+screenshots in `/tmp/claude-1000/iscan-harness/shots/`: dashboard with no
+result selected, dashboard with a result selected + LLM context expanded
+(50/50 split + × visible), and the Scan Runs view (confirming no "+ New" in
+the list) — each at 1440×900 and 400×850, light and dark (8 files); the
+drawer opened from "Start a scan"'s Custom Only button, pre-selected, at
+desktop light/dark and mobile light (3 files); the sidebar footer showing
+the toggle-above-Collapse ordering, expanded and collapsed (2 files, desktop
+light only); and one genuine mid-slide animation frame of the drawer opening
+(captured ~60ms after the click, panel still mid-transform with its content
+not yet faded in). A DOM check (`.iscan-tile__hit` elements' `href`/`target`
+attributes) confirmed all 10 KPI tile links resolve to the exact table/query
+pairs listed above. **Not verified — no real instance:** live sys_app/
+sys_db_object typeahead results, real `queued`/`error` timing on the Start
+button's in-progress state, cross-browser `grid-template-columns` transition
+smoothness for the dashboard's 50/50 split, and rendering inside the real
+Polaris iframe.

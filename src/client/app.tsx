@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { ToastProvider } from './utils/toast'
 import SideNav from './components/SideNav'
-import { ActionButton, Crumbs, ThemeToggle } from './components/ui'
+import { ActionButton, Crumbs } from './components/ui'
 import Dashboard from './components/Dashboard'
 import RecordTable from './components/RecordTable'
 import RecordDetail from './components/RecordDetail'
@@ -104,14 +104,20 @@ function AppShell() {
         (table: string, sysId: string) => navigate('detail', sysId, table),
         [navigate]
     )
-    // Every "+ New" trigger (Dashboard's recent-runs list, the Scan Runs and
-    // Scan Results tables) opens this right-side panel instead of navigating
-    // to the platform form -- it POSTs through the existing Scripted REST
-    // endpoint via ScanService.startScan, the same call ScanLauncher already
-    // makes. "Open platform form instead" inside the panel covers anyone who
-    // still wants the real form.
+    // The header's own "+ New" (every view) and every button in ScanLauncher's
+    // "Start a scan" card all open this one right-side panel -- it POSTs
+    // through the existing Scripted REST endpoint via ScanService.startScan,
+    // the same call this app has always used. ScanLauncher passes the mode
+    // its button was clicked on so the panel opens pre-selected; the header
+    // passes none. "Open platform form instead" inside the panel covers
+    // anyone who still wants the real form -- nothing in the console itself
+    // requires leaving it to run a scan any more.
     const [newScanOpen, setNewScanOpen] = useState(false)
-    const newRun = useCallback(() => setNewScanOpen(true), [])
+    const [newScanMode, setNewScanMode] = useState<string | undefined>(undefined)
+    const openNewScan = useCallback((mode?: string) => {
+        setNewScanMode(mode)
+        setNewScanOpen(true)
+    }, [])
 
     const meta = VIEW_META[state.view] || VIEW_META.dashboard
 
@@ -131,25 +137,20 @@ function AppShell() {
                     <p className="iscan-header__subtitle">{meta.description}</p>
                 </div>
                 <div className="iscan-header__actions">
-                    <ActionButton label="+ New" variant="primary" onClick={newRun} />
-                    <ThemeToggle />
+                    <ActionButton label="+ New" variant="primary" onClick={() => openNewScan()} />
                 </div>
             </header>
             <main className="iscan-main">
                 {state.view === 'dashboard' && (
                     <Dashboard
                         onOpenRecord={openRecord}
-                        onNewRun={newRun}
                         resultId={state.resultId}
                         onSelectResult={sysId => navigate('dashboard', null, null, sysId)}
-                        onNavigateView={view => navigate(view)}
                     />
                 )}
                 {state.view === 'runs' && (
                     <>
-                        <ScanLauncher
-                            onRunStarted={sysId => openRecord('x_nold_iscan_run', sysId)}
-                        />
+                        <ScanLauncher onPickMode={openNewScan} />
                         <RecordTable
                             ariaLabel="Scan runs"
                             table="x_nold_iscan_run"
@@ -158,7 +159,6 @@ function AppShell() {
                             statusField="status"
                             statusSeverity={runStatusSeverity}
                             onOpen={openRecord}
-                            onNew={newRun}
                         />
                     </>
                 )}
@@ -169,7 +169,6 @@ function AppShell() {
                         listTitle="Scan results"
                         columns={RESULT_COLUMNS}
                         onOpen={openRecord}
-                        onNew={newRun}
                         expandable
                         help="Click a row to open its detail strip, then open the record page from there if you need it. One row per application scanned — Installed Modules and AI Agent Discovery runs write no rows here, their findings hang off the run record itself, as do Manual — Single Table runs on a table with no owning application. An empty list below usually means one of those modes, not a broken scan."
                     />
@@ -228,6 +227,7 @@ function AppShell() {
                 <NewScanPanel
                     onClose={() => setNewScanOpen(false)}
                     onRunStarted={sysId => openRecord('x_nold_iscan_run', sysId)}
+                    initialMode={newScanMode}
                 />
             ) : null}
         </div>

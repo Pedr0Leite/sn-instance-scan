@@ -20,7 +20,6 @@ interface RecordTableProps {
     columns: string[]
     pageSize?: number
     onOpen: (table: string, sysId: string) => void
-    onNew?: () => void
     children?: React.ReactNode
     // Renders this column as an opaque severity pill instead of plain text.
     statusField?: string
@@ -60,7 +59,6 @@ export default function RecordTable({
     columns,
     pageSize = 25,
     onOpen,
-    onNew,
     children,
     statusField,
     statusSeverity,
@@ -142,10 +140,10 @@ export default function RecordTable({
                     ) : null}
                 </div>
                 <div className="iscan-actions">
+                    {/* "+ New" was removed from here -- the header's own "+ New"
+                        (every view, top right) is the one launch point now, so this
+                        list toolbar no longer needs its own duplicate. */}
                     <TextAction label="Open in platform list" href={`/${table}_list.do`} />
-                    {onNew ? (
-                        <ActionButton label="+ New" variant="small" onClick={onNew} />
-                    ) : null}
                 </div>
             </div>
             {children}

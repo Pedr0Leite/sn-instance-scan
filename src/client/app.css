@@ -473,17 +473,33 @@ body {
     text-align: center;
     font-size: 13px;
 }
-/* Rail footer: just the collapse toggle now -- the theme toggle moved to the
-   header (see components/ui.tsx's ThemeToggle) as part of the full Mosaic
-   pass, so Mosaic's own global actions live in one place. Pushed to the
-   bottom by the nav's own flex-column layout (see .iscan-nav above -- it's
-   already `display: flex; flex-direction: column`). */
+/* Rail footer: the theme toggle directly above the Collapse button, both
+   pinned to the bottom by the nav's own flex-column layout (see .iscan-nav
+   above -- it's already `display: flex; flex-direction: column`). Console
+   v7: moved the toggle back here from the header per explicit feedback on
+   the deployed v6 pass -- see SideNav.tsx's banner comment for the full
+   story. Both stay reachable when the rail is icon-only collapsed AND on a
+   phone (where Collapse itself is hidden, see the 768px breakpoint below,
+   but this row is not). */
 .iscan-nav__footer {
     margin-block-start: auto;
     padding-block-start: var(--snx-space-tight);
     display: flex;
     flex-direction: column;
     gap: var(--snx-space-tight);
+}
+.iscan-nav__theme-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--snx-space-tight);
+}
+.iscan-nav__theme-row--collapsed {
+    justify-content: center;
+}
+.iscan-nav__theme-label {
+    font-size: 12px;
+    color: var(--snx-color-text-muted);
 }
 .iscan-nav__collapse {
     border: 1px solid var(--snx-glass-border);
@@ -653,9 +669,22 @@ body {
        both to the row's height is also what gives the result panel room for
        a real empty state instead of a stub. */
     align-items: stretch;
+    /* Best-effort smooth resize when a result gets picked (see --wide below) --
+       animating grid-template-columns is not guaranteed to interpolate cleanly
+       across engines when the track SHAPE changes (340px+minmax vs 1fr+1fr),
+       but where it does not, it simply snaps instead of tweening. Either way
+       layout stays correct; reduced motion always gets the instant snap. */
+    transition: grid-template-columns 320ms ease;
+}
+/* Once a result is selected, the detail card (LLM context especially) needs
+   real room instead of a 340px sliver -- share the row 50/50 with the runs
+   list rather than staying pinned narrow. */
+.iscan-dash-split--wide {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 @media (max-width: 1080px) {
-    .iscan-dash-split {
+    .iscan-dash-split,
+    .iscan-dash-split--wide {
         grid-template-columns: minmax(0, 1fr);
     }
 }
@@ -864,6 +893,22 @@ body {
     padding: 24px;
     background-color: color-mix(in oklch, var(--snx-shadow-color) 45%, transparent);
     z-index: 60;
+    animation: iscan-backdrop-in 200ms ease both;
+}
+/* Animated close (Dialog's requestClose, see Dialog.tsx) -- plays a reverse
+   fade/slide for CLOSE_DELAY_MS before the component actually unmounts,
+   instead of vanishing instantly. Skipped entirely under reduced motion,
+   where requestClose calls onClose with no delay at all. */
+.iscan-backdrop--closing {
+    animation: iscan-backdrop-out 200ms ease both;
+}
+@keyframes iscan-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes iscan-backdrop-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 .iscan-dialog {
     display: flex;
@@ -881,6 +926,13 @@ body {
 .iscan-dialog--wide {
     inline-size: min(1100px, 92vw);
     block-size: min(850px, 88vh);
+}
+.iscan-dialog--closing:not(.iscan-dialog--drawer) {
+    animation: iscan-dialog-out 180ms ease-in both;
+}
+@keyframes iscan-dialog-out {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(10px); }
 }
 
 /* Right-side drawer variant (the New-scan panel) -- same Dialog component,
@@ -906,6 +958,17 @@ body {
     }
     to {
         transform: translateX(0);
+    }
+}
+.iscan-dialog--drawer.iscan-dialog--closing {
+    animation: iscan-drawer-out 240ms ease-in both;
+}
+@keyframes iscan-drawer-out {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
     }
 }
 .iscan-dialog__head {
@@ -940,10 +1003,20 @@ body {
 }
 
 /* ----------------------------------------------------------- new-scan panel */
+/* Content settles in a beat after the panel itself slides in -- the two-stage
+   entrance ("frame arrives, then content") reads as more deliberate than
+   everything popping in at once. Purely decorative (opacity/scale), guarded
+   under reduced motion below. */
 .iscan-newscan {
     display: flex;
     flex-direction: column;
     gap: var(--snx-space-section);
+    animation: iscan-newscan-in 260ms ease-out both;
+    animation-delay: 90ms;
+}
+@keyframes iscan-newscan-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
 }
 .iscan-newscan__modes {
     display: flex;
@@ -962,6 +1035,11 @@ body {
     border-radius: 10px;
     cursor: pointer;
     transition: border-color var(--snx-morph), background-color var(--snx-morph);
+    /* Staggered entrance -- each tile settles a beat after the one before it,
+       same technique as .iscan-tiles' metric-tile stagger. Riding on top of
+       .iscan-newscan's own fade/scale (both apply; this one is per-tile). */
+    animation: iscan-fade-in 220ms ease-out both;
+    animation-delay: calc(140ms + var(--i, 0) * 35ms);
 }
 .iscan-modetile:hover {
     border-color: var(--snx-color-accent);
@@ -1388,6 +1466,13 @@ body {
     margin-block-end: var(--snx-space-inner);
     border-block-end: 1px solid var(--snx-color-border);
 }
+/* A heading placed directly in a toolbar (ResultDashboard's "Scan result
+   detail" + its close button) would otherwise carry its own bottom margin
+   (see .iscan-h2) into the flex row, throwing off vertical centering against
+   a sibling with no margin at all. */
+.iscan-panel__toolbar > .iscan-h2 {
+    margin: 0;
+}
 /* A second toolbar in the same panel (the pagination footer) reads as a
    footer, not another header -- top hairline instead of bottom, no bottom
    margin eating into the card's own closing padding. */
@@ -1609,6 +1694,25 @@ body {
     block-size: 100%;
     cursor: pointer;
     text-align: start;
+}
+
+/* "Opens in a new tab" affordance on link tiles (MetricTile's href) -- a
+   small glyph in the corner, invisible until hover/focus so it doesn't
+   compete with the number at rest. .iscan-tile needs position:relative for
+   this to anchor against, which it already has (see the tile rule above). */
+.iscan-tile__external {
+    position: absolute;
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
+    font-size: 12px;
+    color: var(--snx-color-text-muted);
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+    pointer-events: none;
+}
+.iscan-tile:hover .iscan-tile__external,
+.iscan-tile:focus-within .iscan-tile__external {
+    opacity: 1;
 }
 
 /* Cursor-follow glow -- a reactbits "spotlight card" pattern, reimplemented
@@ -1865,11 +1969,20 @@ body {
 
     .iscan-toast,
     .iscan-dialog,
-    .iscan-dialog--drawer {
+    .iscan-dialog--drawer,
+    .iscan-dialog--closing,
+    .iscan-backdrop,
+    .iscan-backdrop--closing {
         animation: none;
     }
 
-    .iscan-modetile {
+    .iscan-modetile,
+    .iscan-newscan {
+        transition: none;
+        animation: none;
+    }
+
+    .iscan-dash-split {
         transition: none;
     }
 
