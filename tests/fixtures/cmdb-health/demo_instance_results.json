@@ -1,0 +1,645 @@
+{
+ "meta": {
+  "instance": "demo-instance",
+  "build": "glide-australia-02-11-2026__patch5w37-09-04-2026",
+  "generated": "2026-09-17 09:42:48",
+  "config": {
+   "staleDays": 90,
+   "ticketWindowDays": 90,
+   "sampleSize": 5,
+   "maxIterate": 100,
+   "expectedBaAsRel": "Consumes::Consumed by",
+   "systemUsers": [
+    "fresh",
+    "system",
+    "glide.maint",
+    "maint"
+   ]
+  },
+  "ci_total": 2869,
+  "ci_active": 2869,
+  "rel_total": 235,
+  "cmdb_class_count": 1238,
+  "custom_class_count": 0,
+  "apps": {
+   "data_foundations_dashboard": [
+    "CMDB and CSDM Data Foundations Dashboards 4.5.0"
+   ],
+   "service_graph_connectors": [],
+   "cmdb_class_models": [
+    "CMDB CI Class Models 1.86.2"
+   ]
+  },
+  "csdm_population": {
+   "business_capability": 0,
+   "business_application": 0,
+   "information_object": 0,
+   "sdlc_component": 0,
+   "service_instance": 0,
+   "dynamic_ci_group": 0,
+   "technology_mgmt_service": 0,
+   "technology_mgmt_offering": 0,
+   "business_service": 0,
+   "business_offering": 0,
+   "legacy_base_service": 41,
+   "cmdb_group": null,
+   "ai_function": 44,
+   "software_package_ci": 1767
+  },
+  "adjustments": "Real collector v1.0 run on a ServiceNow demo instance, with two verified false positives corrected (CI-05, RL-03) and two checks derived from the class inventory (BP-05, BP-06)."
+ },
+ "inventory": [
+  {
+   "cls": "cmdb_ci_spkg",
+   "n": 1767
+  },
+  {
+   "cls": "cmdb_ci_computer",
+   "n": 814
+  },
+  {
+   "cls": "cmdb_ci_function_ai",
+   "n": 44
+  },
+  {
+   "cls": "cmdb_ci_ai_model_deployment",
+   "n": 41
+  },
+  {
+   "cls": "cmdb_ci_service",
+   "n": 41
+  },
+  {
+   "cls": "cmdb_ci_printer",
+   "n": 28
+  },
+  {
+   "cls": "cmdb_ci_server",
+   "n": 19
+  },
+  {
+   "cls": "cmdb_ci_win_cluster_node",
+   "n": 14
+  },
+  {
+   "cls": "cmdb_ci_database",
+   "n": 13
+  },
+  {
+   "cls": "cmdb_ci_web_server",
+   "n": 9
+  },
+  {
+   "cls": "cmdb_ci_win_server",
+   "n": 8
+  },
+  {
+   "cls": "cmdb_ci_unix_server",
+   "n": 7
+  },
+  {
+   "cls": "cmdb_ci_ups",
+   "n": 6
+  },
+  {
+   "cls": "cmdb_ci_email_server",
+   "n": 5
+  },
+  {
+   "cls": "cmdb_ci_netgear",
+   "n": 5
+  },
+  {
+   "cls": "cmdb_ci_rack",
+   "n": 5
+  },
+  {
+   "cls": "cmdb_ci_zone",
+   "n": 5
+  },
+  {
+   "cls": "cmdb_ci_linux_server",
+   "n": 4
+  },
+  {
+   "cls": "cmdb_ci_win_cluster",
+   "n": 4
+  },
+  {
+   "cls": "cmdb_ci_cluster_node",
+   "n": 3
+  },
+  {
+   "cls": "cmdb_ci_ip_router",
+   "n": 3
+  },
+  {
+   "cls": "cmdb_ci_msd",
+   "n": 3
+  },
+  {
+   "cls": "cmdb_ci_network_adapter",
+   "n": 3
+  },
+  {
+   "cls": "cmdb_ci_aix_server",
+   "n": 2
+  },
+  {
+   "cls": "cmdb_ci_computer_room",
+   "n": 2
+  },
+  {
+   "cls": "cmdb_ci_disk",
+   "n": 2
+  },
+  {
+   "cls": "cmdb_ci_peripheral",
+   "n": 2
+  },
+  {
+   "cls": "cmdb_ci",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_appl",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_app_server_java",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_cluster",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_datacenter",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_db_mysql_catalog",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_db_ora_catalog",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_ip_switch",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_service_group",
+   "n": 1
+  },
+  {
+   "cls": "cmdb_ci_storage_switch",
+   "n": 1
+  }
+ ],
+ "checks": [
+  {
+   "id": "FD-01",
+   "count": 0,
+   "total": 6,
+   "samples": [],
+   "note": ""
+  },
+  {
+   "id": "FD-02",
+   "count": 0,
+   "total": 61,
+   "samples": [],
+   "note": "Top-of-hierarchy locations (e.g. regions) legitimately have no parent - review samples."
+  },
+  {
+   "id": "FD-03",
+   "count": 10,
+   "total": 427,
+   "samples": [
+    "4492 Camino De La Plaza, San Ysidro,CA (x2)",
+    "4640 Cass Street, San Diego,CA (x2)",
+    "4833 Santa Monica Avenue, San Diego,CA (x2)",
+    "815 E Street, San Diego,CA (x2)",
+    "9051 Mira Mesa Boulevard, San Diego,CA (x2)"
+   ],
+   "note": "5 duplicate name groups"
+  },
+  {
+   "id": "FD-04",
+   "count": 0,
+   "total": 10,
+   "samples": [],
+   "note": "incidents opened in last 90 days"
+  },
+  {
+   "id": "FD-05",
+   "count": 6,
+   "total": 67,
+   "samples": [
+    "CHG0000037",
+    "CHG0000047",
+    "CHG0000057",
+    "CHG0000067",
+    "CHG0000077"
+   ],
+   "note": "changes opened in last 90 days"
+  },
+  {
+   "id": "FD-06",
+   "count": 67,
+   "total": 67,
+   "samples": [
+    "CHG0000009",
+    "CHG0000010",
+    "CHG0000011",
+    "CHG0000012",
+    "CHG0000013"
+   ],
+   "note": "with offering populated: 0"
+  },
+  {
+   "id": "FD-07",
+   "count": 9,
+   "total": 10,
+   "samples": [
+    "INC0000046",
+    "INC0000047",
+    "INC0000049",
+    "INC0000050",
+    "INC0000051"
+   ],
+   "note": "with offering populated: 0"
+  },
+  {
+   "id": "FD-08",
+   "count": 0,
+   "total": 1,
+   "samples": [
+    "Create Asset on insert [active=1]",
+    "Create asset on model change [active=1]"
+   ],
+   "note": "active rule found"
+  },
+  {
+   "id": "CI-01",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "0 custom CMDB classes in total: "
+  },
+  {
+   "id": "CI-03",
+   "count": 6,
+   "total": null,
+   "samples": [
+    "cmdb_ci_appl_mq_queue_local.x_mitq",
+    "cmdb_ci_appl_mq_queue_remote.x_mitq",
+    "cmdb_ci_appl_ibm_wmq_queue.x_mitq",
+    "cmdb_ci_win_server.u_mecanografico",
+    "cmdb_ci_appl_mq_queue_model.x_mitq",
+    "cmdb_ci_appl_mq_queue_alias.x_mitq"
+   ],
+   "note": "6 on OOB classes, 0 on custom classes"
+  },
+  {
+   "id": "CI-02",
+   "count": 1,
+   "total": 2,
+   "samples": [
+    "x_mitq -> cmdb_ci_appl_mq_queue_local, cmdb_ci_appl_mq_queue_remote, cmdb_ci_appl_ibm_wmq_queue, cmdb_ci_appl_mq_queue_model, cmdb_ci_appl_mq_queue_alias"
+   ],
+   "note": "1 attributes duplicated across classes; 0 defined on cmdb/cmdb_ci root"
+  },
+  {
+   "id": "CI-04",
+   "count": 0,
+   "total": null,
+   "samples": [],
+   "note": ""
+  },
+  {
+   "id": "CI-05",
+   "count": 0,
+   "total": null,
+   "samples": [],
+   "note": "CORRECTED: the 5 flagged values are the out-of-box Business Application install_status list (Pilot, In Production, Under Evaluation, Implementing, Retired), not customisations; 0 customer update records touch CMDB status choices. Fixed in collector v1.1."
+  },
+  {
+   "id": "CI-06",
+   "count": 1,
+   "total": 2869,
+   "samples": [
+    "Unknown"
+   ],
+   "note": "IP-address-only names are not detected here - review manually"
+  },
+  {
+   "id": "CI-07",
+   "count": 4,
+   "total": 901,
+   "samples": [
+    "IP-Router-2",
+    "IP-Switch-1",
+    "IP-Storage-Sw-1",
+    "Workstation FLX"
+   ],
+   "note": "empty model: 4"
+  },
+  {
+   "id": "CI-08",
+   "count": 124,
+   "total": 2869,
+   "samples": [
+    "Unknown",
+    "All",
+    "nyc oracle rac cluster",
+    "AppServerHelpDesk1",
+    "AppServerHelpDesk2"
+   ],
+   "note": "excluding manually-managed design classes: 124 of 2869"
+  },
+  {
+   "id": "CI-09",
+   "count": 2734,
+   "total": 2869,
+   "samples": [
+    "Unknown",
+    "All",
+    "nyc oracle rac cluster",
+    "AppServerHelpDesk1",
+    "AppServerHelpDesk2"
+   ],
+   "note": ""
+  },
+  {
+   "id": "CI-10",
+   "count": 19,
+   "total": 2869,
+   "samples": [
+    "serial 56WHL71 x2",
+    "serial AEX5635Z0001AC x2",
+    "serial L3BB911 x15"
+   ],
+   "note": "IRE-flagged duplicates: 0; open de-duplication tasks: 0; hardware CIs sharing a serial: 19; CIs with junk serials: 0"
+  },
+  {
+   "id": "CI-11",
+   "count": 0,
+   "total": null,
+   "samples": [],
+   "note": ""
+  },
+  {
+   "id": "CI-12",
+   "count": 0,
+   "total": 40,
+   "samples": [],
+   "note": ""
+  },
+  {
+   "id": "CI-13",
+   "count": 152,
+   "total": 901,
+   "samples": [
+    "IP-Router-1",
+    "IP-Router-2",
+    "IP-Router-3",
+    "IP-Switch-1",
+    "IP-Storage-Sw-1"
+   ],
+   "note": ""
+  },
+  {
+   "id": "CI-14",
+   "count": null,
+   "total": null,
+   "samples": [],
+   "note": "NOT ASSESSED: host_name not found on cmdb_ci_computer"
+  },
+  {
+   "id": "CI-15",
+   "count": 15,
+   "total": 901,
+   "samples": [
+    "IP-Router-1",
+    "IP-Router-2",
+    "IP-Router-3",
+    "IP-Switch-1",
+    "IP-Storage-Sw-1"
+   ],
+   "note": "last_discovered older than 90d or empty: 901 | NO DISCOVERY EVIDENCE: all 901 hardware CIs have empty last_discovered, so freshness is based on sys_updated_on only"
+  },
+  {
+   "id": "CI-16",
+   "count": 0,
+   "total": 1,
+   "samples": [
+    "Create CI on insert [active=1]"
+   ],
+   "note": "active rule found"
+  },
+  {
+   "id": "CI-17",
+   "count": 70,
+   "total": 73,
+   "samples": [
+    "Adtran Total Access 924e",
+    "APC 42U 3100 SP1 NetShelter Rack",
+    "APC 42U 3100 SP2 NetShelter Rack",
+    "Apple iMac 27\"",
+    "Apple MacBook Air 13\""
+   ],
+   "note": "owner field used: cmdb_model.owner"
+  },
+  {
+   "id": "CI-18",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "missing managed_by_group: 0"
+  },
+  {
+   "id": "CI-19",
+   "count": 8,
+   "total": 41,
+   "samples": [
+    "Retail",
+    "Retail Adding Points",
+    "Retail Client Lookup",
+    "Retail Client Registration",
+    "Retail POS (Point of Sale)"
+   ],
+   "note": "application services without owner: 0 of 0"
+  },
+  {
+   "id": "CI-20",
+   "count": 0,
+   "total": null,
+   "samples": [],
+   "note": "custom BA extensions: 0; custom app-like CMDB classes: 0; app-like non-CMDB custom tables (review): 0"
+  },
+  {
+   "id": "CI-21",
+   "count": 1,
+   "total": null,
+   "samples": [
+    "Computer -> cmdb_ci_computer"
+   ],
+   "note": "discovery_source distribution: (empty)=2734; Other Automated=50; ServiceNow=85 | direct (non-IRE) transform maps into CMDB: 1 | IntegrationHub ETL/RTE definitions: 1 | SGC apps: 0"
+  },
+  {
+   "id": "CI-22",
+   "count": 0,
+   "total": 1,
+   "samples": [],
+   "note": "active CMDB archive rules: 1; CMDB Data Manager policy records: 6 (cmdb_data_management_policy, cmdb_data_management_policy_execution, cmdb_data_management_policy_runtime_attributes) | note: v1.0 summed execution/runtime tables; policy count may be lower"
+  },
+  {
+   "id": "RL-01",
+   "count": 0,
+   "total": 44,
+   "samples": [],
+   "note": "HEURISTIC. OOB types edited by non-system users: 0; deleted relationship types in audit: 0; customer update records: 0"
+  },
+  {
+   "id": "RL-03",
+   "count": null,
+   "total": null,
+   "samples": [],
+   "note": "NOT ASSESSED (collector v1.0 heuristic false positive): all 20 listed types are base relationship types created by a non-system user on this instance. Re-run collector v1.1, which checks names against the base list."
+  },
+  {
+   "id": "RL-02",
+   "count": 0,
+   "total": null,
+   "samples": [],
+   "note": ""
+  },
+  {
+   "id": "RL-04",
+   "count": 0,
+   "total": 235,
+   "samples": [],
+   "note": "Validate the dangling-reference part of this query in a list view before cleanup."
+  },
+  {
+   "id": "RL-05",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": ""
+  },
+  {
+   "id": "RL-06",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": ""
+  },
+  {
+   "id": "RL-07",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "relationship types used: {} (CSDM: Depends on::Used by)"
+  },
+  {
+   "id": "RL-08",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "relationship types used: {} (CSDM: Depends on::Used by)"
+  },
+  {
+   "id": "RL-09",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "expected \"Consumes::Consumed by\"; types found: {}"
+  },
+  {
+   "id": "RL-10",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": ""
+  },
+  {
+   "id": "RL-11",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "Retired/planned applications may legitimately have no Application Service."
+  },
+  {
+   "id": "RL-12",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "Business offerings without parent: 0"
+  },
+  {
+   "id": "RL-13",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "reference field: cmdb_group"
+  },
+  {
+   "id": "BP-01",
+   "count": 0,
+   "total": 0,
+   "samples": [],
+   "note": "Direct TSO relationships only; membership via Dynamic CI Groups is not expanded here."
+  },
+  {
+   "id": "BP-02",
+   "count": 0,
+   "total": 77,
+   "samples": [],
+   "note": "incidents: 0; changes: 0"
+  },
+  {
+   "id": "BP-03",
+   "count": 16,
+   "total": 16,
+   "samples": [
+    "CMS App FLX",
+    "Java Application Server FLX",
+    "PS Apache01",
+    "PS Apache02",
+    "PS Apache03"
+   ],
+   "note": ""
+  },
+  {
+   "id": "BP-04",
+   "count": 2869,
+   "total": 2869,
+   "samples": [],
+   "note": "informational until Life Cycle fields are adopted"
+  },
+  {
+   "id": "BP-05",
+   "count": 41,
+   "total": 41,
+   "samples": [
+    "Retail",
+    "Retail Adding Points",
+    "Retail Client Lookup",
+    "Retail Client Registration",
+    "Retail POS (Point of Sale)"
+   ],
+   "note": "DERIVED from inventory: all 41 services sit on generic cmdb_ci_service; no business/technology management/application service classes in use"
+  },
+  {
+   "id": "BP-06",
+   "count": 1,
+   "total": 2869,
+   "samples": [],
+   "note": "DERIVED from inventory: 1 CI on base class cmdb_ci"
+  }
+ ]
+}

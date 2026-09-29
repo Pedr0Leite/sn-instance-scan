@@ -110,3 +110,37 @@ export const downloadResultReportUiAction = UiAction({
     script: Now.include('../client-scripts/DownloadResultReport.client.js'),
     messages: [],
 })
+
+// Client-side, like the Result table's Copy LLM Context and for the same reason:
+// the clipboard can only be written in the browser, and the field is already on
+// the form, so there is no server round trip (no GlideAjax - see CLAUDE.md).
+// It lives on the CMDB Health Summary rather than the Run form because the Run
+// form has a custom sys_ui_section that would not show a new field, and
+// g_form.getValue() returns '' for fields not on the form. The summary table has
+// no custom section, so its default form shows llm_context - one click from the
+// Run form's related list. Reuses CopyLlmContext.client.js unchanged: both
+// tables name the field llm_context.
+export const copyCmdbHealthLlmContextUiAction = UiAction({
+    $id: Now.ID['copy_cmdb_health_llm_context_ui_action'],
+    table: 'x_nold_iscan_cmdb_summary',
+    name: 'Copy CMDB Health LLM Context',
+    actionName: 'copy_cmdb_health_llm_context',
+    active: true,
+    showInsert: false,
+    showUpdate: true,
+    hint: 'Copy the scored CMDB & CSDM Health findings plus the assessment rules to the clipboard, so an LLM can write the narrative and remediation roadmap.',
+    roles: [scannerRole],
+    order: 100,
+    form: {
+        showButton: true,
+    },
+    client: {
+        // isUi16Compatible MUST be true - with it false the platform never loads
+        // the client script on a UI16 form and the button silently does nothing.
+        isClient: true,
+        isUi16Compatible: true,
+        onClick: 'copyLlmContext()',
+    },
+    script: Now.include('../client-scripts/CopyLlmContext.client.js'),
+    messages: [],
+})

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 /* Own modal, replacing the platform Modal. Focus handling is hand-built and
    must stay: a dialog that traps nothing and restores nothing is a keyboard
@@ -7,9 +7,22 @@ import React, { useCallback, useEffect, useRef } from 'react'
    - Escape closes.
    - Focus moves into the dialog on open and returns to the opener on close.
    - Tab cycles inside (a real trap, not just an autofocus).
-   - Clicking the backdrop closes; clicks inside do not bubble to it. */
+   - Clicking the backdrop closes; clicks inside do not bubble to it.
+
+   Console v7 addition: closing is now ANIMATED, not instant. Every close
+   trigger (Esc, backdrop click, the × button, and -- via `exposeClose` --
+   buttons INSIDE the dialog's own content, like NewScanPanel's Cancel/
+   Start-scan-success) routes through the same `requestClose`, which plays an
+   exit class for one animation frame's worth of time before calling the real
+   `onClose` prop (the thing that actually unmounts this component from the
+   parent). Skips the delay entirely under prefers-reduced-motion. */
 const FOCUSABLE =
     'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+// Drawer's slide-out is the longer of the two exit animations (matches the
+// entrance's --snx-morph-ish timing); the centered dialog's fade/scale-out is
+// quicker. Both are defined in app.css as iscan-drawer-out/iscan-dialog-out.
+const CLOSE_DELAY_MS = { center: 180, drawer: 240 } as const
 
 interface DialogProps {
     title: string
@@ -17,11 +30,29 @@ interface DialogProps {
     footer?: React.ReactNode
     children: React.ReactNode
     wide?: boolean
+    // 'drawer' slides in from the right edge instead of the centered card --
+    // same focus-trap/Esc/backdrop behaviour, just a different panel shape.
+    variant?: 'center' | 'drawer'
+    // Hands the dialog's own animated `requestClose` up to the parent, so
+    // content-driven closes (a Cancel button, an auto-close after success)
+    // play the same exit animation as Esc/backdrop/× instead of unmounting
+    // instantly. Called once per mount with a stable function reference.
+    exposeClose?: (requestClose: () => void) => void
 }
 
-export default function Dialog({ title, onClose, footer, children, wide }: DialogProps) {
+export default function Dialog({
+    title,
+    onClose,
+    footer,
+    children,
+    wide,
+    variant = 'center',
+    exposeClose,
+}: DialogProps) {
     const panel = useRef<HTMLDivElement>(null)
     const opener = useRef<Element | null>(null)
+    const [closing, setClosing] = useState(false)
+    const closingRef = useRef(false)
 
     useEffect(() => {
         opener.current = document.activeElement
@@ -33,10 +64,28 @@ export default function Dialog({ title, onClose, footer, children, wide }: Dialo
         }
     }, [])
 
+    const requestClose = useCallback(() => {
+        if (closingRef.current) return
+        closingRef.current = true
+        setClosing(true)
+        const reduced =
+            typeof window.matchMedia === 'function' &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (reduced) {
+            onClose()
+            return
+        }
+        setTimeout(onClose, CLOSE_DELAY_MS[variant])
+    }, [onClose, variant])
+
+    useEffect(() => {
+        exposeClose?.(requestClose)
+    }, [exposeClose, requestClose])
+
     const onKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
             if (e.key === 'Escape') {
-                onClose()
+                requestClose()
                 return
             }
             if (e.key !== 'Tab' || !panel.current) return
@@ -52,14 +101,30 @@ export default function Dialog({ title, onClose, footer, children, wide }: Dialo
                 first.focus()
             }
         },
-        [onClose]
+        [requestClose]
     )
 
+    const panelClass = [
+        'iscan-dialog',
+        wide ? 'iscan-dialog--wide' : '',
+        variant === 'drawer' ? 'iscan-dialog--drawer' : '',
+        closing ? 'iscan-dialog--closing' : '',
+    ]
+        .filter(Boolean)
+        .join(' ')
+    const backdropClass = [
+        'iscan-backdrop',
+        variant === 'drawer' ? 'iscan-backdrop--drawer' : '',
+        closing ? 'iscan-backdrop--closing' : '',
+    ]
+        .filter(Boolean)
+        .join(' ')
+
     return (
-        <div className="iscan-backdrop" onClick={onClose}>
+        <div className={backdropClass} onClick={requestClose}>
             <div
                 ref={panel}
-                className={wide ? 'iscan-dialog iscan-dialog--wide' : 'iscan-dialog'}
+                className={panelClass}
                 role="dialog"
                 aria-modal="true"
                 aria-label={title}
@@ -73,7 +138,7 @@ export default function Dialog({ title, onClose, footer, children, wide }: Dialo
                         type="button"
                         className="iscan-dialog__close"
                         aria-label="Close"
-                        onClick={onClose}
+                        onClick={requestClose}
                     >
                         ✕
                     </button>

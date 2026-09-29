@@ -106,6 +106,10 @@ declare global {
                         table: 'sys_module'
                         id: 'edaa18303e86469cb634466cf8584b04'
                     }
+                    copy_cmdb_health_llm_context_ui_action: {
+                        table: 'sys_ui_action'
+                        id: '29700051c35e49429ea620bd31673aae'
+                    }
                     copy_llm_context_ui_action: {
                         table: 'sys_ui_action'
                         id: '11fa68c788594fc89c14a7b43ee54af5'
@@ -142,6 +146,34 @@ declare global {
                         table: 'sys_script_include'
                         id: '6e9472490d7148ab8ba9433f7dae5c43'
                     }
+                    iscan_cmdb_check_related_list: {
+                        table: 'sys_ui_related_list'
+                        id: '7a4cc1e8e15b467baf5e7fcaac90cf1e'
+                    }
+                    iscan_cmdb_check_related_list_entry: {
+                        table: 'sys_ui_related_list_entry'
+                        id: '975ad7d3dcff4e1cbe958e4b7f756640'
+                    }
+                    iscan_cmdb_health_catalog_si: {
+                        table: 'sys_script_include'
+                        id: '0aba5293727e493181968c2598f19faf'
+                    }
+                    iscan_cmdb_health_scanner_si: {
+                        table: 'sys_script_include'
+                        id: 'b2f8e57fada3401cb05a09f8e7a5c76c'
+                    }
+                    iscan_cmdb_health_scorer_si: {
+                        table: 'sys_script_include'
+                        id: '4e1eb66fd4414e4cbcadcdbd05ab873b'
+                    }
+                    iscan_cmdb_summary_related_list: {
+                        table: 'sys_ui_related_list'
+                        id: '5682b03264604134a6ae40724ed6668a'
+                    }
+                    iscan_cmdb_summary_related_list_entry: {
+                        table: 'sys_ui_related_list_entry'
+                        id: 'b48289deeeb8419a8bd6ebd789e2777d'
+                    }
                     iscan_module_console: {
                         table: 'sys_app_module'
                         id: 'dfc63abfa2ac47e3a43b5a82612b66cd'
@@ -149,6 +181,10 @@ declare global {
                     iscan_module_new_ai_agents: {
                         table: 'sys_app_module'
                         id: 'f7726a2544024d42a0be788e714f11fa'
+                    }
+                    iscan_module_new_cmdb_health: {
+                        table: 'sys_app_module'
+                        id: '653fdfca9b124ac9a56debe2b6a2da1e'
                     }
                     iscan_module_new_custom_only: {
                         table: 'sys_app_module'
@@ -251,6 +287,46 @@ declare global {
                         table: 'sys_security_acl'
                         id: '847232fa1314465ea14bcaa5a581235d'
                     }
+                    sn_inst_scan_cmdb_check_create_acl: {
+                        table: 'sys_security_acl'
+                        id: '2b1f6c9ed01c4c7e94e796e5edbd6700'
+                    }
+                    sn_inst_scan_cmdb_check_read_acl: {
+                        table: 'sys_security_acl'
+                        id: 'a217db72d27642af8db46f4f109f749b'
+                    }
+                    sn_inst_scan_cmdb_health_expected_ba_as_rel_property: {
+                        table: 'sys_properties'
+                        id: '6c46bfc057e74c208599ca78afc7642d'
+                    }
+                    sn_inst_scan_cmdb_health_max_iterate_property: {
+                        table: 'sys_properties'
+                        id: 'cebec35c539546d4bef516e671f1651d'
+                    }
+                    sn_inst_scan_cmdb_health_sample_size_property: {
+                        table: 'sys_properties'
+                        id: '662c0c33240d408186f25faf05a9717a'
+                    }
+                    sn_inst_scan_cmdb_health_stale_days_property: {
+                        table: 'sys_properties'
+                        id: '723817846ae4466888ad9c51965d38f6'
+                    }
+                    sn_inst_scan_cmdb_health_system_users_property: {
+                        table: 'sys_properties'
+                        id: '3ccd167ecf424aef9a42709bc792e8e5'
+                    }
+                    sn_inst_scan_cmdb_health_ticket_window_days_property: {
+                        table: 'sys_properties'
+                        id: 'c131c558fabd481b843ca731f7847ce1'
+                    }
+                    sn_inst_scan_cmdb_summary_create_acl: {
+                        table: 'sys_security_acl'
+                        id: 'fedfcf84490d41608be25a5beb0e609a'
+                    }
+                    sn_inst_scan_cmdb_summary_read_acl: {
+                        table: 'sys_security_acl'
+                        id: '6c6f25dbb6e245d789f9e83905ac987b'
+                    }
                     sn_inst_scan_crossref_create_acl: {
                         table: 'sys_security_acl'
                         id: 'd79d514ada654116b0bb5aa89aa296f3'
@@ -282,6 +358,10 @@ declare global {
                     sn_inst_scan_include_ai_agent_keyword_scan_property: {
                         table: 'sys_properties'
                         id: '176fe0f15ccc4e4a9692f5998e1abbde'
+                    }
+                    sn_inst_scan_include_cmdb_health_on_full_scan_property: {
+                        table: 'sys_properties'
+                        id: '72967fe164d345ec96bfaa6a11c2bfdb'
                     }
                     sn_inst_scan_include_extended_counts_on_full_scan_property: {
                         table: 'sys_properties'
@@ -331,6 +411,10 @@ declare global {
                         table: 'sys_module'
                         id: '0dbe9c9de5434995bbe4e193a9056b78'
                     }
+                    src_server_ExecuteQueuedScanScriptAction_server_js: {
+                        table: 'sys_module'
+                        id: 'cd5bd1678b5d4e70b456fe033c3944c3'
+                    }
                     src_server_IscanAiAgentScanner_server_js: {
                         table: 'sys_module'
                         id: '150f8515cc19438f9f4109269cb4280f'
@@ -342,6 +426,18 @@ declare global {
                     src_server_IscanAppSelector_server_js: {
                         table: 'sys_module'
                         id: '2548e02141454f26b58fad9a5da1c1d7'
+                    }
+                    src_server_IscanCmdbHealthCatalog_server_js: {
+                        table: 'sys_module'
+                        id: 'ee820bf5d3f54b079dcd32bf0a3bb206'
+                    }
+                    src_server_IscanCmdbHealthScanner_server_js: {
+                        table: 'sys_module'
+                        id: 'dba39a7124e14561803c4771f0273b71'
+                    }
+                    src_server_IscanCmdbHealthScorer_server_js: {
+                        table: 'sys_module'
+                        id: 'f12dd2cee65e4c24b94c53e10f04a866'
                     }
                     src_server_IscanModuleScanner_server_js: {
                         table: 'sys_module'
@@ -1367,6 +1463,14 @@ declare global {
                         table: 'sys_atf_step'
                         id: 'cb70bfbb02dd4fc98120f2047966e56e'
                     }
+                    x_nold_iscan_execute_queued_scan: {
+                        table: 'sysevent_script_action'
+                        id: 'faacc836b2ed413db984fe2bacb376a0'
+                    }
+                    'x_nold_iscan.scan.execute': {
+                        table: 'sysevent_register'
+                        id: 'fffd78125f27416b871df548e8cd2563'
+                    }
                 }
                 composite: [
                     {
@@ -1547,6 +1651,15 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: '0348e5d523264f05b4be2a5b5c0ae67b'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'kind'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: '034c20e366c141339e329f67b9f18a2c'
                         key: {
                             name: 'x_nold_iscan_module'
@@ -1695,6 +1808,19 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_security_acl_role'
+                        id: '054e4c9da9074e7fa7df1613a9e5b64f'
+                        key: {
+                            sys_security_acl: 'a217db72d27642af8db46f4f109f749b'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_nold_iscan.scanner'
+                                }
+                            }
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '05531e8522944b3b93f7ce1261c0c918'
                         key: {
@@ -1817,6 +1943,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice'
+                        id: '0740fbc088c6401c983af0faebbf82cf'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'status'
+                            value: 'warn'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '07449ca3b09249efad91a71465836a54'
                         key: {
@@ -1907,6 +2042,14 @@ declare global {
                         key: {
                             name: 'x_nold_iscan_run'
                             element: 'app_count'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '07fa0d40078a4a84a750a789829471fb'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'overall_score'
                         }
                     },
                     {
@@ -2035,6 +2178,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '09cba30639fd4ebc8a6ec38fc7e9f1a6'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'inventory'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '09dba8b284d142f194d32536ac8d54d1'
                         key: {
@@ -2057,6 +2209,15 @@ declare global {
                         key: {
                             document_key: 'b8b39422aea547f1b865733b23d8dca7'
                             variable: 'ad351a4e53a0220002c6435723dc34f0'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '0a1d23e152994f47900e51f6b3dfc437'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'kind'
+                            value: 'bool'
                         }
                     },
                     {
@@ -2440,6 +2601,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '126f6fba0ab945b5ba1a46ce717a0f92'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'status'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_element_mapping'
                         id: '129b5947ad0a41a582106fada0d9a991'
                         key: {
@@ -2524,6 +2694,14 @@ declare global {
                         key: {
                             document_key: '4a0ae7433166446dbf82c8f1da77dd9b'
                             variable: '78b8d86b531000109e02ddeeff7b12f3'
+                        }
+                    },
+                    {
+                        table: 'sys_choice_set'
+                        id: '143b03645f4b4e3ebdc3bebd63f1ddd5'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'priority'
                         }
                     },
                     {
@@ -2663,6 +2841,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '1692a18ab46b4fe1a0474219509576b6'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'title'
+                        }
+                    },
+                    {
                         table: 'sys_security_acl_role'
                         id: '16d389f6d3f14baaad0dad565f5404fd'
                         key: {
@@ -2710,6 +2896,14 @@ declare global {
                         key: {
                             document_key: '0c9a9d7a76d7407d9ddd6a501f9317e8'
                             variable: '02fb0027531000109e02ddeeff7b120b'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '1765c10517fa4f678ce7599bdcba0dc4'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'priority'
                         }
                     },
                     {
@@ -3127,6 +3321,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice'
+                        id: '1f45d8404d354d75a750cebd2d7e94a2'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'status'
+                            value: 'n_a'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '1f51c185436247398981b0d1a4af12b5'
                         key: {
@@ -3312,6 +3515,15 @@ declare global {
                         key: {
                             document_key: '266d7f48620243718b525391d56d1365'
                             variable: 'c2eb56e853422110248dddeeff7b1261'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '2344f1c746b04d4e8b7c09788ad4dd8e'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'title'
+                            language: 'en'
                         }
                     },
                     {
@@ -3551,6 +3763,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '2795eb57c67c48a082875b455eecd9fc'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'pct'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '279da8fb61df4f1d885bd141da8ca99f'
                         key: {
@@ -3609,6 +3829,13 @@ declare global {
                             field: 'field_values'
                             table: 'var__m_atf_input_variable_1f39a288df60220062fe6c7a4df2639d'
                             id: '961e28df1336465294f46d1935c5d2ad'
+                        }
+                    },
+                    {
+                        table: 'ua_table_licensing_config'
+                        id: '289d906876a8461cbc5a6f1120c0e878'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
                         }
                     },
                     {
@@ -3676,6 +3903,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice_set'
+                        id: '29ad107dc5cc44128fc66e8506b84029'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'kind'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '2a043b8c50f34e8da2e6c1b528b1e961'
                         key: {
@@ -3690,6 +3925,14 @@ declare global {
                             field: 'record_id'
                             table: 'var__m_atf_input_variable_1f39a288df60220062fe6c7a4df2639d'
                             id: '4cc31e6074cf4dcdb2045f42007740c2'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '2a56a1f4b28c4c6a8c7204c67c721525'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'meta'
                         }
                     },
                     {
@@ -3757,6 +4000,14 @@ declare global {
                             }
                             element: '.end_split'
                             position: '8'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '2b9ee422e46a4dbfbd29e92dd09c26bb'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'target_table'
                         }
                     },
                     {
@@ -3996,6 +4247,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '301bbbcdc4614dab9ebdc0969296163d'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'csdm_population'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_element_mapping'
                         id: '3025103257544a688dba16a78e103749'
                         key: {
@@ -4040,6 +4300,15 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: '30f9939ac9a94a8791c0083048b9ed3a'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'issue_query'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: '30fb72d95fbb401499a7b35d75505263'
                         key: {
                             name: 'x_nold_iscan_result'
@@ -4053,6 +4322,14 @@ declare global {
                         key: {
                             document_key: '91dcc3eb7c5e4edf8d44b3a781bb5416'
                             variable: '7c5f6d2353e0220002c6435723dc34f6'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '31f8727a038e4efe8362801b33c56e1f'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'run'
                         }
                     },
                     {
@@ -4255,11 +4532,28 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '35e08a749ff54858b10f38a488b95186'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'pass_count'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '360af1fa42ed4f618ecfeb6884d17e1c'
                         key: {
                             document_key: '50daffe839224cdc8bd8ed23ea84199f'
                             variable: '915990ab531000109e02ddeeff7b12f8'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '362013cf33cc4aea92972ecadbea0806'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'checks_scored'
+                            language: 'en'
                         }
                     },
                     {
@@ -4449,6 +4743,19 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_security_acl_role'
+                        id: '3a2263220b3745f9b43d8816376a278f'
+                        key: {
+                            sys_security_acl: '6c6f25dbb6e245d789f9e83905ac987b'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_nold_iscan.scanner'
+                                }
+                            }
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '3a967556d58e485ebb97ed2d6de945d9'
                         key: {
@@ -4573,11 +4880,37 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '3c9ce025f83c4ef79d2e4373260c0998'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'pass_count'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '3d57a1ae0e29467688e28cd4adcf02af'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'overall_score'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '3d5984971e434565a6e93427de5d5874'
                         key: {
                             document_key: '41ccc9026cfd4c7c9ec279b4eab1b562'
                             variable: 'ae8b91c9ffa333008d3f5d9ad53bf1ba'
+                        }
+                    },
+                    {
+                        table: 'sys_index'
+                        id: '3dac98e2eac946d28d233b9d6d1f8870'
+                        key: {
+                            logical_table_name: 'x_nold_iscan_cmdb_summary'
+                            col_name_string: 'run'
                         }
                     },
                     {
@@ -4662,6 +4995,13 @@ declare global {
                         key: {
                             document_key: 'bdacb303fad145979b77a4cdabd0dbdb'
                             variable: '6f2a59a4e7133300b5646ea8c2f6a975'
+                        }
+                    },
+                    {
+                        table: 'sys_db_object'
+                        id: '3eaf659db0b74c59935915a828aff471'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
                         }
                     },
                     {
@@ -4813,6 +5153,15 @@ declare global {
                         key: {
                             document_key: '03d2be9f430d4647bdee754916d716b8'
                             variable: 'b86c0427531000109e02ddeeff7b1227'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '41de94b2ab42422bb945b45fc522dbc8'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'count'
+                            language: 'en'
                         }
                     },
                     {
@@ -5213,6 +5562,15 @@ declare global {
                     },
                     {
                         table: 'sys_choice'
+                        id: '4b48dd496be64c3abfa6f9b201869dc4'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'priority'
+                            value: 'Medium'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
                         id: '4b883125e5b24121829276d10fc50c79'
                         deleted: false
                         key: {
@@ -5524,6 +5882,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '50cc898512f648da85f0c86059775925'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'meta'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_element_mapping'
                         id: '5108f62534f04ed696b0a0f19c0ee144'
                         key: {
@@ -5579,6 +5946,15 @@ declare global {
                         key: {
                             document_key: '6b0a46edcf5b4f1b9ce8cdf438e5d679'
                             variable: '67400008676003007ba405225685efa4'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '51f1d35683e04fc28b2022289c901f51'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'not_assessed_count'
+                            language: 'en'
                         }
                     },
                     {
@@ -5701,6 +6077,15 @@ declare global {
                         key: {
                             document_key: '16cb515c84a34873b97237d4f6f5b537'
                             variable: 'b86c0427531000109e02ddeeff7b1227'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '552af2be6cf64e3abe4be6079b520859'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'run'
+                            language: 'en'
                         }
                     },
                     {
@@ -6119,6 +6504,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '5c3c58029f7840309ff76518eddb1888'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'access_gaps'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '5c45a520e1d14dc3bb12abc7aa8e1664'
                         key: {
@@ -6247,6 +6640,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '5de76321d05e48e08e780bfa1715b705'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'inventory'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '5debb11ec17646c2b0e8af55678aea80'
                         key: {
@@ -6349,6 +6750,14 @@ declare global {
                         key: {
                             document_key: '9ca094714de74c6890aa1232b957853a'
                             variable: '67400008676003007ba405225685efa4'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '5fa94170e45c4afbb15fcfe8aa068d93'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'issue_query'
                         }
                     },
                     {
@@ -6665,6 +7074,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_index'
+                        id: '6472106caea24b679d0c5ee0f6191f35'
+                        key: {
+                            logical_table_name: 'x_nold_iscan_cmdb_check'
+                            col_name_string: 'run'
+                        }
+                    },
+                    {
                         table: 'sys_documentation'
                         id: '6484d278f5d84e39afc1c764467235b7'
                         key: {
@@ -6892,6 +7309,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '69e83b22d6f94d27b1b59fcb70b03772'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'na_count'
+                        }
+                    },
+                    {
                         table: 'sys_element_mapping'
                         id: '69ed96bd68f84e39a351e51529b2b5eb'
                         key: {
@@ -7089,6 +7514,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '6c70c96ef3c04184a4ac8b7032c41d5d'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'target_table'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '6c85d203e6144b5d86f8c0abe97c824c'
                         key: {
@@ -7152,6 +7586,15 @@ declare global {
                         key: {
                             document_key: '676918d93f3147cca1e9735ffd6e6f76'
                             variable: '7600f16353e0220002c6435723dc34d5'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '6dfd2f6c3f9c43e7a5976f83e3c578ce'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'priority'
+                            value: 'High'
                         }
                     },
                     {
@@ -7234,6 +7677,15 @@ declare global {
                         key: {
                             document_key: 'fe463bcb4d1d4661b534a21ed8a63ab6'
                             variable: '915990ab531000109e02ddeeff7b12f8'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '6f27e03e7e5148d1ba0715995baef11a'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'pct'
+                            language: 'en'
                         }
                     },
                     {
@@ -7502,6 +7954,13 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_db_object'
+                        id: '75d00bb1f10f4d6b870acaf4fc2d268d'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                        }
+                    },
+                    {
                         table: 'sys_element_mapping'
                         id: '75dd2c035d0240d6a496fbdd114f1d2d'
                         key: {
@@ -7640,6 +8099,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '784f6703bbcd42ae8f1eee406f54a4cf'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '789f8d2bce964231af8a910b2b6e1196'
                         key: {
@@ -7670,6 +8138,15 @@ declare global {
                         key: {
                             document_key: '6676f8db5e5846a38e949fb9c7ce7e95'
                             variable: '02fb0027531000109e02ddeeff7b120b'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '79ba5ffe665648dd85a0fcbaaca36691'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'theme_scores'
+                            language: 'en'
                         }
                     },
                     {
@@ -8233,6 +8710,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '83e3146c51594b58a58e3df292c9f110'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'na_count'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '83f8e734d1364586a27917b3fd6898f8'
                         key: {
@@ -8329,6 +8815,15 @@ declare global {
                         key: {
                             document_key: 'c43af6e99d634f20ba3562bff5e75a55'
                             variable: '78b8d86b531000109e02ddeeff7b12f3'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '84f70f161f81490db34bfd27c088c944'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'NULL'
+                            language: 'en'
                         }
                     },
                     {
@@ -8496,6 +8991,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '8803f96dfa9d4a769ccf92edc095381a'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'stage_readiness'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '88045e27e9f44719b0683b249bc287c1'
                         key: {
@@ -8525,6 +9028,14 @@ declare global {
                         key: {
                             document_key: 'c3672ff9c9274315a45c0f5781d6423d'
                             variable: '27d4e1c25320220002c6435723dc3486'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '88970349f81e4762aa40494cb4b24753'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'theme_scores'
                         }
                     },
                     {
@@ -8676,6 +9187,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '8acdaf8226ad4cfaaa115f59b8068972'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'run'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '8aecc39f151c426da99a468e63868e7b'
                         key: {
@@ -8782,6 +9301,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '8be06a8e190c4179a684b13149d60213'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'kb'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '8be8ab139cf04934b6fa0f913d3140f7'
                         key: {
@@ -8847,6 +9375,15 @@ declare global {
                         key: {
                             application_file: 'd36a525a8dec467f8cc5d7a30ae19598'
                             source_artifact: 'f966433c252a4039bb9e02cdf809ebd8'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: '8ca5c0eed60c44bd81b78d2658d9e34f'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'status'
+                            value: 'not_assessed'
                         }
                     },
                     {
@@ -8982,6 +9519,15 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: '8f9154f02cb44c7b9a42ce2fb17d46a3'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'access_gaps'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: '8f9d530774c0423aa3d300ac32718d56'
                         key: {
                             name: 'x_nold_iscan_ai_agent'
@@ -9022,6 +9568,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '908f553c62ac408d8ef0f143a4c637b0'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'checks_scored'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '90b1869130514628b37a577ab794c844'
                         key: {
@@ -9036,6 +9590,15 @@ declare global {
                             field: 'ui_action'
                             table: 'var__m_atf_input_variable_0f4a128297202200abe4bb7503ac4af0'
                             id: 'd9eae02d8431420a9c1ddc27ff605804'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '90fef28047ff4ee38cb0dcd3e9a517c6'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'total'
+                            language: 'en'
                         }
                     },
                     {
@@ -9377,6 +9940,15 @@ declare global {
                         key: {
                             document_key: '6f361fcf3a8444d38070aa8ffff945f2'
                             variable: '915990ab531000109e02ddeeff7b12f8'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '98a11ae0c9ed45c8930b9b03f05fb2f2'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'fail_count'
+                            language: 'en'
                         }
                     },
                     {
@@ -9751,6 +10323,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '9f8dc9a49323463bae5b9eda735ceae5'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'not_assessed_count'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: '9fcb31e045434259bbca2a3bb7cfa753'
                         key: {
@@ -9862,6 +10442,15 @@ declare global {
                             field: 'record_id'
                             table: 'var__m_atf_input_variable_5f2e0e535332120028bc29cac2dc34d3'
                             id: '84845b65353f4d0383ddff607b91d42a'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: 'a2f2b42226ae43f0ad4e3730bc04f90e'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'status'
+                            value: 'pass'
                         }
                     },
                     {
@@ -10214,6 +10803,23 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'a9c8035594c04895a7b64cafe991c36c'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'warn_count'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'a9eadd61d7da442f9234e5185e3cfe57'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'kind'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: 'a9f85d77e5384783b874c3f87f49f0aa'
                         deleted: true
@@ -10256,6 +10862,13 @@ declare global {
                         }
                     },
                     {
+                        table: 'ua_table_licensing_config'
+                        id: 'aaa1c8d94a4245ddaac6521ef4e6ba89'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                        }
+                    },
+                    {
                         table: 'sys_index'
                         id: 'ab4799b8336944dc9dbb7510ed758fc5'
                         key: {
@@ -10280,6 +10893,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice'
+                        id: 'ab893f47329d4979972f498fac9345f7'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'status'
+                            value: 'fail'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'abb4e1c348354bfca68dd90f513a71e9'
                         key: {
@@ -10301,6 +10923,14 @@ declare global {
                         key: {
                             document_key: 'bf389b6d64bd4a9ca461440c1e69e975'
                             variable: '52ed1e5b5360220002c6435723dc3421'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'ac547841ebca424699995fd775901260'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'csdm_population'
                         }
                     },
                     {
@@ -10396,6 +11026,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'add22b82ed0d4fa6a37ef0c2cb59d846'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'theme'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'ae0d459f57754186850222eec2802c55'
                         key: {
@@ -10480,6 +11119,15 @@ declare global {
                             field: 'record_id'
                             table: 'var__m_atf_input_variable_5f2e0e535332120028bc29cac2dc34d3'
                             id: '600e083daa014402ac17228a7a291cc8'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'aeee30454986478eaf0a6cf359b6e01d'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'check_id'
+                            language: 'en'
                         }
                     },
                     {
@@ -10667,6 +11315,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice'
+                        id: 'b27ff263ce864a2c93a59671120ee348'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'kind'
+                            value: 'pct'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'b32eb6c02cab4787af4e0f659cbc92d7'
                         key: {
@@ -10729,6 +11386,15 @@ declare global {
                         key: {
                             document_key: 'fbfe6abdf83043bea15e0e4bdaea0654'
                             variable: 'b3dba2465320220002c6435723dc34f0'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'b499d6ad9deb4e4e91943ab4b05adb10'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'note'
+                            language: 'en'
                         }
                     },
                     {
@@ -10802,6 +11468,14 @@ declare global {
                         key: {
                             name: 'x_nold_iscan_ai_agent'
                             element: 'layer'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'b592fc6e920a42e99d8871552288adeb'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'note'
                         }
                     },
                     {
@@ -10881,6 +11555,14 @@ declare global {
                         id: 'b7813fcf1acf4d40aee57e4498afe88e'
                         key: {
                             name: 'x_nold_iscan_result'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'b796b862948e48bf8b0b126d567e7d6d'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'theme'
                         }
                     },
                     {
@@ -11014,6 +11696,14 @@ declare global {
                             name: 'x_nold_iscan_module'
                             element: 'run'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'bad595fb821b4990abfadaa5addfc5ee'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'count'
                         }
                     },
                     {
@@ -11383,6 +12073,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: 'c53dbc0de2b54067b67a29c9adc8b3cc'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'NULL'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'c56dd83315174b9c87f0b6a1e059febe'
                         key: {
@@ -11457,6 +12155,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'c6db9a438e574bb391965ade71cc5966'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'recommended_action'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'c751e78643604b258f87dece3c2f4e18'
                         key: {
@@ -11494,6 +12201,14 @@ declare global {
                         key: {
                             document_key: 'b80af0ae6e5d49c8bd6746cdd846dbab'
                             variable: 'ff6e125353a0220002c6435723dc3442'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'c8ab367cdef341b2853ccb842fcf8748'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'total'
                         }
                     },
                     {
@@ -11838,6 +12553,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: 'cf4b24ecf5614d1ab644918dc54fc5f1'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'check_id'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'cf56f23fcdca4a1d9d388bdca6dc8557'
                         key: {
@@ -11859,6 +12582,23 @@ declare global {
                         key: {
                             document_key: 'c43af6e99d634f20ba3562bff5e75a55'
                             variable: '915990ab531000109e02ddeeff7b12f8'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'cf89807ba12e4cbb8f80cb364ce2057a'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'samples'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: 'cfd2e84cd8604bc29761b62ddefedaf0'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'kind'
+                            value: 'count'
                         }
                     },
                     {
@@ -11899,6 +12639,14 @@ declare global {
                         key: {
                             document_key: '4aff4b701d3640d490f72de4af0c5e1c'
                             variable: 'ae8b91c9ffa333008d3f5d9ad53bf1ba'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'd018a8a170c7498d84788a0b6fb994c3'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'kb'
                         }
                     },
                     {
@@ -11958,6 +12706,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: 'd1558de8496f45709f53f64daadb6f83'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'status'
+                        }
+                    },
+                    {
                         table: 'sys_element_mapping'
                         id: 'd163d6c8a4ae43c79a63aed85edc520b'
                         key: {
@@ -11972,6 +12728,15 @@ declare global {
                         key: {
                             document_key: '55c276819e394c448db6358ee60fd599'
                             variable: '535cb5ab53233300f06fddeeff7b1247'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'd186b1e4e9614d08a711b8e8ba08857b'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'priority'
+                            language: 'en'
                         }
                     },
                     {
@@ -12100,6 +12865,14 @@ declare global {
                         key: {
                             document_key: 'b21400222fa746aa9d0bdb27f6c635a3'
                             variable: '6f2a59a4e7133300b5646ea8c2f6a975'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'd3d776a61ef74c22891a1d7ed8ba8605'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'llm_context'
                         }
                     },
                     {
@@ -12353,6 +13126,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'd875e9022c7c459fa85dfd6e6832de65'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'samples'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_security_acl_role'
                         id: 'd8850b6666db4f48bae0efa260dc08b0'
                         key: {
@@ -12593,6 +13375,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'ddeced257c8c4ae5b7f55887f957e52d'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'stage_readiness'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'de154d9e7e0145f38a7db4e266820a00'
                         key: {
@@ -12748,6 +13539,14 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice_set'
+                        id: 'dfeb50daa66c4b03b78fa841c50b25b1'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'status'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'dff040629e0d405294853817d983743e'
                         key: {
@@ -12878,6 +13677,22 @@ declare global {
                             field: 'field_values'
                             table: 'var__m_atf_input_variable_2d82e3c7531400109e02ddeeff7b12a7'
                             id: '2b656dd73f4543e588a198724366dabe'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'e3c2d3a9822848d28409578ee8d8d351'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'warn_count'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'e41a43e63b52427a968ffae7b9d73c1f'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'fail_count'
                         }
                     },
                     {
@@ -13265,6 +14080,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'e943b3d9f10946149b878fb339b01c77'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_summary'
+                            element: 'llm_context'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'e96bb28f6c8e436386ddb6b7dc473fa8'
                         key: {
@@ -13286,6 +14110,14 @@ declare global {
                         key: {
                             document_key: '190aa2c895a34d7fb76d2fd716d81798'
                             variable: '3eee292353e0220002c6435723dc343c'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'e9a43ed9dc254e2d89e8bb5d9bfbc80b'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'recommended_action'
                         }
                     },
                     {
@@ -13311,6 +14143,19 @@ declare global {
                         key: {
                             document_key: 'fb2f14359fb048f79d9ec4e2e7151002'
                             variable: 'c2eb56e853422110248dddeeff7b1261'
+                        }
+                    },
+                    {
+                        table: 'sys_ui_action_role'
+                        id: 'ea4391ef1de5490d96c3a86f2a4f5842'
+                        key: {
+                            sys_ui_action: '29700051c35e49429ea620bd31673aae'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_nold_iscan.scanner'
+                                }
+                            }
                         }
                     },
                     {
@@ -13412,6 +14257,15 @@ declare global {
                         key: {
                             document_key: '676918d93f3147cca1e9735ffd6e6f76'
                             variable: '3eee292353e0220002c6435723dc343c'
+                        }
+                    },
+                    {
+                        table: 'sys_choice'
+                        id: 'ec493071d5fc4960a4ce950c96a7baed'
+                        key: {
+                            name: 'x_nold_iscan_run'
+                            element: 'scan_mode'
+                            value: 'cmdb_health'
                         }
                     },
                     {
@@ -13543,6 +14397,19 @@ declare global {
                             }
                             element: 'sys_created_by'
                             position: '6'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'ee678c040acf4492bad29a8c4bfe4806'
+                        key: {
+                            sys_security_acl: 'fedfcf84490d41608be25a5beb0e609a'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_nold_iscan.scanner'
+                                }
+                            }
                         }
                     },
                     {
@@ -13697,6 +14564,14 @@ declare global {
                             name: 'x_nold_iscan_run'
                             element: 'NULL'
                             language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'f24b9868708a489f8530764551d35686'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'NULL'
                         }
                     },
                     {
@@ -13899,6 +14774,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_choice'
+                        id: 'f81d2b2513d049599f19f76235acc09b'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'priority'
+                            value: 'Low'
+                        }
+                    },
+                    {
                         table: 'sys_variable_value'
                         id: 'f829ff773dde455eab9efd1e93be473e'
                         key: {
@@ -14013,6 +14897,15 @@ declare global {
                     },
                     {
                         table: 'sys_documentation'
+                        id: 'fa00bcc13ad74a4a8be1510c3a7da77e'
+                        key: {
+                            name: 'x_nold_iscan_cmdb_check'
+                            element: 'run'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
                         id: 'fa17c2d2cb9d4060970987fce37e0713'
                         key: {
                             name: 'x_nold_iscan_result'
@@ -14082,6 +14975,19 @@ declare global {
                         key: {
                             document_key: '651e5cad2e074edf9c23f41e96426768'
                             variable: '915990ab531000109e02ddeeff7b12f8'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'fadcf5e99cfe40c9bb1ff25d46d1b99a'
+                        key: {
+                            sys_security_acl: '2b1f6c9ed01c4c7e94e796e5edbd6700'
+                            sys_user_role: {
+                                id: 'd147bc4fa4e049d59f6b364518b377d6'
+                                key: {
+                                    name: 'x_nold_iscan.scanner'
+                                }
+                            }
                         }
                     },
                     {

@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { ActionButton, Note, Spinner, TextAction } from './ui'
+import { ActionButton, Note, Skeleton, TextAction } from './ui'
 import { fetchTablePage } from '../services/TableService'
 import { display, humanizeField, value } from '../utils/fields'
 import type { Severity } from '../utils/tokens'
 import RecordPreviewModal from './RecordPreviewModal'
+
+// Right-aligns a column purely by its field name -- every numeric column in
+// this schema ends in _count (business_rule_count, app_count, row_count, ...).
+// Mosaic tables right-align numeric columns; this is a naming convention, not
+// a fixed per-table list, so a new *_count column picks it up for free.
+const isNumericField = (field: string) => field.endsWith('_count')
 
 interface RecordTableProps {
     table: string
@@ -14,7 +20,6 @@ interface RecordTableProps {
     columns: string[]
     pageSize?: number
     onOpen: (table: string, sysId: string) => void
-    onNew?: () => void
     children?: React.ReactNode
     // Renders this column as an opaque severity pill instead of plain text.
     statusField?: string
@@ -54,7 +59,6 @@ export default function RecordTable({
     columns,
     pageSize = 25,
     onOpen,
-    onNew,
     children,
     statusField,
     statusSeverity,
@@ -136,10 +140,10 @@ export default function RecordTable({
                     ) : null}
                 </div>
                 <div className="iscan-actions">
+                    {/* "+ New" was removed from here -- the header's own "+ New"
+                        (every view, top right) is the one launch point now, so this
+                        list toolbar no longer needs its own duplicate. */}
                     <TextAction label="Open in platform list" href={`/${table}_list.do`} />
-                    {onNew ? (
-                        <ActionButton label="+ New" variant="small" onClick={onNew} />
-                    ) : null}
                 </div>
             </div>
             {children}
@@ -150,9 +154,7 @@ export default function RecordTable({
                 </Note>
             ) : null}
 
-            {!error && rows === null ? (
-                <Spinner label={`Loading ${listTitle}`} />
-            ) : null}
+            {!error && rows === null ? <Skeleton lines={pageSize > 6 ? 6 : pageSize} /> : null}
 
             {!error && rows !== null && rows.length === 0 ? (
                 <p className="iscan-hint">No records found.</p>
@@ -171,6 +173,7 @@ export default function RecordTable({
                                             <th
                                                 key={field}
                                                 scope="col"
+                                                className={isNumericField(field) ? 'iscan-table__num' : undefined}
                                                 aria-sort={
                                                     isSorted
                                                         ? sortDesc
@@ -220,7 +223,7 @@ export default function RecordTable({
                                                     )
                                                 }
                                                 return (
-                                                    <td key={field}>
+                                                    <td key={field} className={isNumericField(field) ? 'iscan-table__num' : undefined}>
                                                         {i === 0 ? (
                                                             <button
                                                                 type="button"

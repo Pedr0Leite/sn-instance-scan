@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { fetchRecord } from '../services/TableService'
-import { display, humanizeField } from '../utils/fields'
+import { display, humanizeField, value } from '../utils/fields'
+
+// How often a live (pending/running) run is re-read. A scan takes seconds to
+// many minutes, so this only needs to feel responsive, not real-time.
+const POLL_MS = 5000
 import { Note, Spinner } from './ui'
 
 /* Read-only record view, replacing RecordProvider + FormColumnLayout.
@@ -22,6 +26,21 @@ export default function RecordFields({ table, sysId }: { table: string; sysId: s
         setError('')
         fetchRecord(table, sysId).then(setRecord, e => setError(e.message))
     }, [table, sysId])
+
+    // A queued scan moves pending -> running -> complete/error in a background
+    // worker. Without re-reading, the view would sit on "Pending" until a manual
+    // refresh and look stuck - the exact symptom the async change fixes. Poll
+    // only while the run is live, and stop as soon as it reaches a terminal
+    // state. Field shape is sysparm_display_value=all, so read .value.
+    const liveStatus = value(record?.status)
+    const isLive = liveStatus === 'pending' || liveStatus === 'running'
+    useEffect(() => {
+        if (!isLive) return
+        const timer = setInterval(() => {
+            fetchRecord(table, sysId).then(setRecord, () => undefined)
+        }, POLL_MS)
+        return () => clearInterval(timer)
+    }, [isLive, table, sysId])
 
     if (error) {
         return (

@@ -141,6 +141,31 @@ export const newAiAgentsScanModule = Record({
     },
 })
 
+// Admin-only, unlike the other "New ... Scan" modules: CMDB & CSDM Health runs
+// as System in a background worker, so launching it is restricted to admins
+// (IscanScanOrchestrator.canLaunch). Showing it to scanner-only users would only
+// offer a button that refuses them.
+export const newCmdbHealthScanModule = Record({
+    $id: Now.ID['iscan_module_new_cmdb_health'],
+    table: 'sys_app_module',
+    data: {
+        title: 'New CMDB & CSDM Health Scan',
+        application: appMenu,
+        link_type: 'NEW',
+        name: 'x_nold_iscan_run',
+        query: 'scan_mode=cmdb_health',
+        hint: 'Assess CMDB and CSDM health against the Get Well Playbooks (admin only, runs in the background)',
+        roles: ['admin'],
+        active: true,
+        order: 380,
+        override_menu_roles: false,
+        require_confirmation: false,
+        sys_domain: 'global',
+        sys_domain_path: '/',
+        uncancelable: false,
+    },
+})
+
 export const separatorModule = Record({
     $id: Now.ID['iscan_module_separator'],
     table: 'sys_app_module',

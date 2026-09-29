@@ -44,6 +44,35 @@ export async function fetchTablePage(
     }
 }
 
+/* Typeahead search for the New-scan panel's app/table pickers (sys_app for
+   Manual mode, sys_db_object for Single Table mode). Same headers/shape as
+   fetchTablePage, just a nameLIKE/labelLIKE query instead of paging -- these
+   lists are for picking one or a few records, not reviewing all of them. */
+export async function searchRecords(
+    table: string,
+    fields: string[],
+    likeFields: string | string[],
+    term: string,
+    limit = 20
+): Promise<Record<string, any>[]> {
+    const search = new URLSearchParams({
+        sysparm_display_value: 'all',
+        sysparm_fields: ['sys_id', ...fields].join(','),
+        sysparm_limit: String(limit),
+    })
+    const trimmed = term.trim()
+    if (trimmed) {
+        const clauses = Array.isArray(likeFields) ? likeFields : [likeFields]
+        search.set('sysparm_query', clauses.map(f => `${f}LIKE${trimmed}`).join('^OR'))
+    }
+    const response = await fetch(`/api/now/table/${table}?${search}`, { headers })
+    if (!response.ok) {
+        throw new Error(`Could not search ${table} (HTTP ${response.status})`)
+    }
+    const { result } = await response.json()
+    return Array.isArray(result) ? result : []
+}
+
 /* One record, every readable field. Backs RecordFields (our replacement for
    RecordProvider + FormColumnLayout) -- no sysparm_fields, because a detail
    view wants whatever the row actually has rather than a fixed column list. */

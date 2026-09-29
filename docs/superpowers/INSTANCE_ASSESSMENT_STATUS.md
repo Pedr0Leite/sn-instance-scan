@@ -90,3 +90,23 @@ Counting section and that design doc's Risks section).
   commits shows whole-file "additions" — note this explicitly in reviewer
   prompts, as done for Modes).
 - No ATF test authoring going forward (see above).
+
+
+## 2026-09-26 — Runs stuck in "running"; async execution; CMDB & CSDM Health mode
+
+- **Status bug fixed.** Terminal `status`/`completed` now written by
+  `_finishRun()` through a fresh GlideRecord (decoupled from the log write), and
+  the two long modes (`full`, `cmdb_health`) run in a worker via the
+  `x_nold_iscan.scan.execute` event + Script Action instead of inside a request.
+  States: pending → running → complete/error. Both async modes are admin-only
+  (the worker runs as System). The legacy run `f7da38d9…` on ven09425 is
+  still `running` — it predates the fix and is not touched by it.
+- **CMDB & CSDM Health (`cmdb_health`)** implemented: catalog + scanner (both
+  generated from noviq-cmdb-health) + scorer; two run-keyed tables; report
+  section; Copy LLM Context on the summary form; opt-in Full-scan inclusion.
+- **Verified locally:** scorer parity, 34/34 (`npm run test:cmdb-parity`),
+  including the byte-identical markdown report; write path (49 rows + summary);
+  report rendering against the Python ordering/measures; no A4 overflow.
+- **Not verified — needs the instance:** collector parity against the original
+  background script, Script-Action-as-System, scoped `addHaving`, dot-walked
+  encoded queries from scope. See CLAUDE.md "Later addition #7".

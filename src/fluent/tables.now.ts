@@ -8,6 +8,7 @@ import {
     GenericColumn,
     BooleanColumn,
     ListColumn,
+    DecimalColumn,
 } from '@servicenow/sdk/core'
 
 // Named-scope tables must start with the scope prefix (x_nold_iscan_).
@@ -36,6 +37,10 @@ export const x_nold_iscan_run = Table({
                 // tool/credential inventory. See IscanAiAgentScanner /
                 // IscanScanOrchestrator._executeAiAgentsRun.
                 ai_agents: { label: 'AI Agent Discovery', sequence: 5 },
+                // Instance-wide, no app/table scoping - CMDB & CSDM health
+                // against the Get Well Playbooks. Runs async (admin-only), see
+                // IscanCmdbHealthScanner / IscanScanOrchestrator._executeCmdbHealthRun.
+                cmdb_health: { label: 'CMDB & CSDM Health', sequence: 6 },
             },
         }),
         status: ChoiceColumn({
@@ -464,4 +469,101 @@ export const x_nold_iscan_crossref = Table({
             element: 'table',
         },
     ],
+})
+
+/*
+ * CMDB & CSDM Health - one row per catalog check, per run. Run-keyed with no
+ * `result` reference, same precedent as x_nold_iscan_ai_agent: the mode is
+ * instance-wide, so there is no owning application to tally against. All 49
+ * catalog checks produce a row on every run, including n_a / not_assessed ones,
+ * so a missing row always means a bug rather than "nothing found".
+ */
+export const x_nold_iscan_cmdb_check = Table({
+    name: 'x_nold_iscan_cmdb_check',
+    label: 'Instance Scan CMDB Health Check',
+    display: 'check_id',
+    schema: {
+        run: ReferenceColumn({ label: 'Run', referenceTable: 'x_nold_iscan_run', mandatory: true }),
+        check_id: StringColumn({ label: 'Check ID', maxLength: 20 }),
+        title: StringColumn({ label: 'Title', maxLength: 200 }),
+        theme: StringColumn({ label: 'Theme', maxLength: 40 }),
+        priority: ChoiceColumn({
+            label: 'Priority',
+            dropdown: 'dropdown_without_none',
+            choices: {
+                High: { label: 'High', sequence: 0 },
+                Medium: { label: 'Medium', sequence: 1 },
+                Low: { label: 'Low', sequence: 2 },
+            },
+        }),
+        kind: ChoiceColumn({
+            label: 'Kind',
+            dropdown: 'dropdown_without_none',
+            choices: {
+                pct: { label: 'Percentage', sequence: 0 },
+                count: { label: 'Count', sequence: 1 },
+                bool: { label: 'Pass / fail', sequence: 2 },
+            },
+        }),
+        // n_a and not_assessed are distinct on purpose (the "0 isn't a bug,
+        // explain why" rule): n_a = the population is empty on this instance,
+        // not_assessed = the check could not run (access denied, table missing,
+        // error). The note says which.
+        status: ChoiceColumn({
+            label: 'Status',
+            dropdown: 'dropdown_without_none',
+            choices: {
+                fail: { label: 'Fail', sequence: 0 },
+                warn: { label: 'Warn', sequence: 1 },
+                pass: { label: 'Pass', sequence: 2 },
+                n_a: { label: 'N/A', sequence: 3 },
+                not_assessed: { label: 'Not assessed', sequence: 4 },
+            },
+        }),
+        count: IntegerColumn({ label: 'Count' }),
+        total: IntegerColumn({ label: 'Total' }),
+        pct: DecimalColumn({ label: 'Percentage' }),
+        samples: StringColumn({ label: 'Samples', maxLength: 4000 }),
+        note: StringColumn({ label: 'Collector Note', maxLength: 4000 }),
+        kb: StringColumn({ label: 'Knowledge Articles', maxLength: 200 }),
+        target_table: StringColumn({ label: 'Target Table', maxLength: 80 }),
+        issue_query: StringColumn({ label: 'Issue Query', maxLength: 1000 }),
+        recommended_action: StringColumn({ label: 'Recommended Action', maxLength: 1000 }),
+    },
+    index: [{ name: 'index', unique: false, element: 'run' }],
+})
+
+/*
+ * CMDB & CSDM Health - one summary row per run: the scorer's roll-up plus the
+ * collector's meta and inventory. The *_json fields hold JSON text in string
+ * columns, the same way this app already stores structured text (scan_findings,
+ * llm_context) rather than introducing an untried column type.
+ */
+export const x_nold_iscan_cmdb_summary = Table({
+    name: 'x_nold_iscan_cmdb_summary',
+    label: 'Instance Scan CMDB Health Summary',
+    display: 'run',
+    schema: {
+        run: ReferenceColumn({ label: 'Run', referenceTable: 'x_nold_iscan_run', mandatory: true }),
+        overall_score: IntegerColumn({ label: 'Overall Score' }),
+        checks_scored: IntegerColumn({ label: 'Checks Scored' }),
+        fail_count: IntegerColumn({ label: 'Fail' }),
+        warn_count: IntegerColumn({ label: 'Warn' }),
+        pass_count: IntegerColumn({ label: 'Pass' }),
+        na_count: IntegerColumn({ label: 'N/A' }),
+        not_assessed_count: IntegerColumn({ label: 'Not Assessed' }),
+        theme_scores: StringColumn({ label: 'Theme Scores (JSON)', maxLength: 4000 }),
+        stage_readiness: StringColumn({ label: 'Stage Readiness (JSON)', maxLength: 4000 }),
+        csdm_population: StringColumn({ label: 'CSDM Population (JSON)', maxLength: 4000 }),
+        inventory: StringColumn({ label: 'Inventory (JSON)', maxLength: 8000 }),
+        meta: StringColumn({ label: 'Meta (JSON)', maxLength: 8000 }),
+        access_gaps: StringColumn({ label: 'Access Gaps', maxLength: 4000 }),
+        // Built at scan time (IscanCmdbHealthScorer.buildLlmContext): the task,
+        // the noviq-cmdb-health SKILL.md rules, and the scored findings in the
+        // exact markdown score_results.py prints. Same field name as
+        // x_nold_iscan_result.llm_context, so the same client copy script serves
+        // both "Copy ... LLM Context" actions.
+        llm_context: StringColumn({ label: 'LLM Context', maxLength: 65000 }),
+    },
+    index: [{ name: 'index', unique: false, element: 'run' }],
 })

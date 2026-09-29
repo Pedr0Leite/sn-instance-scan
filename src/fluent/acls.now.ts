@@ -146,6 +146,42 @@ export const aiAgentCreateAcl = Acl({
     roles: [scannerRole],
 })
 
+// CMDB & CSDM Health child tables - read/create for the scanner role, same
+// shape as the AI Agent tables. Launching the mode itself is admin-only (it runs
+// as System in a worker, see IscanScanOrchestrator.canLaunch), but a scanner can
+// still READ the findings of a run an admin queued.
+export const cmdbCheckReadAcl = Acl({
+    $id: Now.ID['sn_inst_scan_cmdb_check_read_acl'],
+    type: 'record',
+    table: 'x_nold_iscan_cmdb_check',
+    operation: 'read',
+    roles: [scannerRole],
+})
+
+export const cmdbCheckCreateAcl = Acl({
+    $id: Now.ID['sn_inst_scan_cmdb_check_create_acl'],
+    type: 'record',
+    table: 'x_nold_iscan_cmdb_check',
+    operation: 'create',
+    roles: [scannerRole],
+})
+
+export const cmdbSummaryReadAcl = Acl({
+    $id: Now.ID['sn_inst_scan_cmdb_summary_read_acl'],
+    type: 'record',
+    table: 'x_nold_iscan_cmdb_summary',
+    operation: 'read',
+    roles: [scannerRole],
+})
+
+export const cmdbSummaryCreateAcl = Acl({
+    $id: Now.ID['sn_inst_scan_cmdb_summary_create_acl'],
+    type: 'record',
+    table: 'x_nold_iscan_cmdb_summary',
+    operation: 'create',
+    roles: [scannerRole],
+})
+
 // Client-callable script includes require their own execute ACL for
 // GlideAjax calls to pass (see fluent-script-include-api.md). The ACL
 // name must be the scope-qualified API name — that's the resource name

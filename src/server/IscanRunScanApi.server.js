@@ -18,13 +18,17 @@
  * the calling user (no impersonation, no gs.setUser), so the orchestrator's
  * existing ACL-denial handling still applies, and it writes nothing itself.
  *
- * Synchronous by design: a `full` scan of a large instance runs inside this
- * request and could approach the transaction timeout. That is not a new risk —
- * the UI Action is equally synchronous inside the form-submit request — so no
- * async/worker machinery is introduced here.
+ * Long-running modes (full, cmdb_health) are QUEUED, not run here: a Full scan
+ * on ven09425 resolved 3,549 table-only tables and ran for 16.5 minutes,
+ * which no request can survive (UI transactions are cancelled at 298s and the
+ * load balancer drops connections at 5 minutes). A killed request never reaches
+ * its catch block, so the run used to stay 'running' forever. Those modes now
+ * return 202 with the run 'pending' and a worker does the scan - see
+ * IscanScanOrchestrator.queueScan(). Every other mode is still synchronous and
+ * returns 201 with the finished run.
  */
 ;(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
-    var VALID_MODES = ['full', 'custom_only', 'manual', 'single_table', 'modules', 'ai_agents']
+    var VALID_MODES = ['full', 'custom_only', 'manual', 'single_table', 'modules', 'ai_agents', 'cmdb_health']
 
     function fail(status, message) {
         gs.warn('IscanRunScanApi: rejected request (' + status + '): ' + message)
@@ -70,10 +74,38 @@
         return fail(400, 'Manual — Single Table scan mode requires target_table (a sys_db_object sys_id).')
     }
 
+    var orchestrator = new IscanScanOrchestrator()
+
+    // Async modes run as System in a worker, so they are admin-only - see
+    // IscanScanOrchestrator.canLaunch(). 403, not 400: the request is valid,
+    // the caller just isn't allowed to make it.
+    if (!orchestrator.canLaunch(scanMode)) {
+        return fail(403, 'Only an administrator can run the "' + scanMode + '" scan mode: it runs in the background with full read access.')
+    }
+
+    // Long-running modes are queued and this request returns at once with the
+    // run in 'pending'. The console routes to the run's detail view, which shows
+    // it move to running and then complete. 202 Accepted is the honest status:
+    // the work is accepted, not done. See IscanScanOrchestrator.queueScan().
+    if (orchestrator.isAsyncMode(scanMode)) {
+        var queued
+        try {
+            queued = orchestrator._createRun(scanMode, appIds)
+        } catch (createError) {
+            return fail(500, createError.message)
+        }
+        var queuedSysId = queued.getUniqueValue()
+        orchestrator.queueScan(queued, scanMode, appIds, targetTable)
+        gs.info('IscanRunScanApi: queued run=' + queuedSysId + ', scan_mode=' + scanMode)
+        response.setStatus(202)
+        response.setBody({ sys_id: queuedSysId, status: 'pending', scan_mode: scanMode, queued: true })
+        return
+    }
+
     gs.info('IscanRunScanApi: starting scan, scan_mode=' + scanMode + ', apps=' + appIds.length)
     var runSysId = ''
     try {
-        runSysId = new IscanScanOrchestrator().runScan(scanMode, appIds, targetTable)
+        runSysId = orchestrator.runScan(scanMode, appIds, targetTable)
     } catch (e) {
         gs.error('IscanRunScanApi: scan failed for scan_mode=' + scanMode + ': ' + e.message)
         return fail(500, 'Scan failed: ' + e.message)
