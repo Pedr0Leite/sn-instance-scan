@@ -32,7 +32,7 @@ export const runScanUiAction = UiAction({
 export const downloadRunReportUiAction = UiAction({
     $id: Now.ID['download_run_report_ui_action'],
     table: 'x_nold_iscan_run',
-    name: 'Download Report',
+    name: 'Generate Report',
     actionName: 'download_run_report',
     active: true,
     showInsert: false,

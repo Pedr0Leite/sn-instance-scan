@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(obsidian vault=obsidian-servicenow-docs *)",
+      "Bash(rtk ls *)",
+      "Skill(second-brain)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "smart-connections",
+    "claude-flow"
+  ]
+}
