@@ -375,6 +375,10 @@ declare global {
                         table: 'sys_security_acl'
                         id: 'a492f27d47e5427bb8768b83228bb454'
                     }
+                    sn_inst_scan_report_logo_base64_property: {
+                        table: 'sys_properties'
+                        id: '156169f895534fe8af879c776dd9fe85'
+                    }
                     sn_inst_scan_result_create_acl: {
                         table: 'sys_security_acl'
                         id: '568b3a3b3efc4c0bbf5df50cbccc0e1d'
